@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pge"
+version = "0.1.0"
+description = "Probabilistic Game Environments for hallucination detection in interactive multi-agent LLMs"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Jihan Mankani" },
+    { name = "Ssaumya Kamal Jaiswal" },
+    { name = "Mahfuza Farooque" },
+]
+license = { text = "Apache-2.0" }
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "scikit-learn>=1.2",
+]
+
+[tool.setuptools.packages.find]
+include = ["pge*"]
+exclude = ["tests*", "examples*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
