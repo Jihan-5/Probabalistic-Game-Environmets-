@@ -106,6 +106,32 @@ Covers: scoring math (range, monotonicity, clipping), DAG operations,
 graphon fit / likelihood / G-mixup, MLCR convergence and constraint
 respect, and an end-to-end pipeline test.
 
+## Demo results
+
+Running `examples/healthcare_demo.py` across 5 seeds (`{42, 123, 456, 789, 1024}`)
+with 500 training sessions and 200 + 200 clean/hallucinating test sessions per
+seed:
+
+| Metric | Mean ± std |
+|---|---|
+| AUROC | **0.954 ± 0.016** |
+| Flag rate, clean (target ≤ 5% FPR) | 5.8% |
+| Flag rate, hallucinating | 91.5% |
+| Clean log-likelihood | −0.087 |
+| Hallucinating log-likelihood | −8.72 |
+
+Per-seed AUROC: 0.960 / 0.977 / 0.944 / 0.956 / 0.931.
+
+**Caveat — these are toy numbers.** The synthetic distribution is easy by
+construction: under `score_gated_edges=True`, hallucinating sessions
+collapse to nearly-empty DAGs (parents with negative score are dropped),
+which the graphon trivially distinguishes from the dense chains of clean
+sessions. The paper's 0.961 ± 0.012 AUROC is on real LLM-generated
+hallucinations against AgentBench / Health-LLM / ToolBench — a much
+harder problem that this reference implementation does not attempt.
+The demo is here to confirm the pipeline is wired correctly, not to
+validate the paper's empirical claims.
+
 ## Plugging in a real LLM
 
 Replace `StubAgent` with an `Agent` subclass whose `guess()` method calls a real
