@@ -1,15 +1,37 @@
-"""Sparse graphon estimation and likelihood — paper Section 3.3, Algorithm 3.
+"""Sparse graphon estimation and likelihood over chain-of-thought DAGs.
 
-We treat each chain-of-thought DAG as a draw from an unknown graphon
-W : [0,1]^2 -> [0,1]. We discretize into B blocks and estimate each block's
-edge probability via the Beta(alpha, beta) posterior mean over training DAGs.
+We treat each DAG as a draw from an unknown graphon W : [0,1]^2 -> [0,1],
+discretized into B blocks; each block's edge probability is the Beta(alpha,
+beta) posterior mean over training DAGs. Detection: low (score-weighted)
+log-likelihood under the fitted graphon flags a hallucinating trace.
 
-Detection: low score-weighted log-likelihood under the fitted graphon flags
-a hallucinating reasoning trace.
+Rebuild notes (e0_diagnosis, results/RESULTS.md): the original estimator was
+structurally blind — `block_method="position"` plus fixed-length sequential
+chains gave every trajectory identical adjacency and blocks, and likelihood
+weights used |score|, discarding the correct/incorrect sign. Confident-correct
+and confident-hallucinated nodes contributed identically, so detection was at
+chance. The fixes are selectable so the old behavior remains an honest
+ablation arm:
 
-G-Mixup (Eq. 6): convex combination of two graphons with lambda ~ Beta(0.4, 0.4)
-for cross-domain interpolation; preserves homomorphism densities up to
-O(m^2 * cut_distance) (paper Theorem 4.1).
+    block_method : how nodes map to blocks
+        "position"  — a_i = ceil((i+1)/n * B) - 1 (ORIGINAL; structure-blind
+                      on fixed-length chains)
+        "degree"    — rank nodes by symmetrized degree, blocks by rank
+                      quantile (Chan & Airoldi sorted-degree smoothing)
+        "spectral"  — rank by leading eigenvector of the symmetrized
+                      adjacency, blocks by rank quantile
+        "feature"   — block = (score sign) x (confidence bucket); lets W
+                      encode how confident-contradicted commitments attach to
+                      the rest of the reasoning graph. Needs node scores and
+                      probabilities; the sign carries the behavioral outcome.
+    weighting : "abs" (ORIGINAL, w_ij = sqrt(|s_i s_j|)) or "signed"
+                (w_ij = s_i * s_j — pairs with conflicting evidence signs
+                push the likelihood down instead of up)
+    normalize : divide the log-likelihood by the number of node pairs so
+                variable-size DAGs are comparable (required once T varies)
+
+G-Mixup: convex combination of two graphons with lambda ~ Beta(0.4, 0.4)
+for cross-domain interpolation.
 """
 
 from __future__ import annotations
@@ -20,55 +42,108 @@ import numpy as np
 
 from pge.dag import ChainOfThoughtDAG
 
-_W_EPS = 1e-10  # Algorithm 3 line 6: clip(W, 1e-10, 1 - 1e-10)
+_W_EPS = 1e-10
+
+BLOCK_METHODS = ("position", "degree", "spectral", "feature")
+WEIGHTINGS = ("abs", "signed")
 
 
 def _block_index(node_idx: int, n: int, B: int) -> int:
-    """Block assignment a_i = ceil((i / n) * B) - 1, in [0, B-1].
-
-    The paper writes a_i = ceil(u_i * B) where u_i = i / |V_G|. We use the
-    1-indexed-then-shift convention so that a_i lands in [0, B-1]. Node 0 is
-    placed in block 0.
-    """
+    """Positional block assignment a_i = ceil(((i+1)/n) * B) - 1, in [0, B-1]."""
     if n <= 1:
         return 0
-    # u_i in (0, 1], block index in [0, B-1]
     u = (node_idx + 1) / n
     a = int(np.ceil(u * B)) - 1
     return max(0, min(B - 1, a))
 
 
+def _rank_to_blocks(order_values: np.ndarray, B: int) -> np.ndarray:
+    """Assign blocks by rank quantile of `order_values` (stable ties)."""
+    n = order_values.shape[0]
+    ranks = np.empty(n, dtype=int)
+    ranks[np.argsort(order_values, kind="stable")] = np.arange(n)
+    return np.minimum((ranks * B) // max(n, 1), B - 1).astype(int)
+
+
 class GraphonEstimator:
-    """Block-model estimator for a sparse graphon (paper Eq. 3-4).
+    """Block-model estimator for a sparse graphon.
 
     Parameters
     ----------
     B : int
-        Number of blocks (paper default: 10).
+        Number of blocks.
     alpha, beta : float
-        Beta-prior hyperparameters for sparse regularization
-        (paper default: alpha=0.1, beta=10).
+        Beta-prior hyperparameters for sparse regularization.
+    block_method : str
+        One of BLOCK_METHODS (see module docstring). Default "position"
+        preserves the original behavior for ablations and old tests.
+    weighting : str
+        "abs" (original) or "signed".
+    normalize : bool
+        Length-normalize log-likelihoods by the number of node pairs.
     """
 
-    def __init__(self, B: int = 10, alpha: float = 0.1, beta: float = 10.0):
+    def __init__(
+        self,
+        B: int = 10,
+        alpha: float = 0.1,
+        beta: float = 10.0,
+        block_method: str = "position",
+        weighting: str = "abs",
+        normalize: bool = False,
+    ):
         if B < 1:
             raise ValueError("B must be >= 1")
+        if block_method not in BLOCK_METHODS:
+            raise ValueError(f"block_method must be one of {BLOCK_METHODS}")
+        if weighting not in WEIGHTINGS:
+            raise ValueError(f"weighting must be one of {WEIGHTINGS}")
         self.B = B
         self.alpha = float(alpha)
         self.beta = float(beta)
+        self.block_method = block_method
+        self.weighting = weighting
+        self.normalize = bool(normalize)
         self.W: Optional[np.ndarray] = None  # shape (B, B)
+
+    # -------------------------------------------------------- block assignment
+
+    def assign_blocks(self, G: ChainOfThoughtDAG) -> np.ndarray:
+        """Per-node block indices for DAG `G` under this estimator's method."""
+        n = len(G)
+        B = self.B
+        if n == 0:
+            return np.zeros(0, dtype=int)
+        if self.block_method == "position":
+            return np.array([_block_index(i, n, B) for i in range(n)])
+
+        if self.block_method == "feature":
+            # sign half x confidence bucket. B=1 collapses to a single block.
+            n_conf = max(B // 2, 1)
+            probs = np.clip(G.probabilities(), 0.0, 1.0)
+            signs = (G.scores() >= 0).astype(int)  # 0 = contradicted, 1 = ok
+            buckets = np.minimum((probs * n_conf).astype(int), n_conf - 1)
+            blocks = signs * n_conf + buckets
+            return np.minimum(blocks, B - 1).astype(int)
+
+        A = G.adjacency()
+        A_sym = ((A + A.T) > 0).astype(float)
+        if self.block_method == "degree":
+            return _rank_to_blocks(A_sym.sum(axis=1), B)
+
+        # spectral: leading eigenvector of the symmetrized adjacency
+        if n == 1:
+            return np.zeros(1, dtype=int)
+        _, vecs = np.linalg.eigh(A_sym)
+        v = vecs[:, -1]
+        if v.sum() < 0:  # sign convention for stability across runs
+            v = -v
+        return _rank_to_blocks(v, B)
 
     # ------------------------------------------------------------------ fit
 
     def fit(self, dags: Iterable[ChainOfThoughtDAG]) -> "GraphonEstimator":
-        """Estimate W from a collection of training DAGs.
-
-        Eq. 3: N_ab = number of (i, j) edges with i in block a, j in block b.
-        Eq. 4: D_ab = sum over training DAGs of |I_a| * |I_b|
-                      = number of *possible* node pairs assignable to (a, b).
-        Posterior mean with Beta(alpha, beta) prior:
-                W[a, b] = (N_ab + alpha) / (D_ab + alpha + beta)
-        """
+        """Estimate W: posterior-mean block edge probabilities over `dags`."""
         B = self.B
         N = np.zeros((B, B), dtype=float)
         D = np.zeros((B, B), dtype=float)
@@ -77,48 +152,69 @@ class GraphonEstimator:
             n = len(G)
             if n < 2:
                 continue
-            blocks = np.array([_block_index(i, n, B) for i in range(n)])
-            # Possible pairs per block-pair: count node-counts per block.
+            blocks = self.assign_blocks(G)
             counts = np.bincount(blocks, minlength=B)
             D += np.outer(counts, counts)
             for p, c in G.edges:
-                a = blocks[p]
-                b = blocks[c]
-                N[a, b] += 1
+                N[blocks[p], blocks[c]] += 1
 
         self.W = (N + self.alpha) / (D + self.alpha + self.beta)
         return self
 
     # --------------------------------------------------------- log-likelihood
 
+    def _pair_terms(self, G: ChainOfThoughtDAG):
+        n = len(G)
+        W = np.clip(self.W, _W_EPS, 1.0 - _W_EPS)
+        A = G.adjacency()
+        s = G.scores()
+        blocks = self.assign_blocks(G)
+
+        iu, ju = np.triu_indices(n, k=1)
+        p = W[blocks[iu], blocks[ju]]
+        a_ij = A[iu, ju]
+        bern = a_ij * np.log(p) + (1 - a_ij) * np.log(1.0 - p)
+
+        if self.weighting == "abs":
+            w = np.sqrt(np.abs(s[iu]) * np.abs(s[ju]))
+        else:  # signed
+            w = s[iu] * s[ju]
+        return bern, w
+
     def log_likelihood(self, G: ChainOfThoughtDAG) -> float:
-        """Score-weighted log-likelihood under W (paper Eq. 5, Algorithm 3).
+        """Score-weighted log-likelihood of `G` under the fitted graphon."""
+        if self.W is None:
+            raise RuntimeError("graphon not fit; call fit() first")
+        if len(G) < 2:
+            return 0.0
+        bern, w = self._pair_terms(G)
+        total = float((w * bern).sum())
+        if self.normalize:
+            total /= bern.shape[0]
+        return total
 
-        ell(G | W) = sum_{i<j} w_ij * [A_ij log W[a_i, a_j]
-                                       + (1 - A_ij) log(1 - W[a_i, a_j])]
+    def log_likelihood_breakdown(self, G: ChainOfThoughtDAG) -> dict:
+        """Diagnostics: split the likelihood into structure and weight parts.
 
-        with edge weights w_ij = sqrt(|s_i| * |s_j|) (paper Algorithm 3 line 7).
+        Returns dict with `total` (as log_likelihood), `structure`
+        (unweighted mean Bernoulli log-lik — pure adjacency/block signal) and
+        `mean_weight` (average pair weight — pure score signal). If `total`
+        tracks `mean_weight` across trajectories while `structure` is
+        constant, the estimator is structurally blind (the e0 failure mode).
         """
         if self.W is None:
             raise RuntimeError("graphon not fit; call fit() first")
-        n = len(G)
-        if n < 2:
-            return 0.0
-
-        W = np.clip(self.W, _W_EPS, 1.0 - _W_EPS)
-        A = G.adjacency()
-        scores = np.abs(G.scores())
-        blocks = np.array([_block_index(i, n, self.B) for i in range(n)])
-
-        iu, ju = np.triu_indices(n, k=1)
-        a = blocks[iu]
-        b = blocks[ju]
-        w = np.sqrt(scores[iu] * scores[ju])
-        p = W[a, b]
-        a_ij = A[iu, ju]
-
-        ll = w * (a_ij * np.log(p) + (1 - a_ij) * np.log(1.0 - p))
-        return float(ll.sum())
+        if len(G) < 2:
+            return {"total": 0.0, "structure": 0.0, "mean_weight": 0.0}
+        bern, w = self._pair_terms(G)
+        total = float((w * bern).sum())
+        if self.normalize:
+            total /= bern.shape[0]
+        return {
+            "total": total,
+            "structure": float(bern.mean()),
+            "mean_weight": float(w.mean()),
+        }
 
 
 # ----------------------------------------------------------------- G-Mixup
@@ -130,13 +226,7 @@ def gmixup(
     lam: Optional[float] = None,
     rng: Optional[np.random.Generator] = None,
 ) -> tuple[np.ndarray, float]:
-    """Graphon mixup (paper Eq. 6).
-
-    W_mix = lam * W1 + (1 - lam) * W2, with lam ~ Beta(0.4, 0.4) by default.
-
-    Returns:
-        (W_mix, lam_used)
-    """
+    """W_mix = lam * W1 + (1 - lam) * W2, lam ~ Beta(0.4, 0.4) by default."""
     if W1.shape != W2.shape:
         raise ValueError(f"shape mismatch: {W1.shape} vs {W2.shape}")
     if lam is None:

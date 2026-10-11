@@ -1,0 +1,38 @@
+# e4_multiagent — n=500, seeds=(42, 123, 456), k=3 agents, p_min=0.7, B=6 (feature|abs)
+
+## seed 42  (test conflicts=258, train conflicts=614, best_single_agent=a1)
+  majority_vote          acc 0.651  (168/258)
+  confidence_weighted    acc 0.651  (168/258)
+  best_single_agent      acc 0.562  (145/258)
+  mlcr                   acc 0.651  (168/258)
+  mlcr_reliability       acc 0.667  (172/258)
+  oracle                 acc 0.996  (257/258)
+  McNemar mlcr_reliability vs majority: b01(rmlcr wrong,maj right)=8, b10(rmlcr right,maj wrong)=12, p=0.5034
+
+## seed 123  (test conflicts=278, train conflicts=587, best_single_agent=a2)
+  majority_vote          acc 0.680  (189/278)
+  confidence_weighted    acc 0.680  (189/278)
+  best_single_agent      acc 0.532  (148/278)
+  mlcr                   acc 0.680  (189/278)
+  mlcr_reliability       acc 0.691  (192/278)
+  oracle                 acc 0.996  (277/278)
+  McNemar mlcr_reliability vs majority: b01(rmlcr wrong,maj right)=12, b10(rmlcr right,maj wrong)=15, p=0.7011
+
+## seed 456  (test conflicts=248, train conflicts=601, best_single_agent=a1)
+  majority_vote          acc 0.653  (162/248)
+  confidence_weighted    acc 0.653  (162/248)
+  best_single_agent      acc 0.597  (148/248)
+  mlcr                   acc 0.653  (162/248)
+  mlcr_reliability       acc 0.698  (173/248)
+  oracle                 acc 0.996  (247/248)
+  McNemar mlcr_reliability vs majority: b01(rmlcr wrong,maj right)=8, b10(rmlcr right,maj wrong)=19, p=0.0522
+
+## pooled (784 test conflicts across 3 seeds)
+  majority_vote          acc 0.662  (519/784)
+  confidence_weighted    acc 0.662  (519/784)
+  best_single_agent      acc 0.562  (441/784)
+  mlcr                   acc 0.662  (519/784)
+  mlcr_reliability       acc 0.685  (537/784)
+  oracle                 acc 0.996  (781/784)
+  McNemar mlcr_reliability vs majority: b01=28, b10=46, p=0.0474
+

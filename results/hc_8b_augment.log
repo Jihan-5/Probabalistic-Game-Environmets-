@@ -1,0 +1,8 @@
+  progress 50/200 cost=$0.01
+  progress 100/200 cost=$0.03
+  progress 150/200 cost=$0.04
+  progress 200/200 cost=$0.06
+
+[done] rewrote 200 trajectories (826 turns augmented) in 246s
+[cost] $0.055  in=1063397 out=41913
+[ledger] record this run in results/RESULTS.md

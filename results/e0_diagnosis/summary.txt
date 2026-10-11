@@ -1,0 +1,18 @@
+# e0_diagnosis — honest re-baseline of the pre-rebuild pipeline
+
+## D1: structural blindness (position blocks + sequential chains)
+All 500 simulated trajectories share identical adjacency and block assignments: True
+Spearman rank correlation between graphon log-likelihood and mean |score|: -0.9275 (1.0 = LL is a pure confidence-magnitude proxy)
+Max LL change when flipping the sign of every behavior score: 0.00e+00 (0 = the detector cannot distinguish confident-correct from confident-hallucinated)
+
+## D2: saved real-run AUROCs (results/*.npz)
+
+run                                    graphon_ll               CI neg_cum_ev  neg_frac n_test
+----------------------------------------------------------------------------------------------
+dbbench 70B seed42                          0.203 [0.071, 0.374]          —         —     36
+healthcare 70B seed42                       0.322 [0.181, 0.467]      0.993     1.000     60
+healthcare 70B seed123                      0.553 [0.400, 0.706]      1.000     0.988     60
+healthcare 70B seed456                      0.458 [0.304, 0.611]      0.995     0.976     60
+healthcare 70B seed42 score-gated           0.438 [0.062, 0.845]          —         —     12
+
+Reading: the graphon detector is at/below chance on every real run; the ~0.99 AUROCs come only from neg_cum_evidence / neg_score_fraction, whose input signal is a truth-match against the same ground truth that defines the eval label (circular).

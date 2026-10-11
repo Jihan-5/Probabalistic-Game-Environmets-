@@ -1,0 +1,30 @@
+[setup] generated 200 healthcare sessions (seed=123)
+[run] running 200 trajectories on 70B with 10 workers, score_gated_edges=False
+  progress: 20/200 (failed=0)
+  progress: 40/200 (failed=0)
+  progress: 60/200 (failed=0)
+  progress: 80/200 (failed=0)
+  progress: 100/200 (failed=0)
+  progress: 120/200 (failed=0)
+  progress: 140/200 (failed=0)
+  progress: 160/200 (failed=0)
+  progress: 180/200 (failed=0)
+  progress: 200/200 (failed=0)
+[run] 200 trajectories completed in 111.7s
+[run] agent cost: $0.3428  (in=373734, out=15800)
+[label] hallucinating: 66/200 = 33.0%
+[graphon] fitting on 97 clean training DAGs (B=6)
+[eval] test: n=60 hallucinating=23 clean=37
+
+======================================================================
+Healthcare results (70B, n=200, seed=123, score_gated=False)
+======================================================================
+  hallucination rate (overall): 33.0%
+
+  method                         AUROC               95% CI    p-value
+  --------------------------------------------------------------------
+  graphon_ll                     0.553  [0.400, 0.706]      0.2468
+  neg_cum_evidence               1.000  [1.000, 1.000]   5.111e-11
+  neg_score_fraction             0.988  [0.967, 1.000]   3.989e-11
+
+[save] wrote results/hc_70B_123.npz

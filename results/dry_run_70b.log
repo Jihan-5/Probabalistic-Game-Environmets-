@@ -1,0 +1,29 @@
+[setup] loaded 120 candidate tasks; sampling 120.
+[run] running 120 trajectories on 70B with 8 workers...
+  progress: 10/120 (failed=0)
+  progress: 20/120 (failed=0)
+  progress: 30/120 (failed=0)
+  progress: 40/120 (failed=0)
+  progress: 50/120 (failed=0)
+  progress: 60/120 (failed=0)
+  progress: 70/120 (failed=0)
+  progress: 80/120 (failed=0)
+  progress: 90/120 (failed=0)
+  progress: 100/120 (failed=0)
+  progress: 110/120 (failed=0)
+  progress: 120/120 (failed=0)
+[run] 120 trajectories completed in 104.4s
+[run] agent cost: $0.1430  (in=156493, out=6043)
+[graphon] fitting on 15 clean training DAGs (B=8)
+[eval] test set: n=36  hallucinating=31  clean=5
+
+======================================================================
+Main results (70B, n=120, seed=42)
+======================================================================
+  train correctness: 15/84 = 17.9%
+  test correctness:  5/36 = 13.9%
+  AUROC (test set): 0.203  95% CI [0.071, 0.374]
+  Wilcoxon (one-sided) p-value: 0.9836
+  clean mean log-lik:  -1.468
+  hall. mean log-lik:  -1.365
+[save] wrote results/main_70B_42.npz

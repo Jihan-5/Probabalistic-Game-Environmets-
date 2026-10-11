@@ -1,0 +1,8 @@
+[flag] 54/180 test sessions flagged (29 actually hallucinating)
+# e5_intervention  model=70B seed=42 flag_frac=0.3 n_test=180
+flagged: 54 rerun (29 hallucinating, 25 clean at flag time)
+mitigation: 18/29 flagged-hallucinating sessions became clean (62.1%)
+collateral: 1/25 flagged-clean sessions became hallucinating (4.0%)
+net label change on test split: 17/180 sessions (9.4% absolute reduction)
+cost: $0.342
+(46s) [ledger] record in results/RESULTS.md

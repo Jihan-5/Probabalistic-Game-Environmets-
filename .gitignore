@@ -21,3 +21,12 @@ env/
 .idea/
 .DS_Store
 *.swp
+
+# Secrets / experiment outputs
+.env
+*.env
+data/raw/
+data/cache/
+results/*.npz
+results/*.json
+results/*.csv

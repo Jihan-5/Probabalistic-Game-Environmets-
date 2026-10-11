@@ -1,0 +1,9 @@
+[setup] generated 30 healthcare sessions (seed=42)
+[run] running 30 trajectories on 70B with 8 workers, score_gated_edges=False
+  progress: 20/30 (failed=0)
+[run] 30 trajectories completed in 26.1s
+[run] agent cost: $0.0534  (in=58302, out=2370)
+[label] hallucinating: 2/30 = 6.7%
+[graphon] fitting on 19 clean training DAGs (B=6)
+[eval] test: n=9 hallucinating=0 clean=9
+[eval] degenerate test split, AUROC undefined.

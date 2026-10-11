@@ -1,0 +1,49 @@
+# e1_synth_gate — n=1000, seeds=(42, 123, 456), B=6
+
+## seed 42  (test n=300, hallucination rate 0.16 test / 0.15 overall)
+  dag_logreg                   AUROC 0.815  [0.743, 0.879]
+  highconf_contradicted        AUROC 0.765  [0.701, 0.826]
+  confident_cascade            AUROC 0.740  [0.658, 0.821]
+  neg_cum_evidence             AUROC 0.731  [0.657, 0.800]
+  neg_signal_fraction          AUROC 0.712  [0.637, 0.783]
+  negneg_edge_fraction         AUROC 0.694  [0.610, 0.774]
+  graphon_position|abs         AUROC 0.661  [0.571, 0.743]
+  mean_confidence              AUROC 0.644  [0.552, 0.733]
+  graphon_feature|abs          AUROC 0.643  [0.557, 0.728]
+  graphon_degree|abs           AUROC 0.625  [0.538, 0.713]
+  graphon_spectral|abs         AUROC 0.622  [0.539, 0.706]
+  cascade_lift                 AUROC 0.580  [0.475, 0.682]
+  graphon_feature|signed       AUROC 0.489  [0.392, 0.582]
+
+## seed 123  (test n=300, hallucination rate 0.14 test / 0.15 overall)
+  dag_logreg                   AUROC 0.797  [0.709, 0.873]
+  highconf_contradicted        AUROC 0.757  [0.669, 0.840]
+  neg_cum_evidence             AUROC 0.742  [0.650, 0.827]
+  confident_cascade            AUROC 0.742  [0.656, 0.819]
+  neg_signal_fraction          AUROC 0.732  [0.646, 0.806]
+  negneg_edge_fraction         AUROC 0.703  [0.616, 0.786]
+  graphon_position|abs         AUROC 0.673  [0.573, 0.761]
+  graphon_feature|abs          AUROC 0.640  [0.538, 0.731]
+  graphon_degree|abs           AUROC 0.625  [0.523, 0.711]
+  graphon_spectral|abs         AUROC 0.622  [0.522, 0.708]
+  mean_confidence              AUROC 0.599  [0.502, 0.701]
+  cascade_lift                 AUROC 0.556  [0.455, 0.663]
+  graphon_feature|signed       AUROC 0.483  [0.382, 0.595]
+
+## seed 456  (test n=300, hallucination rate 0.10 test / 0.13 overall)
+  confident_cascade            AUROC 0.802  [0.718, 0.881]
+  highconf_contradicted        AUROC 0.799  [0.721, 0.871]
+  neg_cum_evidence             AUROC 0.782  [0.694, 0.860]
+  dag_logreg                   AUROC 0.778  [0.684, 0.865]
+  neg_signal_fraction          AUROC 0.763  [0.672, 0.847]
+  negneg_edge_fraction         AUROC 0.761  [0.675, 0.838]
+  cascade_lift                 AUROC 0.681  [0.569, 0.776]
+  graphon_feature|abs          AUROC 0.640  [0.530, 0.745]
+  graphon_spectral|abs         AUROC 0.622  [0.516, 0.725]
+  mean_confidence              AUROC 0.618  [0.509, 0.729]
+  graphon_degree|abs           AUROC 0.618  [0.511, 0.721]
+  graphon_position|abs         AUROC 0.613  [0.509, 0.711]
+  graphon_feature|signed       AUROC 0.547  [0.450, 0.644]
+
+## GATE G1 DECISION: NO-GO
+

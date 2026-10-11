@@ -1,0 +1,88 @@
+# e2_healthcare_main — n=600 trajectories, 600 unique tasks, seeds=(42, 123, 456), train_frac=0.7, B=6
+
+## seed 42  (train n=420, test n=180, hallucination rate 0.24 test / 0.25 overall)
+  highconf_contradicted        AUROC 0.724  [0.633, 0.811]   AUPRC 0.529
+  neg_signal_fraction          AUROC 0.711  [0.621, 0.801]   AUPRC 0.486
+  dag_logreg                   AUROC 0.700  [0.615, 0.790]   AUPRC 0.414
+  gcn                          AUROC 0.695  [0.608, 0.777]   AUPRC 0.399
+  neg_cum_evidence             AUROC 0.687  [0.596, 0.777]   AUPRC 0.441
+  confident_cascade            AUROC 0.627  [0.539, 0.722]   AUPRC 0.354
+  negneg_edge_fraction         AUROC 0.624  [0.538, 0.713]   AUPRC 0.341
+  mean_turn_entropy            AUROC 0.500  [0.426, 0.582]   AUPRC 0.243
+  graphon_feature|signed       AUROC 0.498  [0.405, 0.590]   AUPRC 0.228
+  selfcheckgpt                 AUROC 0.498  [0.422, 0.579]   AUPRC 0.250
+  semantic_entropy             AUROC 0.496  [0.489, 0.500]   AUPRC 0.231
+  cascade_lift                 AUROC 0.496  [0.390, 0.602]   AUPRC 0.275
+  max_confidence               AUROC 0.394  [0.313, 0.473]   AUPRC 0.191
+  graphon_spectral|abs         AUROC 0.354  [0.258, 0.452]   AUPRC 0.194
+  graphon_degree|abs           AUROC 0.353  [0.259, 0.449]   AUPRC 0.190
+  graphon_position|abs         AUROC 0.335  [0.245, 0.424]   AUPRC 0.180
+  graphon_feature|abs          AUROC 0.324  [0.228, 0.420]   AUPRC 0.189
+  mean_confidence              AUROC 0.299  [0.211, 0.386]   AUPRC 0.170
+  calibration: T=1.526  ECE 0.0629 -> 0.0253  (train pairs=3493, test pairs=1498)
+  [note] cove.ChainOfVerification failed to init (cove requires an llm_fn(prompt) -> str); skipped
+
+## seed 123  (train n=420, test n=180, hallucination rate 0.23 test / 0.25 overall)
+  highconf_contradicted        AUROC 0.736  [0.652, 0.818]   AUPRC 0.482
+  dag_logreg                   AUROC 0.727  [0.638, 0.809]   AUPRC 0.461
+  neg_cum_evidence             AUROC 0.715  [0.620, 0.797]   AUPRC 0.444
+  neg_signal_fraction          AUROC 0.706  [0.611, 0.791]   AUPRC 0.468
+  gcn                          AUROC 0.673  [0.580, 0.762]   AUPRC 0.337
+  confident_cascade            AUROC 0.628  [0.518, 0.731]   AUPRC 0.370
+  negneg_edge_fraction         AUROC 0.620  [0.509, 0.723]   AUPRC 0.376
+  mean_turn_entropy            AUROC 0.534  [0.454, 0.617]   AUPRC 0.303
+  selfcheckgpt                 AUROC 0.515  [0.442, 0.596]   AUPRC 0.240
+  semantic_entropy             AUROC 0.500  [0.500, 0.500]   AUPRC 0.253
+  graphon_degree|abs           AUROC 0.457  [0.352, 0.558]   AUPRC 0.222
+  cascade_lift                 AUROC 0.447  [0.334, 0.558]   AUPRC 0.275
+  graphon_feature|signed       AUROC 0.428  [0.340, 0.526]   AUPRC 0.195
+  graphon_spectral|abs         AUROC 0.425  [0.321, 0.523]   AUPRC 0.202
+  graphon_feature|abs          AUROC 0.404  [0.302, 0.505]   AUPRC 0.204
+  graphon_position|abs         AUROC 0.374  [0.277, 0.471]   AUPRC 0.206
+  max_confidence               AUROC 0.328  [0.245, 0.411]   AUPRC 0.169
+  mean_confidence              AUROC 0.296  [0.209, 0.388]   AUPRC 0.159
+  calibration: T=1.723  ECE 0.0527 -> 0.0069  (train pairs=3483, test pairs=1508)
+  [note] cove.ChainOfVerification failed to init (cove requires an llm_fn(prompt) -> str); skipped
+
+## seed 456  (train n=420, test n=180, hallucination rate 0.24 test / 0.25 overall)
+  dag_logreg                   AUROC 0.689  [0.604, 0.770]   AUPRC 0.416
+  highconf_contradicted        AUROC 0.671  [0.581, 0.758]   AUPRC 0.405
+  gcn                          AUROC 0.669  [0.589, 0.750]   AUPRC 0.356
+  neg_cum_evidence             AUROC 0.654  [0.568, 0.737]   AUPRC 0.338
+  confident_cascade            AUROC 0.647  [0.557, 0.732]   AUPRC 0.358
+  neg_signal_fraction          AUROC 0.642  [0.550, 0.733]   AUPRC 0.368
+  negneg_edge_fraction         AUROC 0.636  [0.547, 0.725]   AUPRC 0.348
+  cascade_lift                 AUROC 0.511  [0.414, 0.614]   AUPRC 0.270
+  mean_turn_entropy            AUROC 0.502  [0.427, 0.573]   AUPRC 0.303
+  semantic_entropy             AUROC 0.500  [0.500, 0.500]   AUPRC 0.299
+  selfcheckgpt                 AUROC 0.499  [0.425, 0.571]   AUPRC 0.278
+  graphon_degree|abs           AUROC 0.472  [0.377, 0.565]   AUPRC 0.233
+  graphon_spectral|abs         AUROC 0.430  [0.343, 0.529]   AUPRC 0.218
+  graphon_feature|abs          AUROC 0.411  [0.321, 0.508]   AUPRC 0.222
+  graphon_feature|signed       AUROC 0.409  [0.321, 0.494]   AUPRC 0.199
+  max_confidence               AUROC 0.381  [0.299, 0.463]   AUPRC 0.199
+  graphon_position|abs         AUROC 0.380  [0.286, 0.477]   AUPRC 0.224
+  mean_confidence              AUROC 0.366  [0.284, 0.458]   AUPRC 0.188
+  calibration: T=2.090  ECE 0.0584 -> 0.0333  (train pairs=3485, test pairs=1506)
+  [note] cove.ChainOfVerification failed to init (cove requires an llm_fn(prompt) -> str); skipped
+
+## mean over seeds (42, 123, 456)
+  highconf_contradicted        AUROC 0.711   AUPRC 0.472   (3 seeds)
+  dag_logreg                   AUROC 0.705   AUPRC 0.430   (3 seeds)
+  neg_signal_fraction          AUROC 0.686   AUPRC 0.441   (3 seeds)
+  neg_cum_evidence             AUROC 0.685   AUPRC 0.408   (3 seeds)
+  gcn                          AUROC 0.679   AUPRC 0.364   (3 seeds)
+  confident_cascade            AUROC 0.634   AUPRC 0.361   (3 seeds)
+  negneg_edge_fraction         AUROC 0.627   AUPRC 0.355   (3 seeds)
+  mean_turn_entropy            AUROC 0.512   AUPRC 0.283   (3 seeds)
+  selfcheckgpt                 AUROC 0.504   AUPRC 0.256   (3 seeds)
+  semantic_entropy             AUROC 0.499   AUPRC 0.261   (3 seeds)
+  cascade_lift                 AUROC 0.485   AUPRC 0.273   (3 seeds)
+  graphon_feature|signed       AUROC 0.445   AUPRC 0.207   (3 seeds)
+  graphon_degree|abs           AUROC 0.427   AUPRC 0.215   (3 seeds)
+  graphon_spectral|abs         AUROC 0.403   AUPRC 0.205   (3 seeds)
+  graphon_feature|abs          AUROC 0.380   AUPRC 0.205   (3 seeds)
+  max_confidence               AUROC 0.368   AUPRC 0.186   (3 seeds)
+  graphon_position|abs         AUROC 0.363   AUPRC 0.203   (3 seeds)
+  mean_confidence              AUROC 0.320   AUPRC 0.172   (3 seeds)
+

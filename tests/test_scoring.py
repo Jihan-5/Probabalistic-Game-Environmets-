@@ -45,9 +45,14 @@ def test_score_zero_at_half_probability():
 
 def test_invalid_behavior_signal_rejected():
     with pytest.raises(ValueError):
-        bayesian_score(0.5, 0)
-    with pytest.raises(ValueError):
         bayesian_score(0.5, 2)
+    with pytest.raises(ValueError):
+        bayesian_score(0.5, -3)
+
+
+def test_zero_signal_means_unobserved():
+    # 0 = no feedback observed for this commitment -> zero evidence.
+    assert bayesian_score(0.9, 0) == 0.0
 
 
 def test_cumulative_evidence_formula():

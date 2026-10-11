@@ -1,3 +1,4 @@
+
 """Constraint interface for MLCR (paper Section 3.4).
 
 Omega_C is the set of operation assignments satisfying all hard constraints

@@ -1,0 +1,10 @@
+# e5_robustness  n_test=378 (train=894, files=6)
+condition              neg_cum_eviden highconf_contr confident_casc     dag_logreg
+clean                           0.496          0.455          0.437          0.735
+conf_jitter(0.05)               0.496          0.441          0.445          0.721
+conf_jitter(0.1)                0.484          0.464          0.434          0.713
+conf_jitter(0.2)                0.509          0.496          0.432          0.716
+signal_flip(0.1)                0.497          0.484          0.416          0.720
+signal_flip(0.2)                0.496          0.483          0.444          0.695
+edge_dropout(0.1)               0.496          0.455          0.446          0.737
+edge_dropout(0.2)               0.496          0.455          0.442          0.685

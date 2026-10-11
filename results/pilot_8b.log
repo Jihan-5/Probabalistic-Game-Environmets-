@@ -1,0 +1,20 @@
+Loaded 120 candidate tasks; sampling 10.
+  [ 0] correct=0  +/-=1/2  final='unknown'                                          label='K255AZ'
+  [ 1] correct=0  +/-=2/1  final='20'                                               label='416'
+  [ 2] correct=0  +/-=1/2  final='6.5'                                              label='none'
+  [ 3] correct=1  +/-=4/0  final='Tiree'                                            label='Tiree'
+  [ 4] correct=0  +/-=0/4  final='7'                                                label='1.0'
+  [5] ERROR: ReadTimeout: HTTPSConnectionPool(host='api.together.xyz', port=443): Read timed out. (read timeout=15.0)
+  [ 6] correct=1  +/-=0/3  final='China'                                            label='China'
+  [ 7] correct=0  +/-=1/2  final='12345'                                            label='Giza'
+  [ 8] correct=0  +/-=1/2  final='0'                                                label='2 goals'
+  [ 9] correct=0  +/-=2/2  final='Foshay Tower'                                     label='Globe Building'
+
+======================================================================
+Pilot summary (8B, n=9, 90.7s)
+======================================================================
+  agent: in=13919  out=601  cost=$0.0015
+  task correctness: 2/9 = 22.2%
+  judge cost: $0.0145
+  judge hallucination rate: 7/9 = 77.8%
+  judge<->correctness agreement: 7/9 = 77.8%
