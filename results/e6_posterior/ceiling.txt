@@ -1,0 +1,10 @@
+# e6_ceiling — oracle-prior label-event posterior (in-sample, optimistic)
+
+## healthcare 70B_42: empirical flip rate 0.248 (4991 observed turns)
+  oracle priors by (attribute, bucket)         AUROC 0.789
+  oracle priors by (attribute, value, bucket)  AUROC 0.824
+
+## healthcare 8B_42: empirical flip rate 0.256 (1677 observed turns)
+  oracle priors by (attribute, bucket)         AUROC 0.770
+  oracle priors by (attribute, value, bucket)  AUROC 0.817
+

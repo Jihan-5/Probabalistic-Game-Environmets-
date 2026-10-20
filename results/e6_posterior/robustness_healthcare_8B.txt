@@ -1,0 +1,22 @@
+## 1. fresh split seeds (never used in design)
+  pge_posterior_value    mean 0.740  per-seed 0.758 0.723 0.766 0.698 0.755
+  highconf_contradicted  mean 0.690  per-seed 0.704 0.684 0.811 0.564 0.685
+  dag_logreg             mean 0.676  per-seed 0.739 0.668 0.679 0.604 0.689
+  selfcheckgpt           mean 0.567  per-seed 0.602 0.527 0.583 0.533 0.588
+  pge_posterior_value best on 4/5 fresh seeds
+
+## 2. shrinkage strength k (fixed at 5 a priori; sensitivity only)
+  k=1   mean AUROC 0.741
+  k=2   mean AUROC 0.734
+  k=5   mean AUROC 0.728
+  k=10  mean AUROC 0.722
+  k=20  mean AUROC 0.707
+  k=50  mean AUROC 0.690
+
+## 3. perturbation suite (fit clean train, score perturbed test; seeds 42/123/456)
+  none        0     pge_posterior_value 0.728  selfcheckgpt 0.669  dag_logreg 0.636  highconf_contradicted 0.596
+  conf_jitter 0.05  selfcheckgpt 0.669  pge_posterior_value 0.646  dag_logreg 0.639  highconf_contradicted 0.563
+  conf_jitter 0.1   selfcheckgpt 0.669  dag_logreg 0.628  pge_posterior_value 0.621  highconf_contradicted 0.540
+  conf_jitter 0.2   selfcheckgpt 0.669  pge_posterior_value 0.665  dag_logreg 0.599  highconf_contradicted 0.584
+  signal_flip 0.1   pge_posterior_value 0.688  selfcheckgpt 0.669  dag_logreg 0.614  highconf_contradicted 0.563
+  signal_flip 0.2   pge_posterior_value 0.694  selfcheckgpt 0.669  dag_logreg 0.626  highconf_contradicted 0.577

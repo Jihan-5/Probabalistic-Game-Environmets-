@@ -1,0 +1,69 @@
+# dbbench: n=118, unique tasks=118, hall rate=0.771
+  seed 42 highconf_contradicted    AUROC 0.508  AUPRC 0.792  (0.0s)
+  seed 42 neg_signal_fraction      AUROC 0.694  AUPRC 0.910  (0.0s)
+  seed 42 dag_logreg               AUROC 0.564  AUPRC 0.837  (0.1s)
+  seed 42 gcn                      AUROC 0.467  AUPRC 0.798  (1.9s)
+  seed 42 selfcheckgpt             AUROC 0.638  AUPRC 0.886  (0.0s)
+  seed 42 semantic_entropy         AUROC 0.592  AUPRC 0.865  (0.0s)
+  seed 42 pge_posterior_indep      AUROC 0.579  AUPRC 0.858  (0.0s) eps=0.45
+  seed 42 pge_posterior_value      AUROC 0.658  AUPRC 0.889  (0.0s) eps=0.45
+  seed 42 pge_posterior_value+samples AUROC 0.702  AUPRC 0.908  (0.1s) eps=0.45
+  seed 42 pge_evidence_nb          AUROC 0.536  AUPRC 0.849  (0.0s)
+  seed 123 highconf_contradicted    AUROC 0.516  AUPRC 0.787  (0.0s)
+  seed 123 neg_signal_fraction      AUROC 0.628  AUPRC 0.864  (0.0s)
+  seed 123 dag_logreg               AUROC 0.590  AUPRC 0.833  (0.1s)
+  seed 123 gcn                      AUROC 0.562  AUPRC 0.749  (1.9s)
+  seed 123 selfcheckgpt             AUROC 0.610  AUPRC 0.845  (0.0s)
+  seed 123 semantic_entropy         AUROC 0.570  AUPRC 0.794  (0.0s)
+  seed 123 pge_posterior_indep      AUROC 0.472  AUPRC 0.766  (0.0s) eps=0.45
+  seed 123 pge_posterior_value      AUROC 0.472  AUPRC 0.766  (0.1s) eps=0.45
+  seed 123 pge_posterior_value+samples AUROC 0.532  AUPRC 0.806  (0.1s) eps=0.45
+  seed 123 pge_evidence_nb          AUROC 0.640  AUPRC 0.846  (0.0s)
+  seed 456 highconf_contradicted    AUROC 0.593  AUPRC 0.879  (0.0s)
+  seed 456 neg_signal_fraction      AUROC 0.785  AUPRC 0.946  (0.0s)
+  seed 456 dag_logreg               AUROC 0.711  AUPRC 0.919  (0.1s)
+  seed 456 gcn                      AUROC 0.715  AUPRC 0.915  (1.9s)
+  seed 456 selfcheckgpt             AUROC 0.822  AUPRC 0.954  (0.0s)
+  seed 456 semantic_entropy         AUROC 0.755  AUPRC 0.923  (0.0s)
+  seed 456 pge_posterior_indep      AUROC 0.623  AUPRC 0.856  (0.1s) eps=0.45
+  seed 456 pge_posterior_value      AUROC 0.648  AUPRC 0.865  (0.1s) eps=0.45
+  seed 456 pge_posterior_value+samples AUROC 0.766  AUPRC 0.924  (0.1s) eps=0.45
+  seed 456 pge_evidence_nb          AUROC 0.799  AUPRC 0.933  (0.0s)
+
+## mean over seeds
+  neg_signal_fraction      AUROC 0.702  AUPRC 0.907   per-seed 0.694 0.628 0.785
+  selfcheckgpt             AUROC 0.690  AUPRC 0.895   per-seed 0.638 0.610 0.822
+  pge_posterior_value+samples AUROC 0.667  AUPRC 0.879   per-seed 0.702 0.532 0.766
+  pge_evidence_nb          AUROC 0.658  AUPRC 0.876   per-seed 0.536 0.640 0.799
+  semantic_entropy         AUROC 0.639  AUPRC 0.861   per-seed 0.592 0.570 0.755
+  dag_logreg               AUROC 0.621  AUPRC 0.863   per-seed 0.564 0.590 0.711
+  pge_posterior_value      AUROC 0.593  AUPRC 0.840   per-seed 0.658 0.472 0.648
+  gcn                      AUROC 0.581  AUPRC 0.821   per-seed 0.467 0.562 0.715
+  pge_posterior_indep      AUROC 0.558  AUPRC 0.827   per-seed 0.579 0.472 0.623
+  highconf_contradicted    AUROC 0.539  AUPRC 0.819   per-seed 0.508 0.516 0.593
+
+## paired bootstrap: candidate - baseline (pooled over seeds)
+  pge_posterior_indep    - highconf_contradicted  +0.032 [-0.101, +0.157]
+  pge_posterior_indep    - neg_signal_fraction    -0.128 [-0.312, +0.047]
+  pge_posterior_indep    - dag_logreg             -0.042 [-0.221, +0.131]
+  pge_posterior_indep    - gcn                    -0.012 [-0.156, +0.137]
+  pge_posterior_indep    - selfcheckgpt           -0.121 [-0.271, +0.018]
+  pge_posterior_indep    - semantic_entropy       -0.077 [-0.230, +0.065]
+  pge_posterior_value    - highconf_contradicted  +0.072 [-0.063, +0.193]
+  pge_posterior_value    - neg_signal_fraction    -0.088 [-0.277, +0.079]
+  pge_posterior_value    - dag_logreg             -0.003 [-0.179, +0.172]
+  pge_posterior_value    - gcn                    +0.028 [-0.125, +0.182]
+  pge_posterior_value    - selfcheckgpt           -0.081 [-0.234, +0.061]
+  pge_posterior_value    - semantic_entropy       -0.038 [-0.194, +0.108]
+  pge_posterior_value+samples - highconf_contradicted  +0.146 [+0.020, +0.264]
+  pge_posterior_value+samples - neg_signal_fraction    -0.014 [-0.160, +0.127]
+  pge_posterior_value+samples - dag_logreg             +0.071 [-0.072, +0.225]
+  pge_posterior_value+samples - gcn                    +0.102 [-0.041, +0.240]
+  pge_posterior_value+samples - selfcheckgpt           -0.007 [-0.109, +0.087]
+  pge_posterior_value+samples - semantic_entropy       +0.036 [-0.079, +0.145]
+  pge_evidence_nb        - highconf_contradicted  +0.096 [-0.012, +0.204]
+  pge_evidence_nb        - neg_signal_fraction    -0.063 [-0.185, +0.050]
+  pge_evidence_nb        - dag_logreg             +0.022 [-0.086, +0.136]
+  pge_evidence_nb        - gcn                    +0.052 [-0.078, +0.176]
+  pge_evidence_nb        - selfcheckgpt           -0.056 [-0.147, +0.029]
+  pge_evidence_nb        - semantic_entropy       -0.013 [-0.133, +0.104]
