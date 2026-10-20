@@ -54,18 +54,23 @@ def run_llm_session(
     seed: int,
     epsilon: float,
     rng: np.random.Generator,
+    agent: LlamaTogetherAgent | None = None,
 ) -> tuple[Trajectory, LlamaTogetherAgent]:
     """One LLM session. A fresh agent per session (schedules vary); the
-    caller aggregates token counts across returned agents."""
-    agent = LlamaTogetherAgent(
-        attribute_schedule=session.schedule,
-        model=model,
-        attribute_descriptions=ATTR_DESCRIPTIONS_V2,
-        temperature=0.3,
-        max_tokens=200,
-        system_prompt=SYSTEM_PROMPT_HC,
-        request_timeout=45.0,
-    )
+    caller aggregates token counts across returned agents.
+
+    `agent` (optional, default None = the original behavior): a pre-built
+    agent with the same interface, e.g. eval/paid's provider-routed agent."""
+    if agent is None:
+        agent = LlamaTogetherAgent(
+            attribute_schedule=session.schedule,
+            model=model,
+            attribute_descriptions=ATTR_DESCRIPTIONS_V2,
+            temperature=0.3,
+            max_tokens=200,
+            system_prompt=SYSTEM_PROMPT_HC,
+            request_timeout=45.0,
+        )
     G = ChainOfThoughtDAG()
     node_idx: dict[str, int] = {}
     turns: list[Turn] = []
