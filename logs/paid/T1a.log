@@ -1,0 +1,6 @@
+[estimate] healthcare v2fb n=600 seed 7 (5826 turns) -> data/trajectories/healthcare_confirm/70B_7.jsonl
+  agent turns                  meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 6408 calls x (~470 in + ~30 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $2.82
+  resamples (k=3, T=0.9)       meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 17478 calls x (~448 in + ~14 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $7.11
+  TOTAL ~$9.93   hard cap --max-cost $4.60   (estimate EXCEEDS cap: run will stop at the cap)
+[preflight] ok: meta-llama/Llama-3.3-70B-Instruct-Turbo via together
+[resume] 375 sessions already in data/trajectories/healthcare_confirm/70B_7.jsonl.partial.jsonl
