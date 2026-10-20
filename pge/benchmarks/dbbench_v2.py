@@ -1,6 +1,6 @@
 """dbbench v2 — non-circular signals, richer context, reasoning capture.
 
-Differences from v1 (pge/benchmarks/dbbench.py), per the rebuild plan:
+Differences from v1 (pge/benchmarks/dbbench.py):
 
 1. NON-CIRCULAR SIGNALS. v1's final_answer signal was a match against the
    gold label — the same quantity that defines the eval label (circular,

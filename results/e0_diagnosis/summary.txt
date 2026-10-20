@@ -1,4 +1,4 @@
-# e0_diagnosis — honest re-baseline of the pre-rebuild pipeline
+# e0_diagnosis — re-baseline of the v1 pipeline
 
 ## D1: structural blindness (position blocks + sequential chains)
 All 500 simulated trajectories share identical adjacency and block assignments: True

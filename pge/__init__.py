@@ -1,8 +1,7 @@
 """Probabilistic Game Environments (PGE).
 
-Reference implementation of the four core algorithms from
-Mankani, Jaiswal & Farooque, *Probabilistic Game Environments for Scalable
-Hallucination Detection in Interactive Multi-Agent LLMs* (ICML 2026).
+Reference implementation of the four core PGE algorithms for hallucination
+detection in interactive multi-agent LLMs.
 
 Public API:
     ChainOfThoughtDAG, GuessNode  - chain-of-thought DAG (Section 3.3)

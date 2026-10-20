@@ -1,8 +1,8 @@
 """DAG-feature logistic-regression detector.
 
-Serves two roles in the rebuild:
+Serves two roles:
   1. A strong supervised baseline over hand-crafted graph features.
-  2. The FAIR ablation arm reviewers asked for: "full PGE minus graphon" —
+  2. The FAIR ablation arm "full PGE minus graphon" —
      it consumes the same DAG (same scoring, same edges) but summarizes it
      with per-node marginal features instead of graphon likelihood. What it
      cannot see, by construction, is edge-level error correlation (cascade

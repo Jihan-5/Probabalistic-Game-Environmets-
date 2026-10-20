@@ -1,9 +1,8 @@
 """AgentBench-DB adapter for the PGE pipeline.
 
-The paper claims a healthcare benchmark from AgentBench that doesn't exist
-in the public THUDM/AgentBench repo. We pivot to the actually-available
-dbbench task (NL -> SQL on small relational tables), recast through PGE's
-calibrated-guess mechanism.
+The public THUDM/AgentBench repo has no healthcare benchmark, so we use its
+available dbbench task (NL -> SQL on small relational tables), recast
+through PGE's calibrated-guess mechanism.
 
 Per-turn structure (4 turns per task):
 

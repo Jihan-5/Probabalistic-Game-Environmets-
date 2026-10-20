@@ -1,4 +1,4 @@
-"""Tests for the rebuilt GraphonEstimator: block methods, weighting, normalization."""
+"""Tests for the v2 GraphonEstimator options: block methods, weighting, normalization."""
 
 import numpy as np
 import pytest

@@ -1,6 +1,6 @@
 """e5_robustness — detector degradation under input noise (offline, $0).
 
-Reviewer asks (2AM6/M447): how do detectors behave when confidences are
+Question: how do detectors behave when confidences are
 miscalibrated and when the DAG/signal channel is corrupted? We perturb
 cached trajectories and re-score:
 

@@ -40,8 +40,8 @@ Every number reported from this repository should trace to a row of
    `ChannelPosterior` frees the feedback channel and remains robust when
    feedback is one-sided.
 3. Structural detection over reasoning DAGs (graphon likelihood, cascade
-   models) does not beat per-commitment evidence. An earlier pipeline appeared
-   to succeed only because of constant graph topology and a signal that was a
+   models) does not beat per-commitment evidence. A naive (v1) pipeline appears
+   to succeed only because of constant graph topology and a signal that is a
    match against the evaluation label (`eval/e0_diagnosis.py`).
 4. Choosing which commitments to confirm with the user by posterior risk
    matches or beats asking every underdetermined attribute upfront, at a

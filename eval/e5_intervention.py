@@ -1,6 +1,6 @@
 """e5_intervention — measured mitigation via revisitation (healthcare v2).
 
-The honest replacement for the unsupported "87.3% mitigation rate": flag
+Measured mitigation rate: flag
 high-risk test sessions with a detector trained on the train split, re-run
 ONLY the flagged sessions with a revisitation prompt (the agent sees its own
 prior commitments and which drew negative feedback, and is instructed to

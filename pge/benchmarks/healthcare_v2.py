@@ -1,4 +1,4 @@
-"""Synthetic healthcare-scheduling environment v2 (rebuild).
+"""Synthetic healthcare-scheduling environment v2.
 
 Fixes the two evaluation defects of v1 (see results/RESULTS.md, e0_diagnosis):
 

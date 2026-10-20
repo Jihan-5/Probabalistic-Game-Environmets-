@@ -1,6 +1,6 @@
 """e5_dagsize — detection performance as a function of session DAG size.
 
-Reviewer M447 asked whether small DAGs undermine graph-level detection.
+Question: do small DAGs undermine graph-level detection?
 Bins healthcare-v2 sessions by node count and reports per-bin AUROC for the
 leading zero-shot detector (highconf_contradicted) and neg_cum_evidence,
 plus the node-count distribution the paper must state explicitly.
