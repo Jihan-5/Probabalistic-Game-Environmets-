@@ -121,3 +121,26 @@ robustness (e7), the noise sweep, the ablation. Headline tables come from the
 confirmatory corpora. The analysis script (`eval/e11_confirmatory.py`) is
 written to implement this file exactly and is committed before the
 confirmatory data are pushed to the repository.
+
+## Amendment 1 (committed 2026-10-20, before any confirmatory data was pushed or seen by the analysts)
+
+Motivation: running this plan's analysis (`eval/e11_confirmatory.py --dev`) on
+the DEVELOPMENT corpora showed that on L_U the supervised `ctx_lr+fb` exceeds
+V6 on 70B (0.813 vs 0.678; 420 labelled training sessions), while V6 leads on
+8B (0.722 vs 0.630; 140 training sessions). The original hypotheses H1-H4 and
+their wording rules are unchanged. Added, all secondary:
+
+| id | comparison (L_U, pooled) | claim if CI excludes 0 | claim otherwise |
+|---|---|---|---|
+| H2b | ctx_lr+fb - ctx_lr > 0 | "the user's reactions add detectable signal beyond the commitments themselves (supervised detector)" | "no detectable feedback increment for the supervised detector" |
+| H4b | ctx_lr+fb - SelfCheckGPT > 0, ctx_lr+fb - SE > 0 | "detectors on PGE observables beat sampling-consistency detectors" | as measured |
+
+Data efficiency (descriptive, no test): test AUROC of V6, ctx_lr and
+ctx_lr+fb when trained on 25, 50, 100, 200 and all train sessions of each
+split seed (5 random subsets per size, both classes required; test split
+unchanged), on both labels, for every corpus with >= 300 sessions.
+
+Terminology for the paper: "PGE" names the protocol (explicit commitments +
+implicit reactions); V6 is the protocol's label-event posterior; ctx_lr and
+ctx_lr+fb are generic supervised detectors on the same observables. Claims
+about "PGE beats X" in H3/H4 refer to V6, as originally registered.
