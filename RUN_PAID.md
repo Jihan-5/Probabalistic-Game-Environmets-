@@ -32,6 +32,12 @@ OPENROUTER_API_KEY=...   # Llama-3.1-8B (agent, simulated patient, reply labeler
 | 4 | CoVe, 70B self-verification, on the 1a corpus | ~$0.87 | $1.50 |
 | 5a | OPTIONAL: informed arm extended to 600, if its pilot passes | ~$3.40 | $5.00 |
 | 5b | OPTIONAL: k=10 resamples, user-dependent turns, 1a split-seed-42 test sessions | ~$2.90 | $4.00 |
+| 6a | second domain (travel booking, `travel_v1`, Amendment 4): GPT-4o-mini, n=600, seed 7, protocol v2fb, k=3 resamples on every turn | $1.95 | $2.55 |
+| 6b | same, Llama-3.1-8B | $0.58 | $0.75 |
+
+Step group 6 runs after every healthcare step, so it never displaces them;
+if TOTAL_CAP would be exceeded it is refused like the optional tail. Run it on
+its own with `bash run_paid.sh 6` (`DRY=1 bash run_paid.sh 6` prints the estimates).
 
 `TOTAL_CAP` (default $41 = $50 budget - $7.96 already spent - ~$1 margin)
 bounds recorded spend across all runs of the launcher on this machine
@@ -81,6 +87,7 @@ Commit and push (or zip and attach):
 - `data/trajectories/healthcare_confirm/` (`*.jsonl`, `*.run.json`)
 - `data/trajectories/healthcare_llmpatient/` (`pilot/`, `70B_7*.jsonl`, `*.run.json`)
 - `data/trajectories/healthcare_confirm_k10/` if step 5b ran
+- `data/trajectories/travel_confirm/` (`*.jsonl`, `*.run.json`) if step 6 ran
 - `results/e8_closed_loop/70B_7/`, `results/cove_baseline/70B_on_70B_7/`
 - any `*.partial.jsonl` left behind
 

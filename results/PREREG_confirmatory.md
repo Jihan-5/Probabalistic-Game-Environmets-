@@ -186,3 +186,62 @@ commitments". Added, descriptive: **etaX** = P(L_U | X, C), the exact Bayes
 posterior using only the reactions the agent was shown (all but the last
 turn's), which is Theorem 1's bound for any detector computed from the
 agent's context and its resamples; reported with etaF - etaX.
+
+## Amendment 4 (committed 2026-10-20, before any travel-domain data existed)
+
+Motivation: every confirmatory corpus above comes from one simulated domain.
+A second private-attribute domain, built to the same contract, tests whether
+the results depend on the healthcare rules. Its code, agent prompt, launcher
+steps and analysis are committed with this amendment; no travel trajectory
+from any LLM existed when it was committed (only offline mock runs).
+
+**Domain** (`pge/benchmarks/travel_v1.py`, `DOMAIN = "travel_v1"`, task ids
+`tv1_<i>`): a travel-booking assistant. Visible intake (5 fields): trip_type,
+budget, travelers, duration, booking_window. Undisclosed traveler facts (4
+fields, independent of the intake and of each other, 36 joint combinations):
+loyalty_tier, mobility_needs, dietary, seat_preference. 12 booking attributes
+with deterministic agency rules not shown to the agent; 6 are intake-only
+(fare_class, refundable_fare, checked_bags, hotel_tier, travel_insurance,
+airport_transfer) and 6 can depend on the hidden facts
+(`USER_DEPENDENT_SCHEMA`: lounge_access, wheelchair_assistance,
+seat_assignment, meal_request, priority_boarding, extra_legroom), several only
+for some intakes. The traveler never reacts to travel_insurance and
+priority_boarding. Everything else matches healthcare v2fb: 6-12 attribute
+dependency-closed schedules in canonical order, eps = 0.25 symmetric flip
+channel, raw reaction "+"/"-"/"none" shown to the agent
+(`pge/prompts/travel_v1fb_system.txt`, the healthcare v2fb prompt with the
+domain's nouns), k = 3 resamples at T = 0.9 on every turn, seed 7.
+
+**Data** (`bash run_paid.sh 6`, after every healthcare step):
+
+| corpus | agent | n |
+|---|---|---|
+| `travel_confirm/gpt-4o-mini_7` | GPT-4o-mini (OpenRouter) | 600 |
+| `travel_confirm/8B_7` | Llama-3.1-8B-Instruct (OpenRouter) | 600 |
+
+**Analysis** (`travel_block` in `eval/e11_confirmatory.py`, a separate
+"second domain" section of `results/e11_confirmatory/summary.md`): identical to
+the healthcare confirmatory corpora, with the domain's own functions
+(`pge.benchmarks.domains`): L_U primary (`travel_v1.eval_label_user`,
+user-dependent sets by enumerating the hidden support), L secondary; the same
+frozen detectors (V6/V3 label event for L_U restricted to
+`travel_v1.USER_DEPENDENT_SCHEMA`, sampling baselines on those turns only);
+the same splits, session-clustered bootstrap and per-corpus tables; the
+learning curves (Amendment 1); the rules-aware eta0, etaX, etaF, V6-session,
+LR-session(+fb) with the travel rules and the travel hidden-fact prior
+(`travel_v1.HIDDEN_PRIOR`; Amendments 2-3); the per-commitment Corollary 1
+check and the empirical channel (descriptive). H1-H6, H2b and H4b, their
+directions and their licensed wording (including Amendment 3's wording for
+H5) apply unchanged **within this domain**: pooled estimates are over the two
+travel agents only (stratified cluster bootstrap), never pooled with
+healthcare. Exclusion rules are unchanged (parse-failure guard; a corpus with
+< 300 sessions is reported but not pooled). A claim is described as holding in
+both domains only if its licensed wording is reached in each domain separately.
+
+Reference values, simulated agents only (no LLM; 4,000 sessions,
+`travel_v1.synthetic_agent_guess`, the healthcare_v2 synthetic agent applied to
+this domain): L / L_U base rates 0.118 / 0.390 (35% hallucinating agents;
+healthcare 0.145 / 0.353), 0.227 / 0.441 for an agent that guesses
+intake-determined attributes right 70% of the time and the others at random
+(healthcare 0.212 / 0.355). Share of scheduled attributes that are
+user-dependent in a session: 0.27 (healthcare 0.22).
