@@ -64,6 +64,12 @@ CONFIRM = [  # (tag, path, generation seed, n)
 PATIENT = [
     ("70B LLM-patient (profile)", T / "healthcare_llmpatient" / "70B_7.jsonl", 7, 600),
     ("70B LLM-patient (informed)", T / "healthcare_llmpatient" / "70B_7_informed.jsonl", 7, 600),
+    # v1 pilots (failed the gate: contradiction lift 1.06), kept for the channel audit
+    ("70B LLM-patient v1 pilot (profile)", T / "healthcare_llmpatient" / "pilot" / "70B_7_n100.jsonl", 7, 600),
+    ("70B LLM-patient v1 pilot (informed)", T / "healthcare_llmpatient" / "pilot" / "70B_7_n100_informed.jsonl", 7, 600),
+    # v2 (Amendment 5): revised patient + labeler, GPT-4o-mini; full corpus if its pilot passes, else the pilot
+    ("70B LLM-patient v2 (profile)", T / "healthcare_llmpatient_v2" / "70B_7.jsonl", 7, 600),
+    ("70B LLM-patient v2 pilot (profile)", T / "healthcare_llmpatient_v2" / "pilot" / "70B_7_n100.jsonl", 7, 600),
 ]
 DEV = [
     ("70B (dev)", T / "healthcare_v2" / "70B_42.jsonl", 42, 600),

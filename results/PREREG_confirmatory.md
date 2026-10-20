@@ -245,3 +245,24 @@ healthcare 0.145 / 0.353), 0.227 / 0.441 for an agent that guesses
 intake-determined attributes right 70% of the time and the others at random
 (healthcare 0.212 / 0.355). Share of scheduled attributes that are
 user-dependent in a session: 0.27 (healthcare 0.22).
+
+## Amendment 5 (committed 2026-10-20, after the v1 patient pilots failed their gate and before any v2 data existed)
+
+The v1 LLM-patient pilot (100 sessions, 8B patient and 8B labeler) failed the
+registered gate: P(-1|wrong) = 0.833, P(-1|right) = 0.790, contradiction lift
+1.06 < 1.5 (`logs/paid/audit_70B_7_n100.txt`); the informed arm was similar
+(710 of 952 reactions contradictions). Reading the replies: the patient opened
+most of them with "I'm not sure..." and invented facts absent from its profile,
+and the labeler, as instructed, counted doubt as contradiction (659 of 817
+labels). As registered, the v1 n=600 runs were not made; the v1 pilots are
+reported as a negative result about that simulator.
+
+One revision (v2, `--patient-version v2`, `run_patient_v2.sh`): the patient
+judges the statement only against its listed facts and must not invent new
+ones; the labeler counts CONTRADICTS only for an explicit "not true for me" or a
+stated conflicting fact, and doubt or questions as NONE; patient and labeler
+are GPT-4o-mini. Same sessions (seed 7), personas, statements, agent and
+agent-side display as v1. Same gate (contradiction lift >= 1.5 on a 100-session
+pilot); if it passes, n=600 reusing the pilot, analysed exactly as registered
+for the LLM-patient corpus; if it fails, both pilots are reported and no
+further revision is made.
