@@ -260,7 +260,7 @@ def main(argv=None) -> None:
         f"behavioral feedback: patient {p_spec.model_id}, extractor {e_spec.model_id}; "
         f"signal +1/-1/0 = {sig[1]}/{sig[-1]}/{sig[0]}; agent parse-failed {statuses['failed']}/{total}, "
         f"extractor failed {ex['failed']}",
-        f"{n_written} trajectories, {labels.mean():.1%} hallucinating", summ["cost"], rel(out)))
+        f"{n_written} trajectories, {labels.mean():.1%} hallucinating", summ["cost"], rel(out) + ("" if complete else ".partial.jsonl")))
 
 
 if __name__ == "__main__":

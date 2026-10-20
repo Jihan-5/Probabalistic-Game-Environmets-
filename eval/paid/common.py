@@ -62,7 +62,8 @@ def add_run_args(ap: argparse.ArgumentParser, max_cost: float, concurrency: int 
 
 
 def check_mock_out(args) -> None:
-    if args.mock and not args.out:
+    import os  # PGE_MOCK_ANY_OUT=1: launcher test in a scratch COPY of the repo only
+    if args.mock and not args.out and os.environ.get("PGE_MOCK_ANY_OUT") != "1":
         raise SystemExit("--mock requires --out (mock data must never land in data/)")
 
 
@@ -274,8 +275,12 @@ class MockLLM:
         m = re.search(r"Now produce your guess for attribute: (\w+)", user)
         attr = m.group(1) if m else "unknown_attr"
         vals = self._allowed(user, attr)
-        stated = re.search(rf"\b{attr}\b[^\n]*?\bis (?:actually |definitely )?'([\w ]+)'", user)
-        v = stated.group(1).replace(" ", "_") if stated and self._r() < 0.9 else self._choice(vals)
+        v = self._choice(vals)
+        stated = re.search(rf'about {attr}: "(.+?)"', user)
+        if stated and self._r() < 0.9:  # mock agent uses the patient's answer 90% of the time
+            from eval.paid.run_clarification_closed_loop import answer_sentence
+            hit = [x for x in vals if answer_sentence(attr, x) == stated.group(1)]
+            v = hit[0] if hit else v
         p = round(0.3 + 0.65 * self._r(), 2)
         if "did not match the format" in user and self._r() < 0.7:
             return f"[{attr}]: {v}, p={p}"
@@ -295,8 +300,14 @@ class MockLLM:
     def _patient(self, system: str, user: str) -> str:
         truth = re.search(r"About the topic the assistant just raised: (.+)", system)
         said = re.search(r'The assistant says to you: "(.+)"', user)
-        right = bool(truth and said and truth.group(1).strip().rstrip(".") in said.group(1))
         r = self._r()
+        if truth is None:  # 'profile' mode: derive truth from the profile text itself
+            right = self._profile_right(system, said.group(1) if said else "")
+            if right is None:
+                return self._choice(["Okay, that sounds fine.", "How long will it take?"])
+            truth = None
+        else:
+            right = bool(said and truth.group(1).strip().rstrip(".") in said.group(1))
         if right:
             if r < 0.6:
                 return "Okay, that sounds about right to me."
@@ -304,11 +315,43 @@ class MockLLM:
                 return "Hmm, are you sure about that? I'm not so certain."
             return "Will I be able to drive myself home afterwards?"
         if r < 0.5:
-            t = truth.group(1).strip() if truth else "something else"
+            t = truth.group(1).strip() if truth else "that doesn't fit what I know about myself"
             return f"No, actually I think {t}"
         if r < 0.75:
             return "Okay, if you say so."
         return "How long will the whole appointment take?"
+
+    @staticmethod
+    def _profile_right(system: str, said: str):
+        """Mock only: rebuild setup/hidden from the profile bullet text and
+        compare the statement with derive_ground_truth_v2 (None = unknown)."""
+        from pge.benchmarks.healthcare_llmpatient import STATEMENTS, TOPICS
+        from pge.benchmarks.healthcare_v2 import derive_ground_truth_v2
+        topic = re.search(r"The assistant just raised: (.+?)\. You have not", system)
+        attr = next((a for a, t in TOPICS.items() if topic and t == topic.group(1)), None)
+        if attr is None:
+            return None
+        has = lambda x: x in system
+        days = re.search(r"treatment recently: (\d+) day", system)
+        setup = {
+            "age_group": "under_40" if has("under 40") else "over_65" if has("over 65 years") else "40_to_65",
+            "recent_treatment": "yes" if days else "no",
+            "chronic_conditions": "none" if has("no chronic") else "many" if has("several chronic") else "some",
+            "urgency": "low" if has("mild and not urgent") else "high" if has("severe and you were") else "medium",
+            "known_allergies": "none" if has("no known allergies") else "multiple" if has("several allergies") else "some",
+        }
+        hidden = {
+            "days_since_treatment": int(days.group(1)) if days else 30,
+            "allergy_severity": "severe" if has("reactions have been severe") else "mild",
+            "kidney_function": "impaired" if has("do not work as well") else "normal",
+            "anxiety_level": "high" if has("very anxious") else "low",
+        }
+        truth = derive_ground_truth_v2(setup, hidden)[attr]
+        matches = [v for v, st in STATEMENTS[attr].items() if st in said]
+        if not matches:
+            return False  # non-answer
+        said_v = max(matches, key=lambda v: len(STATEMENTS[attr][v]))
+        return said_v == truth
 
     def _extractor(self, user: str) -> str:
         reply = user.split("Patient's reply:")[-1].lower()

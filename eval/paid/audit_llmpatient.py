@@ -67,6 +67,12 @@ def fmt(name, rows) -> str:
             f"P(0)={np.mean([x['sig'] == 0 for x in rows]):.3f}")
 
 
+def contradiction_lift(path: str, seed: int) -> float:
+    obs = [x for x in with_truth(load_jsonl(path), seed) if x["observed"]]
+    c = channel(obs)
+    return c[1][1] / max(c[0][1], 1e-9)
+
+
 def report(path: str, seed: int) -> str:
     trajs = load_jsonl(path)
     rows = with_truth(trajs, seed)
@@ -113,12 +119,20 @@ def main(argv=None):
     ap.add_argument("path")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--gate-lift", type=float, default=None,
+                    help="exit 3 if contradiction lift P(-1|w)/P(-1|r) is below this (pilot gate)")
     args = ap.parse_args(argv)
     text = report(args.path, args.seed)
     print(text)
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(text + "\n")
+    if args.gate_lift is not None:
+        lift = contradiction_lift(args.path, args.seed)
+        ok = lift >= args.gate_lift
+        print(f"[gate] contradiction lift {lift:.2f} {'>=' if ok else '<'} {args.gate_lift}: "
+              f"{'PASS' if ok else 'FAIL'}")
+        raise SystemExit(0 if ok else 3)
 
 
 if __name__ == "__main__":

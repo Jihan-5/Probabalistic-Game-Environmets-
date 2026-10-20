@@ -152,7 +152,7 @@ def main(argv=None) -> None:
         f"eps={args.epsilon} noisy partial feedback, {spec.model_id} via {spec.provider}; "
         f"parse-failed turns {statuses['failed']}/{total}",
         f"{n_written} trajectories, {labels.mean():.1%} hallucinating", summ["cost"],
-        rel(out)))
+        rel(out) + ("" if complete else ".partial.jsonl")))
 
 
 if __name__ == "__main__":
