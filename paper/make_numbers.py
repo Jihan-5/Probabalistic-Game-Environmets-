@@ -29,7 +29,10 @@ def a3(x, lead=True):
 
 
 def sd(x):
-    return f"{x:+.3f}".replace("+0.", "+.").replace("-0.", "$-$.")
+    # a nonzero bound that rounds to zero keeps a fourth decimal, so a starred
+    # interval never prints as "+.000"
+    s = f"{x:+.4f}" if 0 < abs(x) < 0.0005 else f"{x:+.3f}"
+    return s.replace("+0.", "+.").replace("-0.", "$-$.")
 
 
 def ci(t):
@@ -55,6 +58,38 @@ def main(repo):
                 blocks.append(("T", N["travel_v1"]))  # second domain: same structure
             if "llm_patient" in N:
                 blocks.append(("P", N["llm_patient"]))  # LLM-simulated patient corpora
+    xf = Path(repo) / "results" / "e12_exploratory" / "numbers.json"
+    if xf.exists():
+        X = json.loads(xf.read_text())
+        for lab in ("L_U", "L"):
+            for tag, d in X.get(lab, {}).items():
+                if tag == "pooled":
+                    for q, c in d.items():
+                        put(f"X/{lab}/pooled/{q}", ci(c) if " - " in q else f"{a3(c[0])}\\,[{a3(c[1])}, {a3(c[2])}]")
+                    continue
+                for det, v in d.items():
+                    put(f"X/{lab}/{TAG.get(tag, tag)}/{det}", a3(v))
+                    put(f"t:X/{lab}/{TAG.get(tag, tag)}/{det}", a3(v, lead=False))
+            vals = [d.get("intake_lr+fb") for t, d in X.get(lab, {}).items() if t != "pooled"]
+            if vals:
+                put(f"X/{lab}/range/intake_lr+fb", f"{min(vals):.3f}--{max(vals):.3f}")
+        xlc = X.get("learning_curve", {})
+        cf = Path(repo) / "results" / "e11_confirmatory" / "numbers.json"
+        clc = json.loads(cf.read_text()).get("learning_curve", {}).get("L_U", {}) if cf.exists() else {}
+        if xlc:
+            for key in next(iter(xlc.values())):
+                put(f"X/LC/L_U/mean/{key}", f"{sum(v[key] for v in xlc.values()) / len(xlc):.3f}")
+            for size in (25, 50, 100, 200, "all"):
+                k = [t for t in xlc if t in clc]
+                lead = [t for t in k if clc[t][f"V6@{size}"] > xlc[t][f"intake_lr+fb@{size}"]]
+                put(f"X/derived/LC/lead_vs_intake/{size}", f"{len(lead)} of {len(k)}")
+        pcq = X.get("percommit_q", {})
+        for tag, d in pcq.items():
+            for k in ("auroc_q", "ece_q", "mean_q", "wrong"):
+                put(f"X/PCQ/{TAG.get(tag, tag)}/{k}", a3(d[k]))
+        for k in ("auroc_q", "ece_q"):
+            if pcq:
+                put(f"X/PCQ/range/{k}", f"{min(d[k] for d in pcq.values()):.3f}--{max(d[k] for d in pcq.values()):.3f}")
     for pre, N in blocks:
         for tag, d in N.get("corpora", {}).items():
             t = TAG.get(tag, tag)
@@ -115,10 +150,40 @@ def main(repo):
             put(f"{pre}/RA/range/{k}", rng([ra[t].get(k) for t in agents]))
         put(f"{pre}/RA/range/etaF - eta0", rng([ra[t]["etaF (Bayes, feedback) - eta0 (Bayes, no feedback)"][0]
                                                  for t in agents if "etaF (Bayes, feedback) - eta0 (Bayes, no feedback)" in ra[t]]))
+        for q in ("LR-session+fb - LR-session", "etaF (Bayes, feedback) - etaX (Bayes, shown reactions)"):
+            v = [ra[t][q][0] for t in agents if q in ra[t]]
+            if v:
+                put(f"{pre}/RA/range/{q}", f"{sd(min(v))} to {sd(max(v))}")
         for lab in ("L_U", "L"):
             d = N.get(lab, {})
             for det in ("SelfCheckGPT", "semantic_entropy", "V6", "ctx_lr", "ctx_lr+fb", "V6-prior"):
                 put(f"{pre}/{lab}/range/{det}", rng([d[t]["auroc"].get(det) for t in d if t != "pooled"]))
+        # counts over agents, so "every agent" is never typed by hand
+        WORD = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}
+        NAME = {"70B": "Llama-70B", "8B": "Llama-8B", "qwen72b": "Qwen-72B", "gpt-4o-mini": "GPT-4o-mini",
+                "mistral-small-24b": "Mistral-24B", "gpt-4o-mini (travel)": "GPT-4o-mini", "8B (travel)": "Llama-8B"}
+        for lab in ("L_U", "L"):
+            ags = [t for t in N.get(lab, {}) if t != "pooled"]
+            if not ags:
+                continue
+            put(f"{pre}/derived/{lab}/nagents", WORD.get(len(ags), len(ags)))
+            for det in ("SelfCheckGPT", "semantic_entropy"):
+                v = {t: N[lab][t]["auroc"].get(det) for t in ags if N[lab][t]["auroc"].get(det) is not None}
+                if v:
+                    put(f"{pre}/derived/{lab}/argmax/{det}", NAME.get(max(v, key=v.get), max(v, key=v.get)))
+            for q in N[lab][ags[0]].get("diffs", {}):
+                cis = {t: N[lab][t]["diffs"][q] for t in ags if q in N[lab][t].get("diffs", {})}
+                pos = [t for t, c in cis.items() if c[1] > 0]
+                neg = [t for t, c in cis.items() if c[2] < 0]
+                ns = [t for t in cis if t not in pos and t not in neg]
+                put(f"{pre}/derived/{lab}/npos/{q}", f"{len(pos)} of {len(cis)}")
+                put(f"{pre}/derived/{lab}/nneg/{q}", f"{len(neg)} of {len(cis)}")
+                put(f"{pre}/derived/{lab}/ns_agents/{q}", ", ".join(NAME.get(t, t) for t in ns) or "none")
+        for lab, dd in N.get("learning_curve", {}).items():
+            for size in (25, 50, 100, 200, "all"):
+                k = [t for t, d in dd.items() if f"V6@{size}" in d]
+                lead = [t for t in k if dd[t][f"V6@{size}"] > dd[t][f"ctx_lr+fb@{size}"]]
+                put(f"{pre}/derived/LC/{lab}/lead/{size}", f"{len(lead)} of {len(k)}")
         lcu = N.get("learning_curve", {}).get("L_U", {})
         if lcu:
             for key in next(iter(lcu.values())):
