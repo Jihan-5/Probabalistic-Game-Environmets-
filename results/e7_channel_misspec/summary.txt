@@ -1,0 +1,75 @@
+# e7b feedback-channel misspecification (detector-side stress test, offline, $0)
+
+Detector-visible feedback REPLACED by signals regenerated from reconstructed per-turn truth (analysis
+only); eval labels unchanged; same channel in train and test; 3 channel draws x seeds 42/123/456.
+CAVEAT: the agent's in-context feedback during generation was the original eps=0.25 channel, so the agent's
+behaviour is NOT conditioned on these channels. This tests only the detector's sensitivity to the channel.
+'recorded + drop p': the recorded channel with each observed signal set to 0 w.p. p (no truth used).
+'lazy user': -1 w.p. 0.6 if wrong, else unobserved; +1 never emitted (correct commitments never confirmed).
+V3/V1 assume a symmetric flip channel and pick eps on train labels from 0.05..0.45; not re-tuned per channel.
+SelfCheckGPT reads only resamples, so it is channel-independent (identical in every row); included as the
+reference that matters on 8B. best baseline = max mean AUROC among HCC/NSF/dag_logreg/SelfCheckGPT, chosen
+post hoc (favours the baselines). CIs: paired bootstrap (2000),
+all 9 (draw, seed) test sets pooled; item = rows resampled; task = unique task_ids resampled. * = excludes 0.
+
+## healthcare 70B (n=600, hall rate 0.250)
+
+| channel | V3 | V1 | HCC | NSF | dag_logreg | SelfCheck | best baseline | V3 - best (item CI) | V3 - best (task CI) | V3 - V1 (item CI) | V3 learned eps (mean) | empirical channel (draw 0) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| recorded (original channel) | 0.775 | 0.734 | 0.711 | 0.686 | 0.705 | 0.504 | highconf_contradicted | +0.066 [+0.021, +0.110]* | +0.066 [+0.009, +0.127]* | +0.041 [+0.020, +0.064]* | 0.250 | P(-1\|wrong)=0.642 P(+1\|wrong)=0.218 P(-1\|right)=0.205 P(+1\|right)=0.631 observed=0.845 |
+| sym eps=0.10 | 0.890 | 0.889 | 0.879 | 0.818 | 0.874 | 0.504 | highconf_contradicted | +0.011 [-0.002, +0.024]  | +0.011 [-0.011, +0.035]  | +0.002 [-0.003, +0.008]  | 0.108 | P(-1\|wrong)=0.770 P(+1\|wrong)=0.090 P(-1\|right)=0.085 P(+1\|right)=0.751 observed=0.845 |
+| sym eps=0.25 (redraw) | 0.793 | 0.765 | 0.727 | 0.686 | 0.746 | 0.504 | dag_logreg | +0.051 [+0.028, +0.075]* | +0.051 [+0.010, +0.094]* | +0.030 [+0.018, +0.042]* | 0.253 | P(-1\|wrong)=0.642 P(+1\|wrong)=0.217 P(-1\|right)=0.213 P(+1\|right)=0.624 observed=0.845 |
+| sym eps=0.40 | 0.690 | 0.670 | 0.562 | 0.554 | 0.672 | 0.504 | dag_logreg | +0.014 [-0.023, +0.050]  | +0.015 [-0.047, +0.078]  | +0.018 [+0.000, +0.036]* | 0.369 | P(-1\|wrong)=0.501 P(+1\|wrong)=0.358 P(-1\|right)=0.325 P(+1\|right)=0.512 observed=0.845 |
+| asym P(-\|w)=0.9 P(-\|r)=0.35 | 0.792 | 0.773 | 0.766 | 0.721 | 0.774 | 0.504 | dag_logreg | +0.017 [-0.009, +0.042]  | +0.017 [-0.029, +0.064]  | +0.017 [+0.003, +0.031]* | 0.236 | P(-1\|wrong)=0.778 P(+1\|wrong)=0.081 P(-1\|right)=0.293 P(+1\|right)=0.543 observed=0.845 |
+| asym P(-\|w)=0.6 P(-\|r)=0.10 | 0.824 | 0.812 | 0.774 | 0.724 | 0.786 | 0.504 | dag_logreg | +0.037 [+0.020, +0.053]* | +0.037 [+0.012, +0.063]* | +0.012 [+0.007, +0.017]* | 0.081 | P(-1\|wrong)=0.527 P(+1\|wrong)=0.333 P(-1\|right)=0.089 P(+1\|right)=0.747 observed=0.845 |
+| attr eps~U(0.1,0.4) | 0.779 | 0.754 | 0.723 | 0.692 | 0.754 | 0.504 | dag_logreg | +0.025 [-0.002, +0.050]  | +0.024 [-0.023, +0.073]  | +0.022 [+0.008, +0.037]* | 0.281 | P(-1\|wrong)=0.634 P(+1\|wrong)=0.226 P(-1\|right)=0.240 P(+1\|right)=0.597 observed=0.845 |
+| recorded + drop 0.3 | 0.760 | 0.715 | 0.657 | 0.647 | 0.678 | 0.504 | dag_logreg | +0.083 [+0.055, +0.110]* | +0.083 [+0.033, +0.134]* | +0.043 [+0.031, +0.055]* | 0.242 | P(-1\|wrong)=0.453 P(+1\|wrong)=0.156 P(-1\|right)=0.141 P(+1\|right)=0.429 observed=0.584 |
+| recorded + drop 0.5 | 0.747 | 0.715 | 0.632 | 0.633 | 0.685 | 0.504 | dag_logreg | +0.067 [+0.037, +0.097]* | +0.067 [+0.010, +0.123]* | +0.031 [+0.018, +0.044]* | 0.261 | P(-1\|wrong)=0.310 P(+1\|wrong)=0.098 P(-1\|right)=0.109 P(+1\|right)=0.319 observed=0.421 |
+| lazy user P(-\|w)=0.6, no +1 | 0.425 | 0.425 | 0.689 | 0.589 | 0.829 | 0.504 | dag_logreg | -0.403 [-0.444, -0.360]* | -0.403 [-0.481, -0.322]* | +0.000 [+0.000, +0.000]  | 0.450 | P(-1\|wrong)=0.512 P(+1\|wrong)=0.000 P(-1\|right)=0.000 P(+1\|right)=0.000 observed=0.184 |
+
+Per-run AUROC (draw-major, seeds 42/123/456 within draw):
+  recorded (original channel): V3 per (draw,seed) 0.768 0.794 0.764 | highconf_contradicted 0.724 0.736 0.671 | V3 eps [0.25, 0.25, 0.25]
+  sym eps=0.10: V3 per (draw,seed) 0.902 0.903 0.871 0.875 0.911 0.902 0.874 0.872 0.905 | highconf_contradicted 0.910 0.882 0.865 0.868 0.881 0.905 0.855 0.824 0.918 | V3 eps [0.125, 0.1, 0.125, 0.1, 0.1, 0.125, 0.1, 0.075, 0.125]
+  sym eps=0.25 (redraw): V3 per (draw,seed) 0.756 0.819 0.772 0.810 0.786 0.777 0.795 0.855 0.771 | dag_logreg 0.705 0.760 0.725 0.767 0.704 0.776 0.759 0.783 0.734 | V3 eps [0.3, 0.275, 0.275, 0.25, 0.25, 0.275, 0.225, 0.225, 0.2]
+  sym eps=0.40: V3 per (draw,seed) 0.711 0.751 0.706 0.636 0.746 0.703 0.687 0.667 0.600 | dag_logreg 0.687 0.715 0.688 0.672 0.670 0.628 0.665 0.675 0.644 | V3 eps [0.375, 0.35, 0.35, 0.4, 0.375, 0.375, 0.4, 0.35, 0.35]
+  asym P(-|w)=0.9 P(-|r)=0.35: V3 per (draw,seed) 0.780 0.813 0.733 0.800 0.837 0.826 0.754 0.788 0.793 | dag_logreg 0.731 0.742 0.761 0.784 0.800 0.799 0.773 0.790 0.786 | V3 eps [0.25, 0.225, 0.275, 0.275, 0.275, 0.25, 0.25, 0.15, 0.175]
+  asym P(-|w)=0.6 P(-|r)=0.10: V3 per (draw,seed) 0.829 0.871 0.874 0.803 0.815 0.808 0.810 0.823 0.786 | dag_logreg 0.755 0.836 0.862 0.768 0.776 0.755 0.761 0.803 0.757 | V3 eps [0.075, 0.075, 0.075, 0.1, 0.075, 0.1, 0.075, 0.075, 0.075]
+  attr eps~U(0.1,0.4): V3 per (draw,seed) 0.769 0.797 0.749 0.819 0.811 0.822 0.712 0.772 0.757 | dag_logreg 0.757 0.775 0.684 0.805 0.778 0.787 0.718 0.760 0.726 | V3 eps [0.275, 0.25, 0.275, 0.25, 0.225, 0.25, 0.325, 0.375, 0.3]
+    draw 0 eps_attr: contrast_risk_level=0.29, drug_interaction_concern=0.24, fasting_required=0.36, followup_window=0.11, needs_contrast=0.12, premedication_needed=0.27, renal_screening_required=0.12, requires_specialist=0.36, scan_safe_now=0.34, schedule_priority=0.32, sedation_assessment=0.31, transport_assistance=0.15
+    draw 1 eps_attr: contrast_risk_level=0.16, drug_interaction_concern=0.28, fasting_required=0.30, followup_window=0.14, needs_contrast=0.39, premedication_needed=0.39, renal_screening_required=0.23, requires_specialist=0.17, scan_safe_now=0.22, schedule_priority=0.32, sedation_assessment=0.20, transport_assistance=0.26
+    draw 2 eps_attr: contrast_risk_level=0.21, drug_interaction_concern=0.11, fasting_required=0.25, followup_window=0.15, needs_contrast=0.36, premedication_needed=0.11, renal_screening_required=0.12, requires_specialist=0.21, scan_safe_now=0.38, schedule_priority=0.35, sedation_assessment=0.19, transport_assistance=0.25
+  recorded + drop 0.3: V3 per (draw,seed) 0.761 0.782 0.732 0.754 0.770 0.751 0.756 0.779 0.752 | dag_logreg 0.668 0.695 0.629 0.680 0.693 0.675 0.696 0.704 0.659 | V3 eps [0.25, 0.25, 0.25, 0.225, 0.2, 0.25, 0.25, 0.25, 0.25]
+  recorded + drop 0.5: V3 per (draw,seed) 0.757 0.725 0.754 0.738 0.770 0.762 0.740 0.730 0.747 | dag_logreg 0.662 0.729 0.656 0.668 0.705 0.684 0.672 0.702 0.690 | V3 eps [0.25, 0.275, 0.275, 0.25, 0.25, 0.25, 0.275, 0.275, 0.25]
+  lazy user P(-|w)=0.6, no +1: V3 per (draw,seed) 0.505 0.382 0.388 0.505 0.385 0.383 0.509 0.383 0.382 | dag_logreg 0.796 0.829 0.868 0.810 0.833 0.835 0.824 0.816 0.850 | V3 eps [0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45]
+
+## healthcare 8B (n=200, hall rate 0.400)
+
+| channel | V3 | V1 | HCC | NSF | dag_logreg | SelfCheck | best baseline | V3 - best (item CI) | V3 - best (task CI) | V3 - V1 (item CI) | V3 learned eps (mean) | empirical channel (draw 0) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| recorded (original channel) | 0.728 | 0.678 | 0.596 | 0.569 | 0.636 | 0.669 | selfcheckgpt | +0.059 [-0.037, +0.159]  | +0.059 [-0.071, +0.188]  | +0.043 [+0.010, +0.078]* | 0.225 | P(-1\|wrong)=0.612 P(+1\|wrong)=0.212 P(-1\|right)=0.219 P(+1\|right)=0.636 observed=0.844 |
+| sym eps=0.10 | 0.887 | 0.884 | 0.862 | 0.773 | 0.839 | 0.669 | highconf_contradicted | +0.027 [+0.010, +0.045]* | +0.027 [-0.003, +0.059]  | +0.006 [-0.002, +0.014]  | 0.106 | P(-1\|wrong)=0.752 P(+1\|wrong)=0.071 P(-1\|right)=0.084 P(+1\|right)=0.770 observed=0.844 |
+| sym eps=0.25 (redraw) | 0.779 | 0.784 | 0.742 | 0.666 | 0.731 | 0.669 | highconf_contradicted | +0.034 [+0.002, +0.065]* | +0.035 [-0.019, +0.087]  | -0.006 [-0.023, +0.010]  | 0.236 | P(-1\|wrong)=0.639 P(+1\|wrong)=0.184 P(-1\|right)=0.220 P(+1\|right)=0.635 observed=0.844 |
+| sym eps=0.40 | 0.648 | 0.616 | 0.606 | 0.606 | 0.643 | 0.669 | selfcheckgpt | -0.023 [-0.081, +0.033]  | -0.023 [-0.128, +0.083]  | +0.032 [+0.006, +0.059]* | 0.342 | P(-1\|wrong)=0.494 P(+1\|wrong)=0.329 P(-1\|right)=0.361 P(+1\|right)=0.493 observed=0.844 |
+| asym P(-\|w)=0.9 P(-\|r)=0.35 | 0.782 | 0.786 | 0.772 | 0.702 | 0.765 | 0.669 | highconf_contradicted | +0.008 [-0.017, +0.032]  | +0.008 [-0.038, +0.050]  | -0.005 [-0.016, +0.006]  | 0.175 | P(-1\|wrong)=0.739 P(+1\|wrong)=0.084 P(-1\|right)=0.300 P(+1\|right)=0.555 observed=0.844 |
+| asym P(-\|w)=0.6 P(-\|r)=0.10 | 0.816 | 0.798 | 0.753 | 0.700 | 0.746 | 0.669 | highconf_contradicted | +0.055 [+0.029, +0.082]* | +0.057 [+0.010, +0.101]* | +0.014 [+0.005, +0.024]* | 0.097 | P(-1\|wrong)=0.514 P(+1\|wrong)=0.309 P(-1\|right)=0.095 P(+1\|right)=0.760 observed=0.844 |
+| attr eps~U(0.1,0.4) | 0.751 | 0.755 | 0.698 | 0.655 | 0.691 | 0.669 | highconf_contradicted | +0.052 [+0.021, +0.084]* | +0.052 [-0.006, +0.107]  | +0.004 [-0.012, +0.021]  | 0.225 | P(-1\|wrong)=0.664 P(+1\|wrong)=0.159 P(-1\|right)=0.198 P(+1\|right)=0.656 observed=0.844 |
+| recorded + drop 0.3 | 0.703 | 0.664 | 0.562 | 0.565 | 0.629 | 0.669 | selfcheckgpt | +0.031 [-0.029, +0.090]  | +0.032 [-0.092, +0.154]  | +0.038 [+0.022, +0.055]* | 0.203 | P(-1\|wrong)=0.420 P(+1\|wrong)=0.145 P(-1\|right)=0.154 P(+1\|right)=0.448 observed=0.590 |
+| recorded + drop 0.5 | 0.669 | 0.646 | 0.552 | 0.521 | 0.633 | 0.669 | selfcheckgpt | -0.004 [-0.064, +0.056]  | -0.003 [-0.126, +0.112]  | +0.029 [+0.012, +0.047]* | 0.183 | P(-1\|wrong)=0.297 P(+1\|wrong)=0.109 P(-1\|right)=0.112 P(+1\|right)=0.320 observed=0.423 |
+| lazy user P(-\|w)=0.6, no +1 | 0.576 | 0.576 | 0.731 | 0.641 | 0.797 | 0.669 | dag_logreg | -0.213 [-0.279, -0.147]* | -0.215 [-0.352, -0.075]* | +0.000 [+0.000, +0.000]  | 0.450 | P(-1\|wrong)=0.497 P(+1\|wrong)=0.000 P(-1\|right)=0.000 P(+1\|right)=0.000 observed=0.173 |
+
+Per-run AUROC (draw-major, seeds 42/123/456 within draw):
+  recorded (original channel): V3 per (draw,seed) 0.767 0.694 0.723 | selfcheckgpt 0.642 0.683 0.682 | V3 eps [0.225, 0.225, 0.225]
+  sym eps=0.10: V3 per (draw,seed) 0.951 0.914 0.869 0.857 0.908 0.811 0.884 0.913 0.878 | highconf_contradicted 0.949 0.888 0.878 0.869 0.850 0.799 0.845 0.852 0.832 | V3 eps [0.1, 0.075, 0.075, 0.1, 0.1, 0.1, 0.125, 0.125, 0.15]
+  sym eps=0.25 (redraw): V3 per (draw,seed) 0.790 0.651 0.688 0.871 0.879 0.758 0.778 0.838 0.761 | highconf_contradicted 0.778 0.628 0.673 0.900 0.750 0.710 0.811 0.759 0.671 | V3 eps [0.225, 0.225, 0.175, 0.25, 0.225, 0.15, 0.3, 0.3, 0.275]
+  sym eps=0.40: V3 per (draw,seed) 0.765 0.681 0.642 0.526 0.622 0.608 0.630 0.662 0.697 | selfcheckgpt 0.642 0.683 0.682 0.642 0.683 0.682 0.642 0.683 0.682 | V3 eps [0.375, 0.375, 0.35, 0.325, 0.325, 0.325, 0.325, 0.325, 0.35]
+  asym P(-|w)=0.9 P(-|r)=0.35: V3 per (draw,seed) 0.797 0.825 0.761 0.758 0.804 0.733 0.822 0.750 0.793 | highconf_contradicted 0.787 0.808 0.773 0.790 0.756 0.737 0.853 0.702 0.746 | V3 eps [0.15, 0.175, 0.125, 0.2, 0.225, 0.175, 0.2, 0.175, 0.15]
+  asym P(-|w)=0.6 P(-|r)=0.10: V3 per (draw,seed) 0.792 0.829 0.781 0.859 0.810 0.801 0.838 0.871 0.763 | highconf_contradicted 0.767 0.784 0.715 0.834 0.732 0.767 0.754 0.751 0.675 | V3 eps [0.1, 0.1, 0.125, 0.1, 0.1, 0.125, 0.075, 0.075, 0.075]
+  attr eps~U(0.1,0.4): V3 per (draw,seed) 0.836 0.788 0.763 0.827 0.821 0.810 0.550 0.692 0.672 | highconf_contradicted 0.824 0.731 0.742 0.802 0.703 0.701 0.515 0.617 0.649 | V3 eps [0.2, 0.225, 0.225, 0.25, 0.25, 0.225, 0.2, 0.225, 0.225]
+    draw 0 eps_attr: contrast_risk_level=0.15, drug_interaction_concern=0.28, fasting_required=0.13, followup_window=0.11, needs_contrast=0.10, premedication_needed=0.14, renal_screening_required=0.30, requires_specialist=0.33, scan_safe_now=0.13, schedule_priority=0.38, sedation_assessment=0.14, transport_assistance=0.39
+    draw 1 eps_attr: contrast_risk_level=0.21, drug_interaction_concern=0.21, fasting_required=0.11, followup_window=0.11, needs_contrast=0.10, premedication_needed=0.17, renal_screening_required=0.13, requires_specialist=0.20, scan_safe_now=0.14, schedule_priority=0.37, sedation_assessment=0.38, transport_assistance=0.30
+    draw 2 eps_attr: contrast_risk_level=0.33, drug_interaction_concern=0.31, fasting_required=0.35, followup_window=0.26, needs_contrast=0.22, premedication_needed=0.12, renal_screening_required=0.35, requires_specialist=0.14, scan_safe_now=0.29, schedule_priority=0.40, sedation_assessment=0.21, transport_assistance=0.19
+  recorded + drop 0.3: V3 per (draw,seed) 0.753 0.630 0.671 0.787 0.797 0.717 0.679 0.645 0.649 | selfcheckgpt 0.642 0.683 0.682 0.642 0.683 0.682 0.642 0.683 0.682 | V3 eps [0.175, 0.2, 0.2, 0.175, 0.2, 0.175, 0.2, 0.275, 0.225]
+  recorded + drop 0.5: V3 per (draw,seed) 0.697 0.587 0.599 0.733 0.610 0.631 0.741 0.757 0.669 | selfcheckgpt 0.642 0.683 0.682 0.642 0.683 0.682 0.642 0.683 0.682 | V3 eps [0.2, 0.15, 0.15, 0.175, 0.175, 0.2, 0.2, 0.225, 0.175]
+  lazy user P(-|w)=0.6, no +1: V3 per (draw,seed) 0.571 0.627 0.539 0.571 0.603 0.530 0.586 0.625 0.528 | dag_logreg 0.827 0.802 0.811 0.844 0.707 0.774 0.813 0.762 0.832 | V3 eps [0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45, 0.45]
+
+runtime 165s

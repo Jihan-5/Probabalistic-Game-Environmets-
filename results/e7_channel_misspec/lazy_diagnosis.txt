@@ -1,0 +1,26 @@
+# e7b lazy-user channel: V3 failure diagnosis (draw 0, split seed 123)
+
+## 70B
+  learned eps 0.45 (grid max 0.45); bucket priors {0: 0.99, 1: 0.99, 2: 0.99, 3: 0.99}
+  value/attr priors: min 0.990 median 0.990 max 0.990
+  test scores quantiles (0/10/50/90/100%): [0.9997, 1.0, 1.0, 1.0, 1.0]
+  AUROC V3 score 0.382; AUROC(-#high-conf turns) 0.692; corr(score, #high-conf) +0.43
+  AUROC(fraction of high-conf turns that received a -1) 0.803 (the informative-missingness statistic V3 cannot use)
+
+## 8B
+  learned eps 0.45 (grid max 0.45); bucket priors {0: 0.99, 1: 0.99, 2: 0.99, 3: 0.99}
+  value/attr priors: min 0.990 median 0.990 max 0.990
+  test scores quantiles (0/10/50/90/100%): [0.9997, 0.9997, 1.0, 1.0, 1.0]
+  AUROC V3 score 0.627; AUROC(-#high-conf turns) 0.520; corr(score, #high-conf) +0.69
+  AUROC(fraction of high-conf turns that received a -1) 0.824 (the informative-missingness statistic V3 cannot use)
+
+Mechanism: with +1 never emitted, every observed signal is -1, so the method-of-moments prior
+(n_neg/n_obs - eps)/(1 - 2 eps) is >= 1 and clips to 0.99 for every key; eps runs to the grid edge.
+Every high-confidence turn then has posterior error ~1 whether or not it was contradicted, the
+Poisson-binomial tail saturates at ~1, and the residual ranking is round-off that tracks the number
+of high-confidence turns (on 70B that count is anti-correlated with the label, hence AUROC < 0.5; on 8B
+it is roughly uninformative). V3's channel model treats 0 (unobserved) as ignorable; under this channel
+silence is informative (missing not at random). A simple statistic that uses it (fraction of high-conf
+turns contradicted) reaches 0.80/0.82, and supervised dag_logreg (features include the negative-score
+fraction and an unobserved-mass feature) reaches 0.83/0.80 in e7b. Not fixed here: a one-sided channel
+model (P(-1|wrong)=c, P(-1|right)=0, P(0|.) informative) would be a new detector, not an ablation.

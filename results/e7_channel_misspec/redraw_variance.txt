@@ -1,0 +1,32 @@
+# e7b supplement: recorded feedback draw vs 20 redraws of the same eps=0.25 channel ($0)
+
+Mean AUROC over split seeds 42/123/456 per draw. 'margin' = V3 - max(HCC, dag_logreg, SelfCheckGPT)
+per draw. Recorded-vs-redraw differences mix channel-noise sampling variance with agent/feedback
+coupling (the agent saw the recorded feedback in context; redrawn signals are independent of its
+later commitments). The coupling diagnostic below shows the coupling is real on 70B.
+
+## healthcare 70B
+  V3                     recorded +0.775 | redraws mean +0.804 sd 0.017 min +0.771 max +0.837 | recorded at percentile 5
+  highconf_contradicted  recorded +0.711 | redraws mean +0.731 sd 0.029 min +0.681 max +0.781 | recorded at percentile 20
+  dag_logreg             recorded +0.705 | redraws mean +0.750 sd 0.020 min +0.706 max +0.783 | recorded at percentile 0
+  margin                 recorded +0.065 | redraws mean +0.054 sd 0.018 min +0.021 max +0.094 | recorded at percentile 85
+  V3 > best baseline on 20/20 redraws
+  agent/feedback coupling on the RECORDED channel (70B); next turn t+1 given (w_t, s_t):
+    w_t=0 s_t=-1 n= 772  P(w_t+1=1)=0.431  P(p_t+1>=0.6)=0.415  mean p_t+1=0.566
+    w_t=0 s_t=+1 n=2377  P(w_t+1=1)=0.350  P(p_t+1>=0.6)=0.683  mean p_t+1=0.617
+    w_t=1 s_t=-1 n=1354  P(w_t+1=1)=0.428  P(p_t+1>=0.6)=0.436  mean p_t+1=0.577
+    w_t=1 s_t=+1 n= 457  P(w_t+1=1)=0.457  P(p_t+1>=0.6)=0.606  mean p_t+1=0.618
+
+## healthcare 8B
+  V3                     recorded +0.728 | redraws mean +0.759 sd 0.043 min +0.679 max +0.832 | recorded at percentile 30
+  highconf_contradicted  recorded +0.596 | redraws mean +0.733 sd 0.037 min +0.666 max +0.807 | recorded at percentile 0
+  dag_logreg             recorded +0.636 | redraws mean +0.722 sd 0.039 min +0.638 max +0.791 | recorded at percentile 0
+  margin                 recorded +0.059 | redraws mean +0.020 sd 0.031 min -0.055 max +0.081 | recorded at percentile 95
+  V3 > best baseline on 16/20 redraws
+  agent/feedback coupling on the RECORDED channel (8B); next turn t+1 given (w_t, s_t):
+    w_t=0 s_t=-1 n= 282  P(w_t+1=1)=0.348  P(p_t+1>=0.6)=0.340  mean p_t+1=0.438
+    w_t=0 s_t=+1 n= 821  P(w_t+1=1)=0.337  P(p_t+1>=0.6)=0.373  mean p_t+1=0.446
+    w_t=1 s_t=-1 n= 419  P(w_t+1=1)=0.427  P(p_t+1>=0.6)=0.358  mean p_t+1=0.453
+    w_t=1 s_t=+1 n= 143  P(w_t+1=1)=0.420  P(p_t+1>=0.6)=0.434  mean p_t+1=0.468
+
+runtime 82s

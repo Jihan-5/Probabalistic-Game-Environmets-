@@ -100,3 +100,15 @@ def test_evidence_nb_separates_probe_evidence():
     det = EvidenceNB().fit(trajs, None, y)
     s = np.array([det.score(t) for t in trajs])
     assert auroc(s, y) == 1.0
+
+
+def test_channel_posterior_recovers_symmetric_channel():
+    from pge.baselines.posterior import ChannelPosterior
+
+    trajs, dags, y = _synthetic(600, seed=11)  # synthetic env uses eps = 0.25
+    det = ChannelPosterior().fit(trajs[:420], None, y[:420])
+    r0, r1 = det.r
+    assert 0.15 <= r0 <= 0.35 and 0.65 <= r1 <= 0.85
+    s = np.array([det.score(t) for t in trajs[420:]])
+    assert np.all((s >= 0) & (s <= 1))
+    assert auroc(s, y[420:]) > 0.6

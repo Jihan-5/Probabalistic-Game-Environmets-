@@ -388,3 +388,123 @@ class EvidenceNB(TrajectoryScorer):
         lp -= lp.max()
         p = np.exp(lp)
         return float(p[1] / p.sum())
+
+
+# ------------------------------------------------- general binary channel
+
+
+R0_GRID = tuple(np.round(np.arange(0.0, 0.451, 0.05), 3))   # P(contradict | right)
+R1_GRID = tuple(np.round(np.arange(0.30, 0.951, 0.05), 3))  # P(contradict | wrong)
+
+
+class ChannelPosterior(IndependentPosterior):
+    """Label-event posterior under a GENERAL feedback channel (V6).
+
+    The symmetric flip channel of IndependentPosterior is replaced by
+        P(-1 | w) = r_w   (contradictions),
+        P(+1 | w) = g_w   (confirmations),
+        P( 0 | w) = 1 - r_w - g_w   (no reaction, may depend on w),
+    for commitments on attributes that ever receive feedback in training;
+    attributes that never do are treated as unobserved. Value-conditioned
+    priors come from contradiction rates by the method of moments,
+    pi = (rate - r0) / (r1 - r0); given those priors, (g0, g1) is the
+    weighted least-squares fit of each cell's confirmation rate on pi,
+    P(+1 | cell) = g0 + (g1 - g0) pi. (r0, r1) is chosen on train labels
+    over a grid with r1 > r0 + 0.1 (the channel scale is not identified
+    from one signal per commitment; Proposition 4). The symmetric channel
+    is the special case r0 = g1 = eps, r1 = g0 = 1 - eps.
+    """
+
+    def __init__(self, prior_strength: float = 5.0, high: float = HIGH, frac: float = 0.5):
+        super().__init__(prior_strength=prior_strength, by_value=True, high=high, frac=frac)
+        self.name = "pge_posterior_channel"
+        self.r = self.g = None
+        self.observable: set = set()
+
+    def _fit_channel(self, trajs, r0, r1):
+        neg, pos, obs = defaultdict(float), defaultdict(float), defaultdict(float)
+        for t in trajs:
+            for turn in t.turns:
+                if turn.attribute not in self.observable:
+                    continue
+                s = turn_signal(turn)
+                b = conf_bucket(turn.probability)
+                for key in (("b", b), ("ab", turn.attribute, b),
+                            ("avb", turn.attribute, turn.guess_value, b)):
+                    neg[key] += s < 0
+                    pos[key] += s > 0
+                    obs[key] += 1
+
+        def mom(n, o):
+            return float(np.clip((n / o - r0) / (r1 - r0), 0.01, 0.99)) if o else 0.5
+
+        def shrink(key, parent):
+            w = obs[key] / (obs[key] + self.k)
+            return w * mom(neg[key], obs[key]) + (1 - w) * parent
+
+        pi_bucket = {b: mom(neg[("b", b)], obs[("b", b)]) for b in range(len(BUCKETS) + 1)}
+        pi = {k: shrink(k, pi_bucket[k[2]]) for k in obs if k[0] == "ab"}
+        for k in obs:
+            if k[0] == "avb":
+                pi[k] = shrink(k, pi[("ab", k[1], k[3])])
+        # confirmations: weighted least squares of cell rate on cell prior
+        xs, ys, ws = [], [], []
+        for k in obs:
+            if k[0] == "avb" and obs[k] > 0:
+                xs.append(pi[k])
+                ys.append(pos[k] / obs[k])
+                ws.append(obs[k])
+        xs, ys, ws = (np.array(v, dtype=float) for v in (xs, ys, ws))
+        if len(xs) >= 2 and np.ptp(xs) > 1e-6:
+            X = np.stack([np.ones_like(xs), xs], axis=1)
+            W = np.sqrt(ws)[:, None]
+            coef, *_ = np.linalg.lstsq(X * W, ys * W[:, 0], rcond=None)
+            g0, g1 = float(coef[0]), float(coef[0] + coef[1])
+        else:
+            g0 = g1 = float(np.average(ys, weights=ws)) if len(ys) else 0.0
+        g0 = float(np.clip(g0, 0.0, 1.0 - r0 - 1e-3))
+        g1 = float(np.clip(g1, 0.0, 1.0 - r1 - 1e-3))
+        return pi, pi_bucket, (r0, r1), (g0, g1)
+
+    def _emission(self, turn, w):
+        if turn.attribute not in self.observable:
+            return 1.0
+        s = turn_signal(turn)
+        r, g = self.r[w], self.g[w]
+        if s < 0:
+            return r
+        if s > 0:
+            return g
+        return max(1.0 - r - g, 1e-3)
+
+    def _score(self, traj):
+        q = []
+        for turn in traj.turns:
+            if turn.probability < self.high:
+                continue
+            pi = self._prior(turn)
+            l1, l0 = self._emission(turn, 1), self._emission(turn, 0)
+            q.append(pi * l1 / (pi * l1 + (1 - pi) * l0))
+        if not q:
+            return 0.0
+        return poisson_binomial_tail(np.array(q), label_threshold(len(q), self.frac))
+
+    def fit(self, trajectories, dags=None, labels=None):
+        if labels is None:
+            raise ValueError(f"{self.name} selects the channel on train labels; pass labels")
+        y = np.asarray(labels, dtype=float)
+        self.observable = {
+            turn.attribute for t in trajectories for turn in t.turns if turn_signal(turn) != 0
+        }
+        best = None
+        for r0 in R0_GRID:
+            for r1 in R1_GRID:
+                if r1 <= r0 + 0.1 - 1e-9:
+                    continue
+                self.pi, self.pi_bucket, self.r, self.g = self._fit_channel(trajectories, r0, r1)
+                loss = _bce(np.array([self._score(t) for t in trajectories]), y)
+                if best is None or loss < best[0]:
+                    best = (loss, self.pi, self.pi_bucket, self.r, self.g)
+        _, self.pi, self.pi_bucket, self.r, self.g = best
+        self.eps = None
+        return self

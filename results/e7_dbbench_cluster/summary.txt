@@ -1,0 +1,27 @@
+# e7e dbbench 70B pooled: item-level vs task-level (cluster) bootstrap (offline, $0)
+
+n=354 rows, 118 unique tasks, hall rate 0.610.
+Pooled test rows over split seeds 42/123/456: 315; unique tasks among them: 81;
+rows per task in the pooled test set: min 3, median 3, max 9
+(3 generation copies x number of split seeds whose test set contains the task).
+Item CI = e6 protocol (resample rows). Task CI = resample unique task_ids, all their pooled rows together.
+Both: 2000 resamples, rng seed 0, percentile 95% CI. * = excludes 0.
+
+## mean over split seeds
+  pge_evidence_nb        AUROC 0.744  AUPRC 0.856   per-seed 0.671 0.747 0.814
+  selfcheckgpt           AUROC 0.712  AUPRC 0.811   per-seed 0.666 0.659 0.811
+  dag_logreg             AUROC 0.681  AUPRC 0.779   per-seed 0.613 0.744 0.685
+  semantic_entropy       AUROC 0.673  AUPRC 0.783   per-seed 0.586 0.636 0.798
+  neg_signal_fraction    AUROC 0.641  AUPRC 0.774   per-seed 0.636 0.613 0.674
+  highconf_contradicted  AUROC 0.533  AUPRC 0.665   per-seed 0.550 0.511 0.537
+
+## pge_evidence_nb - baseline
+| baseline | item-level CI (e6) | task-level CI | width item | width task | e6 reported item CI |
+|---|---|---|---|---|---|
+| selfcheckgpt | +0.015 [-0.022, +0.051]  | +0.016 [-0.049, +0.079]  | 0.073 | 0.128 | +0.015 [-0.022, +0.051] |
+| dag_logreg | +0.050 [+0.000, +0.101]* | +0.050 [-0.015, +0.113]  | 0.101 | 0.128 | +0.050 [+0.000, +0.101] |
+| semantic_entropy | +0.054 [+0.009, +0.097]* | +0.055 [-0.023, +0.133]  | 0.089 | 0.156 | +0.054 [+0.009, +0.097] |
+| highconf_contradicted | +0.198 [+0.141, +0.253]* | +0.200 [+0.096, +0.294]* | 0.113 | 0.198 | +0.198 [+0.141, +0.253] |
+| neg_signal_fraction | +0.091 [+0.039, +0.141]* | +0.093 [+0.008, +0.177]* | 0.102 | 0.170 | +0.091 [+0.039, +0.141] |
+
+runtime 6s

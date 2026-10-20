@@ -1,0 +1,44 @@
+# e7c oracle ceiling vs symmetric feedback noise (offline, $0)
+
+Feedback REPLACED by a symmetric flip channel regenerated from reconstructed truth (analysis only),
+3 draws per eps; labels = original eval_label. Oracle = in-sample (attribute, value, bucket) priors from
+truth + true eps (optimistic ceiling, as e6_ceiling). Learned detectors: e6 protocol on the regenerated
+channel. All AUROCs are means over 3 draws (x 3 split seeds for learned detectors). SelfCheckGPT reads
+only resamples (channel-independent reference). 'best' = max mean AUROC of HCC/dag_logreg/SelfCheckGPT
+per eps (post hoc). CIs: paired bootstrap 2000 over the 9 pooled test sets; item / task-cluster. * excl. 0.
+CAVEAT: the agent's in-context feedback was the original eps=0.25 channel (detector-side test only).
+
+## healthcare 70B (n=600, hall rate 0.250)
+sanity: oracle on RECORDED channel (eps=0.25) full-corpus AUROC 0.824 (e6_ceiling: 0.824 70B / 0.817 8B); test-split mean 0.817
+
+| eps | oracle (full, in-sample) | oracle (test splits) | V3 | V1 | HCC | dag_logreg | V3 gap to oracle(test) | SelfCheck | V3 - best(HCC,dag,SelfCheck) item CI | task CI | V3 learned eps |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.00 | 0.981 | 0.986 | 0.960 | 0.964 | 0.960 | 0.958 | +0.026 | 0.504 | +0.002 [-0.006, +0.009]  (HCC) | +0.001 [-0.014, +0.017]  | 0.050 |
+| 0.05 | 0.941 | 0.948 | 0.932 | 0.933 | 0.921 | 0.915 | +0.016 | 0.504 | +0.012 [+0.003, +0.020]* (HCC) | +0.012 [-0.003, +0.028]  | 0.050 |
+| 0.10 | 0.904 | 0.916 | 0.901 | 0.896 | 0.881 | 0.867 | +0.015 | 0.504 | +0.019 [+0.007, +0.031]* (HCC) | +0.019 [-0.003, +0.040]  | 0.100 |
+| 0.15 | 0.871 | 0.879 | 0.851 | 0.843 | 0.821 | 0.820 | +0.028 | 0.504 | +0.030 [+0.015, +0.045]* (HCC) | +0.029 [+0.004, +0.057]* | 0.133 |
+| 0.20 | 0.846 | 0.856 | 0.827 | 0.801 | 0.758 | 0.770 | +0.030 | 0.504 | +0.060 [+0.038, +0.081]* (dag) | +0.059 [+0.021, +0.099]* | 0.197 |
+| 0.25 | 0.834 | 0.847 | 0.817 | 0.798 | 0.746 | 0.773 | +0.030 | 0.504 | +0.045 [+0.020, +0.070]* (dag) | +0.045 [+0.004, +0.088]* | 0.264 |
+| 0.30 | 0.806 | 0.812 | 0.781 | 0.744 | 0.672 | 0.714 | +0.031 | 0.504 | +0.067 [+0.039, +0.095]* (dag) | +0.067 [+0.015, +0.118]* | 0.297 |
+| 0.35 | 0.789 | 0.794 | 0.735 | 0.695 | 0.615 | 0.685 | +0.059 | 0.504 | +0.051 [+0.020, +0.083]* (dag) | +0.052 [-0.006, +0.112]  | 0.333 |
+| 0.40 | 0.777 | 0.786 | 0.704 | 0.685 | 0.599 | 0.676 | +0.082 | 0.504 | +0.022 [-0.012, +0.055]  (dag) | +0.022 [-0.034, +0.081]  | 0.350 |
+| 0.45 | 0.773 | 0.781 | 0.599 | 0.577 | 0.552 | 0.665 | +0.182 | 0.504 | -0.070 [-0.110, -0.030]* (dag) | -0.070 [-0.139, -0.002]* | 0.400 |
+
+## healthcare 8B (n=200, hall rate 0.400)
+sanity: oracle on RECORDED channel (eps=0.25) full-corpus AUROC 0.817 (e6_ceiling: 0.824 70B / 0.817 8B); test-split mean 0.760
+
+| eps | oracle (full, in-sample) | oracle (test splits) | V3 | V1 | HCC | dag_logreg | V3 gap to oracle(test) | SelfCheck | V3 - best(HCC,dag,SelfCheck) item CI | task CI | V3 learned eps |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.00 | 0.986 | 0.990 | 0.981 | 0.986 | 0.959 | 0.919 | +0.009 | 0.669 | +0.023 [+0.013, +0.034]* (HCC) | +0.023 [+0.002, +0.048]* | 0.050 |
+| 0.05 | 0.948 | 0.940 | 0.935 | 0.934 | 0.912 | 0.872 | +0.005 | 0.669 | +0.025 [+0.012, +0.040]* (HCC) | +0.025 [-0.002, +0.054]  | 0.061 |
+| 0.10 | 0.925 | 0.916 | 0.897 | 0.888 | 0.857 | 0.819 | +0.019 | 0.669 | +0.036 [+0.019, +0.054]* (HCC) | +0.036 [+0.007, +0.068]* | 0.106 |
+| 0.15 | 0.909 | 0.898 | 0.872 | 0.865 | 0.839 | 0.794 | +0.026 | 0.669 | +0.035 [+0.014, +0.057]* (HCC) | +0.035 [-0.002, +0.070]  | 0.144 |
+| 0.20 | 0.874 | 0.858 | 0.822 | 0.810 | 0.776 | 0.738 | +0.036 | 0.669 | +0.038 [+0.015, +0.063]* (HCC) | +0.039 [-0.005, +0.081]  | 0.158 |
+| 0.25 | 0.844 | 0.826 | 0.777 | 0.760 | 0.738 | 0.718 | +0.050 | 0.669 | +0.031 [-0.003, +0.064]  (HCC) | +0.031 [-0.029, +0.086]  | 0.233 |
+| 0.30 | 0.830 | 0.808 | 0.716 | 0.705 | 0.680 | 0.709 | +0.091 | 0.669 | +0.003 [-0.042, +0.050]  (dag) | +0.003 [-0.074, +0.081]  | 0.272 |
+| 0.35 | 0.802 | 0.787 | 0.666 | 0.675 | 0.677 | 0.672 | +0.121 | 0.669 | -0.010 [-0.058, +0.037]  (HCC) | -0.009 [-0.089, +0.062]  | 0.300 |
+| 0.40 | 0.785 | 0.753 | 0.596 | 0.580 | 0.598 | 0.623 | +0.157 | 0.669 | -0.074 [-0.137, -0.015]* (SelfCheck) | -0.073 [-0.186, +0.037]  | 0.297 |
+| 0.45 | 0.769 | 0.736 | 0.582 | 0.577 | 0.509 | 0.627 | +0.155 | 0.669 | -0.086 [-0.144, -0.026]* (SelfCheck) | -0.084 [-0.179, +0.014]  | 0.333 |
+
+PNG: results/e7_ceiling_noise/ceiling_vs_noise.png
+runtime 167s

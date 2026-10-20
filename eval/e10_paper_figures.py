@@ -5,6 +5,8 @@ fig_dissociation.pdf  AUROC by corpus for the sampling detector
                       the PGE posterior (results/e6_posterior/*.txt)
 fig_clarification.pdf hallucination rate and residual confident errors vs
                       questions per session (results/e8_clarification/*.txt)
+fig_noise.pdf         oracle ceiling and learned detectors vs feedback flip
+                      rate eps (results/e7_ceiling_noise/table_*.csv)
 
 Usage: python3 -m eval.e10_paper_figures [--out figures/paper]
 """
@@ -136,6 +138,33 @@ def fig_clarification(out: Path):
     plt.close(fig)
 
 
+def fig_noise(out: Path):
+    import csv
+    fig, axes = plt.subplots(1, 2, figsize=(3.4, 1.9), dpi=300, sharey=True)
+    series = [("oracle_test", "Oracle ceiling", INK, None, (0, (3, 2))),
+              ("V3", "PGE posterior", BLUE, "o", "-"),
+              ("dag_logreg", "DAG-feature LogReg", ORANGE, "s", "-"),
+              ("highconf_contradicted", "Contradicted confident", AQUA, "D", "-")]
+    for ax, tag in zip(axes, ("70B", "8B")):
+        rows = list(csv.DictReader(open(REPO / "results" / "e7_ceiling_noise" / f"table_{tag}.csv")))
+        eps = [float(r["eps"]) for r in rows]
+        for key, label, col, mk, ls in series:
+            ax.plot(eps, [float(r[key]) for r in rows], ls=ls, color=col, marker=mk, ms=2.5, lw=1.2, label=label)
+        ax.axvline(0.25, color=GRID, lw=0.8)
+        ax.set_title(f"Healthcare {tag}", fontsize=7, color=INK)
+        ax.set_xlabel(r"feedback flip rate $\varepsilon$", fontsize=7)
+        ax.yaxis.grid(True, color=GRID, lw=0.6)
+        ax.set_axisbelow(True)
+        ax.tick_params(labelsize=6)
+    axes[0].set_ylabel("Session AUROC", fontsize=7)
+    h, l = axes[0].get_legend_handles_labels()
+    fig.legend(h, l, frameon=False, fontsize=5.5, loc="lower center", ncol=2, bbox_to_anchor=(0.5, 0.0))
+    fig.tight_layout(rect=(0, 0.17, 1, 1))
+    fig.savefig(out / "fig_noise.pdf")
+    fig.savefig(out / "fig_noise.png")
+    plt.close(fig)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(REPO / "figures" / "paper"))
@@ -143,6 +172,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     fig_dissociation(out)
     fig_clarification(out)
+    fig_noise(out)
     print(f"wrote figures to {out}")
 
 
