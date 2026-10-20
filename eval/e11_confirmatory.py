@@ -674,8 +674,8 @@ def analyse(corpora, label_sets, out_name, full=True):
                               ("H6", "V6-session", "LR-session+fb"), ("sec.", "V6-session", "eta0 (Bayes, no feedback)"),
                               ("sec.", "etaF (Bayes, feedback)", "etaX (Bayes, shown reactions)")]:
                 ci = strat_boot(pool, a, b)
-                c = {"H5": ("the user's reactions carry information beyond the best possible context-only predictor"
-                            if ci[1] > 0 else "no information beyond the context-only Bayes predictor detected"),
+                c = {"H5": ("the user's reactions carry information beyond the population risk of the commitments"
+                            if ci[1] > 0 else "no information beyond the population risk of the commitments detected"),
                      "H6": ("given the same information, the PGE posterior beats the supervised detector"
                             if ci[1] > 0 else "given the same information, the PGE posterior does not beat the supervised detector"),
                      "sec.": "reported as is"}[hid]

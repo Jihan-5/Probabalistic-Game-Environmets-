@@ -58,14 +58,14 @@ Data efficiency (Amendment 1, descriptive): test AUROC vs labelled training sess
 
 ## Amendment 2: rules-aware analyses on L_U (oracle information: the simulator's rules and hidden-fact prior; not deployable)
 
-| corpus | eta0 (Bayes, no feedback) | etaF (Bayes, feedback) | V6-session | LR-session | LR-session+fb |
-|---|---|---|---|---|---|
-| 70B (dev) | 0.908 | 0.954 | 0.904 | 0.887 | 0.884 |
-| 8B (dev) | 0.901 | 0.975 | 0.956 | 0.858 | 0.856 |
+| corpus | eta0 (Bayes, no feedback) | etaX (Bayes, shown reactions) | etaF (Bayes, feedback) | V6-session | LR-session | LR-session+fb |
+|---|---|---|---|---|---|---|
+| 70B (dev) | 0.908 | 0.954 | 0.954 | 0.904 | 0.887 | 0.884 |
+| 8B (dev) | 0.901 | 0.977 | 0.975 | 0.956 | 0.858 | 0.856 |
 
 Differences per corpus (session-clustered):
 
-- **70B (dev)**: etaF (Bayes, feedback) - eta0 (Bayes, no feedback): +0.045 [+0.023, +0.070]*; V6-session - LR-session+fb: +0.023 [-0.013, +0.059]; V6-session - eta0 (Bayes, no feedback): -0.005 [-0.036, +0.026]; LR-session+fb - LR-session: -0.005 [-0.043, +0.030]
-- **8B (dev)**: etaF (Bayes, feedback) - eta0 (Bayes, no feedback): +0.073 [+0.033, +0.122]*; V6-session - LR-session+fb: +0.087 [+0.020, +0.164]*; V6-session - eta0 (Bayes, no feedback): +0.048 [-0.008, +0.111]; LR-session+fb - LR-session: +0.009 [-0.059, +0.066]
+- **70B (dev)**: etaF (Bayes, feedback) - eta0 (Bayes, no feedback): +0.045 [+0.023, +0.070]*; etaF (Bayes, feedback) - etaX (Bayes, shown reactions): +0.000 [-0.000, +0.001]; V6-session - LR-session+fb: +0.023 [-0.013, +0.059]; V6-session - eta0 (Bayes, no feedback): -0.005 [-0.036, +0.026]; LR-session+fb - LR-session: -0.005 [-0.043, +0.030]
+- **8B (dev)**: etaF (Bayes, feedback) - eta0 (Bayes, no feedback): +0.073 [+0.033, +0.122]*; etaF (Bayes, feedback) - etaX (Bayes, shown reactions): -0.001 [-0.006, +0.000]; V6-session - LR-session+fb: +0.087 [+0.020, +0.164]*; V6-session - eta0 (Bayes, no feedback): +0.048 [-0.008, +0.111]; LR-session+fb - LR-session: +0.009 [-0.059, +0.066]
 
-runtime 199s
+runtime 205s
