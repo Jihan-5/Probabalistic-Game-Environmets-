@@ -41,7 +41,7 @@ total if everything runs: ~$37 here, ~$45 including earlier spend.
 
 ## What changed from the earlier plan (and why)
 
-The 2026-10-20 blind review found that the v2 agent was shown a corrupted
+The 2026-10-20 internal blind audit found that the v2 agent was shown a corrupted
 feedback display (no reaction as "+", inverted below p = 0.5), that resamples
 existed only for 5 attributes, and that the composite label is mostly not
 user-specific. So every corpus is now generated fresh under protocol `v2fb`

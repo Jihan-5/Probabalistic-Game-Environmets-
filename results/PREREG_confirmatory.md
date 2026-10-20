@@ -7,9 +7,9 @@ is reported as a deviation, with its reason, next to the result.
 
 ## Why a confirmatory run
 
-All method development (e0-e10), the 2026-10-20 blind review, and every number
+All method development (e0-e10), the 2026-10-20 internal blind audit, and every number
 in the draft used the development corpora `data/trajectories/healthcare_v2/
-{70B,8B}_42.jsonl` (protocol `v2`). The review found three things that require
+{70B,8B}_42.jsonl` (protocol `v2`). The audit found three things that require
 fresh data rather than reanalysis:
 1. **Feedback display bug (v2).** The agent was shown sign(tanh(F logit p)):
    no reaction appeared as "+", and below p = 0.5 accept/contradict appeared

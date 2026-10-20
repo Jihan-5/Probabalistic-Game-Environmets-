@@ -9,9 +9,7 @@ description = "Probabilistic Game Environments for hallucination detection in in
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-    { name = "Jihan Mankani" },
-    { name = "Ssaumya Kamal Jaiswal" },
-    { name = "Mahfuza Farooque" },
+    { name = "Anonymous" },
 ]
 license = { text = "Apache-2.0" }
 dependencies = [

@@ -1,13 +1,13 @@
-"""e1_synth_gate — Gate G1 go/no-go for the rebuilt core method. Zero LLM cost.
+"""e1_synth_gate — Gate G1 go/no-go for the v2 core method. Zero LLM cost.
 
 Healthcare v2 (non-circular noisy feedback, dependency DAGs, error cascades),
 n sessions x 3 seeds, mixed grounded/hallucinating agent population.
 Detectors compared on identical cached data:
 
   Graphon variants (fit on CLEAN training sessions only, score = -loglik):
-    position|abs        — the ORIGINAL estimator (honest ablation arm)
+    position|abs        — the v1 estimator (ablation arm)
     degree|abs, spectral|abs
-    feature|abs, feature|signed  — the rebuilt candidates
+    feature|abs, feature|signed  — the v2 candidates
 
   Supervised:  dag_logreg (full PGE minus graphon — the fair ablation)
   Zero-shot:   mean_confidence, neg_cum_evidence, neg_signal_fraction,

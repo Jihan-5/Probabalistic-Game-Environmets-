@@ -1,7 +1,7 @@
-"""e0_diagnosis — zero-cost forensic re-baseline of the pre-rebuild pipeline.
+"""e0_diagnosis — zero-cost forensic re-baseline of the v1 pipeline.
 
 Establishes, from saved results and pure simulation (no LLM calls), the two
-failure modes that invalidated the original headline numbers:
+failure modes that make the v1 pipeline's high AUROCs invalid:
 
   (D1) Structural blindness: with `block_method="position"` and fixed-length
        sequential chains, every trajectory has identical adjacency and block
@@ -44,7 +44,7 @@ SAVED_RUNS = {
 
 
 def _chain_dag(T: int, scores: np.ndarray) -> ChainOfThoughtDAG:
-    """Rebuild a DAG exactly as the old pipeline did: fixed T, edges (i-1, i)."""
+    """Rebuild a DAG exactly as the v1 pipeline did: fixed T, edges (i-1, i)."""
     G = ChainOfThoughtDAG()
     for t in range(T):
         G.add_node(
@@ -136,7 +136,7 @@ def d2_saved_run_table() -> list[str]:
 
 
 def main() -> None:
-    lines = ["# e0_diagnosis — honest re-baseline of the pre-rebuild pipeline", ""]
+    lines = ["# e0_diagnosis — re-baseline of the v1 pipeline", ""]
 
     d1 = d1_structural_blindness()
     lines += [

@@ -22,9 +22,9 @@ def test_asymmetric_penalty_superlinear():
     assert asymmetric_score(0.9, 0) == 0.0
 
 
-def test_reviewer_qg2c_counterexample():
-    # The exact calculation from the ICML'26 review: q=0.5, alpha=1, beta=3,
-    # gamma=2 gives p* = q/(6(1-q)) = 1/6 ~= 0.167 — NOT 0.5.
+def test_not_incentive_compatible_counterexample():
+    # Exact calculation: q=0.5, alpha=1, beta=3, gamma=2
+    # gives p* = q/(6(1-q)) = 1/6 ~= 0.167 — NOT 0.5.
     p_star = optimal_report(0.5)
     assert p_star == pytest.approx(0.5 / (6 * 0.5), rel=1e-9)
     assert p_star == pytest.approx(1.0 / 6.0, rel=1e-9)

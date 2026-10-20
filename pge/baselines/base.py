@@ -1,4 +1,4 @@
-"""Common detector interface for the rebuild.
+"""Common detector interface.
 
 Every hallucination detector — baseline or PGE variant — implements
 `TrajectoryScorer`: fit on training data (no-op for zero-shot methods),
@@ -6,7 +6,7 @@ then emit a scalar per trajectory where HIGHER = MORE LIKELY HALLUCINATED.
 Detectors receive the trajectory and its (already-built) reasoning DAG so
 graph-based and text-based methods share one evaluation harness. Detector
 code must only read detector-visible fields (turns, signals, DAG) — never
-`eval_label` (enforced by review + the non-circularity lint on signals).
+`eval_label` (enforced by code inspection + the non-circularity lint on signals).
 """
 
 from __future__ import annotations

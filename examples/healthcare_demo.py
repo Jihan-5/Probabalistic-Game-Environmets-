@@ -9,8 +9,8 @@ Runs:
   4. Report AUROC for log-likelihood-based hallucination detection.
 
 This is a *toy* demo — no real LLM, no real EMR data — meant to confirm the
-pipeline is wired correctly. It is not expected to reach the paper's 0.961
-AUROC; that requires Llama3-70B + AgentBench, which is out of scope here.
+pipeline is wired correctly. Its AUROC is not a reported result; real-LLM
+numbers come from eval/ on the cached trajectories (results/RESULTS.md).
 """
 
 from __future__ import annotations

@@ -5,16 +5,16 @@ discretized into B blocks; each block's edge probability is the Beta(alpha,
 beta) posterior mean over training DAGs. Detection: low (score-weighted)
 log-likelihood under the fitted graphon flags a hallucinating trace.
 
-Rebuild notes (e0_diagnosis, results/RESULTS.md): the original estimator was
+Design notes (e0_diagnosis, results/RESULTS.md): the v1 estimator was
 structurally blind — `block_method="position"` plus fixed-length sequential
 chains gave every trajectory identical adjacency and blocks, and likelihood
 weights used |score|, discarding the correct/incorrect sign. Confident-correct
 and confident-hallucinated nodes contributed identically, so detection was at
-chance. The fixes are selectable so the old behavior remains an honest
+chance. The fixes are selectable so the v1 behavior remains an
 ablation arm:
 
     block_method : how nodes map to blocks
-        "position"  — a_i = ceil((i+1)/n * B) - 1 (ORIGINAL; structure-blind
+        "position"  — a_i = ceil((i+1)/n * B) - 1 (v1; structure-blind
                       on fixed-length chains)
         "degree"    — rank nodes by symmetrized degree, blocks by rank
                       quantile (Chan & Airoldi sorted-degree smoothing)
@@ -24,7 +24,7 @@ ablation arm:
                       encode how confident-contradicted commitments attach to
                       the rest of the reasoning graph. Needs node scores and
                       probabilities; the sign carries the behavioral outcome.
-    weighting : "abs" (ORIGINAL, w_ij = sqrt(|s_i s_j|)) or "signed"
+    weighting : "abs" (v1, w_ij = sqrt(|s_i s_j|)) or "signed"
                 (w_ij = s_i * s_j — pairs with conflicting evidence signs
                 push the likelihood down instead of up)
     normalize : divide the log-likelihood by the number of node pairs so

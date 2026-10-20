@@ -1,5 +1,5 @@
 """Supervised session detectors from the agent's own commitments (added after
-the 2026-10-20 blind review; frozen in results/PREREG_confirmatory.md).
+the 2026-10-20 internal blind audit; frozen in results/PREREG_confirmatory.md).
 
 ContextLR(with_feedback=False)  "ctx_lr"
     What the CONTEXT ALONE reveals: logistic regression on counts of
@@ -20,8 +20,8 @@ FeedbackRemoved(det)            "<det.name>-fb"
     Fits `det` normally, then scores with every signal set to 0. For generic
     detectors only; for V3 it equals PriorOnly, for V6 it does not.
 
-Feature definition matches the blind review's "LR cells" check
-(scratchpad review_checks.py): standardized features, L2 logistic
+Feature definition matches the blind audit's "LR cells" check
+(audit script, not included): standardized features, L2 logistic
 regression with C = 0.1, fixed (no tuning).
 """
 

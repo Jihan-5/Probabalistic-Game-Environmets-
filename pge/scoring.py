@@ -5,7 +5,7 @@ Two scoring families live here:
 1. `bayesian_score` / `cumulative_evidence` — the original evidence-accumulation
    scores (logit-then-tanh), kept as the DAG node score and as an ablation arm.
 
-2. Asymmetric commitment scoring (the corrected theory for the resubmission).
+2. Asymmetric commitment scoring (the corrected scoring theory).
    A commitment (p_hat, y) with reported confidence p_hat and outcome
    y in {+1 consistent, -1 inconsistent, 0 unobserved} receives
 
@@ -14,16 +14,14 @@ Two scoring families live here:
                       0                      if y =  0   (no signal)
 
    with alpha=1, beta=3, gamma=2 defaults. This scoring rule is NOT
-   incentive-compatible in the exact-calibration sense: the ICML'26 reviewer
-   Qg2c correctly showed the expected-score-maximizing report for true belief
-   q solves
+   incentive-compatible in the exact-calibration sense: the
+   expected-score-maximizing report for true belief q solves
 
        d/dp [ q*alpha*p - (1-q)*beta*p**gamma ] = 0
        =>  p*(q) = [ alpha*q / (beta*gamma*(1-q)) ] ** (1/(gamma-1))
 
-   The corrected lemma we implement and test (NOTE: the rebuttal's claim
-   that p* < q "for all q in (0,1)" was also wrong — the exact statement,
-   for gamma = 2, is):
+   The corrected lemma we implement and test (NOTE: p* < q does NOT hold
+   "for all q in (0,1)" — the exact statement, for gamma = 2, is):
 
        Conservative-report lemma (gamma = 2): p*(q) = alpha*q /
        (2*beta*(1-q)) is strictly increasing in q up to the saturation
@@ -48,7 +46,7 @@ import numpy as np
 
 _EPS = 0.01  # clip(p_t, 0.01, 0.99)
 
-# Default asymmetric-scoring parameters (paper Section 3.2 of the revision).
+# Default asymmetric-scoring parameters (paper Section 3.2).
 ALPHA = 1.0
 BETA = 3.0
 GAMMA = 2.0

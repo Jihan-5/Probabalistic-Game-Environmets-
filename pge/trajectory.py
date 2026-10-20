@@ -1,6 +1,6 @@
 """Unified trajectory record: the single artifact every detector consumes.
 
-Design rule (non-negotiable for the rebuild): **evaluation labels may be
+Design rule (non-negotiable): **evaluation labels may be
 computed from ground truth; detector inputs may not be deterministic
 functions of that same ground truth.** `eval_label` lives on the trajectory
 for scoring/evaluation only. Detector-visible information is confined to
@@ -10,7 +10,7 @@ come from a non-circular channel (self-consistency probes, noisy/partial
 user feedback, execution success, resample agreement, ...).
 
 `assert_non_circular` mechanically rejects signal names that are known
-label-derived probes from the old pipeline, so the circular-evaluation bug
+label-derived probes from the v1 pipeline, so the circular-evaluation bug
 documented in results/RESULTS.md (e0_diagnosis) cannot silently return.
 
 Trajectories are generated once per (domain, model, seed) — the only paid
@@ -25,7 +25,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable, Iterator
 
-# Signal names from the pre-rebuild pipeline that were direct functions of the
+# Signal names from the v1 pipeline that were direct functions of the
 # eval label (truth-matching). Any trajectory carrying one of these fails the
 # lint. Extend this list whenever a new label-derived probe is identified.
 CIRCULAR_SIGNAL_NAMES = frozenset(

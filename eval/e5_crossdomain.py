@@ -1,6 +1,6 @@
 """e5_crossdomain — train on one domain, test on the other (offline, $0).
 
-Reviewer 2AM6's generalization concern: components trained on a benchmark may
+Generalization concern: components trained on a benchmark may
 overfit it. Here supervised detectors (dag_logreg, gcn if available) are fit
 on ALL trajectories of the source domain and evaluated on ALL trajectories of
 the target domain (no target supervision at all); zero-shot detectors are
