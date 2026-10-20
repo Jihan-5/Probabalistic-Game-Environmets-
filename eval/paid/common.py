@@ -28,6 +28,27 @@ from pge.trajectory import Trajectory, load_jsonl, save_jsonl
 REPO = Path(__file__).resolve().parent.parent.parent
 ALLOWED_VALUES = {a: vals for a, (vals, _) in ATTRIBUTES_V2.items()}
 
+# Agent-side protocol of a healthcare corpus (Trajectory.meta["protocol"]).
+#   v2   : the 2026-09 development corpora. The agent saw sign(tanh(F logit p))
+#          as feedback (no reaction shown as '+', inverted below p = 0.5).
+#          Kept ONLY to replay those corpora exactly.
+#   v2fb : confirmatory protocol. The agent sees the raw reaction '+'/'-'/'none'.
+_PROMPTS = REPO / "pge" / "prompts"
+PROTOCOLS = {
+    "v2": {"system_prompt": (_PROMPTS / "healthcare_v2_system.txt").read_text(),
+           "feedback_display": "score_sign"},
+    "v2fb": {"system_prompt": (_PROMPTS / "healthcare_v2fb_system.txt").read_text(),
+             "feedback_display": "signal"},
+}
+
+
+def protocol_of(trajs) -> str:
+    """The single agent-side protocol of a corpus (missing meta = 'v2')."""
+    ps = {t.meta.get("protocol", "v2") for t in trajs}
+    if len(ps) != 1:
+        raise SystemExit(f"corpus mixes protocols {sorted(ps)}")
+    return ps.pop()
+
 
 # ------------------------------------------------------------------ CLI
 
@@ -202,7 +223,7 @@ def add_dag_node(G: ChainOfThoughtDAG, node_idx: dict, attribute: str, value: st
                  probability: float, signal: int, t: int) -> None:
     """Identical node/edge construction to eval/generate_healthcare_v2.py."""
     idx = G.add_node(GuessNode(attribute=attribute, value=value, probability=probability,
-                               score=bayesian_score(probability, signal), turn=t))
+                               score=bayesian_score(probability, signal), turn=t, signal=signal))
     node_idx[attribute] = idx
     for dep in ATTRIBUTES_V2[attribute][1]:
         if dep.startswith("attr:") and dep[5:] in node_idx:

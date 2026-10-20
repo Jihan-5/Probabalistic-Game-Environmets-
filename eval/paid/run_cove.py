@@ -35,11 +35,11 @@ import numpy as np
 
 from eval.bootstrap_ci import auroc
 from eval.paid.common import (
-    REPO, add_model_args, add_run_args, check_mock_out, ledger_line, make_client, preflight,
-    print_estimate, rel, run_parallel, spec_from_args, write_run_json,
+    PROTOCOLS, REPO, add_model_args, add_run_args, check_mock_out, ledger_line, make_client, preflight,
+    print_estimate, protocol_of, rel, run_parallel, spec_from_args, write_run_json,
 )
 from eval.score_trajectories import average_precision, split_task_ids
-from pge.agents.llama_together import _format_history
+from pge.agents.paid_client import format_history
 from pge.baselines.cove import VERIFY_PROMPT, ChainOfVerification
 from pge.baselines.semantic_entropy import _extract_final_value
 from pge.agents.paid_client import CostMeter
@@ -50,7 +50,7 @@ SPLIT_SEEDS = (42, 123, 456)
 VERIFY_TEMP, VERIFY_MAX_TOKENS = 0.0, 40
 
 
-def turn_context(traj, t: int, setup: dict) -> str:
+def turn_context(traj, t: int, setup: dict, display: str = "score_sign") -> str:
     """Detector-visible decision context of turn t (no truth, no labels)."""
     full = dag_from_trajectory(traj)
     prefix = type(full)(nodes=full.nodes[:t], edges=[(p, c) for p, c in full.edges if c < t])
@@ -58,12 +58,13 @@ def turn_context(traj, t: int, setup: dict) -> str:
     setup_str = "\n".join(f"  {k}: {v}" for k, v in setup.items())
     return (f"Patient intake answers:\n{setup_str}\n\n"
             f"Earlier commitments in this session (feedback from the patient's behavior):\n"
-            f"{_format_history(prefix)}\n\n"
+            f"{format_history(prefix, display)}\n\n"
             f"Attribute definition: {ATTR_DESCRIPTIONS_V2.get(a, '')}")
 
 
-def with_contexts(traj, setup: dict):
-    turns = [dataclasses.replace(tt, prompt=turn_context(traj, i, setup)) for i, tt in enumerate(traj.turns)]
+def with_contexts(traj, setup: dict, display: str = "score_sign"):
+    turns = [dataclasses.replace(tt, prompt=turn_context(traj, i, setup, display))
+             for i, tt in enumerate(traj.turns)]
     return dataclasses.replace(traj, turns=turns, eval_label=0)  # label masked for the detector
 
 
@@ -114,12 +115,13 @@ def main(argv=None) -> None:
     rng = np.random.default_rng(args.gen_seed)
     sessions = {f"hcv2_{i}": sample_session_v2(rng, i) for i in range(args.n)}
 
+    display = PROTOCOLS[protocol_of(trajs)]["feedback_display"]  # what the agent itself saw
     tests = {s: split_task_ids(list(by_id), 0.7, s)[1] for s in SPLIT_SEEDS}
     union = sorted(set().union(*tests.values()), key=lambda s: int(s.split("_")[1]))
     inputs = {}
     for tid in union:
         assert [x.attribute for x in by_id[tid].turns] == sessions[tid].schedule, f"{tid}: stream mismatch"
-        inputs[tid] = with_contexts(by_id[tid], sessions[tid].setup_answers)
+        inputs[tid] = with_contexts(by_id[tid], sessions[tid].setup_answers, display)
 
     cache = ResponseCache(out_dir / "cove_cache.jsonl")
     prompts = {tid: [VERIFY_PROMPT.format(context=t.prompt, attribute=t.attribute) for t in tr.turns]

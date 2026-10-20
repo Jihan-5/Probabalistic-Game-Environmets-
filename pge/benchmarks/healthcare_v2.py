@@ -35,7 +35,10 @@ go/no-go before any paid runs.
 
 from __future__ import annotations
 
+import itertools
+import math
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Optional
 
 import numpy as np
@@ -359,6 +362,69 @@ def eval_label_v2(
     return int(wrong / len(high) >= error_fraction)
 
 
+# ------------------------------------------------- user-specific label (L_U)
+
+
+def _schema_user_dependent() -> frozenset:
+    """Attributes with a (transitive) dependency on a hidden user field in
+    the published schema. Detector-side knowledge: which decisions depend on
+    undisclosed patient facts. Uses no truth and no derivation rules."""
+    deps = {a: d for a, (_, d) in ATTRIBUTES_V2.items()}
+    memo: dict[str, bool] = {}
+
+    def hid(a: str) -> bool:
+        if a not in memo:
+            memo[a] = False
+            memo[a] = any(x.startswith("hidden:") or (x.startswith("attr:") and hid(x[5:]))
+                          for x in deps[a])
+        return memo[a]
+
+    return frozenset(a for a in deps if hid(a))
+
+
+USER_DEPENDENT_SCHEMA = _schema_user_dependent()
+
+# Support of the hidden profile in sample_session_v2.
+_HIDDEN_SUPPORT = tuple(itertools.product(range(31), ("mild", "severe"), ("normal", "impaired"),
+                                          ("low", "high")))
+
+
+@lru_cache(maxsize=None)
+def _user_dependent_cached(setup_items: tuple) -> frozenset:
+    setup = dict(setup_items)
+    seen: dict[str, set] = {a: set() for a in ATTRIBUTES_V2}
+    for days, sev, kidney, anx in _HIDDEN_SUPPORT:
+        truth = derive_ground_truth_v2(setup, {"days_since_treatment": days, "allergy_severity": sev,
+                                               "kidney_function": kidney, "anxiety_level": anx})
+        for a, v in truth.items():
+            seen[a].add(v)
+    return frozenset(a for a, v in seen.items() if len(v) > 1)
+
+
+def user_dependent_attrs(setup_answers: dict) -> frozenset:
+    """Attributes whose TRUE value is not determined by this session's
+    intake answers (it varies over the hidden profile's support). EVAL ONLY:
+    uses the clinic's derivation rules."""
+    return _user_dependent_cached(tuple(sorted(setup_answers.items())))
+
+
+def eval_label_user(
+    guesses: dict[str, AgentGuessV2],
+    session: SessionV2,
+    confidence_threshold: float = 0.6,
+    error_fraction: float = 0.5,
+) -> int:
+    """User-specific label L_U: the eval_label_v2 rule restricted to confident
+    commitments whose truth depends on undisclosed user facts in THIS session
+    (user_dependent_attrs). 0 if there are none. Eval only."""
+    U = user_dependent_attrs(session.setup_answers)
+    high = [g for g in guesses.values() if g.probability >= confidence_threshold and g.attribute in U]
+    if not high:
+        return 0
+    wrong = sum(1 for g in high if g.value != session.user_state[g.attribute])
+    return int(wrong >= math.ceil(error_fraction * len(high)))
+
+
 def dag_from_trajectory(traj: Trajectory) -> ChainOfThoughtDAG:
     """Rebuild the session DAG offline from a cached healthcare-v2 trajectory
     (dependency edges from ATTRIBUTES_V2 + sequential backbone; node scores
@@ -374,6 +440,7 @@ def dag_from_trajectory(traj: Trajectory) -> ChainOfThoughtDAG:
                 probability=turn.probability,
                 score=bayesian_score(turn.probability, signal),
                 turn=turn.turn,
+                signal=signal,
             )
         )
         node_idx[turn.attribute] = idx

@@ -34,8 +34,8 @@ from eval.paid.common import (
 from pge.agents.paid_client import ChatClient, CostMeter, RoutedAgent
 from pge.benchmarks import healthcare_llmpatient as LP
 from pge.benchmarks.healthcare_v2 import (
-    ATTR_DESCRIPTIONS_V2, NO_FEEDBACK_ATTRS, AgentGuessV2, SessionV2, eval_label_v2,
-    sample_session_v2,
+    ATTR_DESCRIPTIONS_V2, NO_FEEDBACK_ATTRS, AgentGuessV2, SessionV2, eval_label_user,
+    eval_label_v2, sample_session_v2,
 )
 from pge.dag import ChainOfThoughtDAG
 from pge.trajectory import Trajectory, Turn
@@ -137,6 +137,7 @@ def run_patient_session(session: SessionV2, agent: PatientDialogueAgent, patient
         label_source="programmatic",
         meta={
             "channel": "llm_patient",
+            "eval_label_user": eval_label_user(guesses, session),  # truth-derived label
             "n_turns": len(session.schedule),
             "persona": persona,
             "patient_knowledge": knows,

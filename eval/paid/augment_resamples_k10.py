@@ -32,14 +32,16 @@ from pathlib import Path
 
 import numpy as np
 
-from eval.generate_healthcare_v2 import SYSTEM_PROMPT_HC
 from eval.paid.common import (
-    ALLOWED_VALUES, REPO, add_model_args, add_run_args, check_mock_out, ledger_line,
-    make_client, preflight, print_estimate, rel, run_parallel, spec_from_args, write_run_json,
+    ALLOWED_VALUES, PROTOCOLS, REPO, add_model_args, add_run_args, check_mock_out, ledger_line,
+    make_client, preflight, print_estimate, protocol_of, rel, run_parallel, spec_from_args,
+    write_run_json,
 )
 from eval.score_trajectories import split_task_ids
 from pge.agents.paid_client import CostMeter, RoutedAgent
-from pge.benchmarks.healthcare_v2 import ATTR_DESCRIPTIONS_V2, dag_from_trajectory, sample_session_v2
+from pge.benchmarks.healthcare_v2 import (
+    ATTR_DESCRIPTIONS_V2, USER_DEPENDENT_SCHEMA, dag_from_trajectory, sample_session_v2,
+)
 from pge.trajectory import load_jsonl, save_jsonl
 
 IN_DIR = REPO / "data" / "trajectories" / "healthcare_v2"
@@ -50,8 +52,16 @@ SPLIT_SEEDS = (42, 123, 456)
 EST_IN, EST_OUT = 448, 12
 
 
-def target_turns(traj, k_target):
-    return [i for i, t in enumerate(traj.turns) if t.samples and len(t.samples) < k_target]
+TURN_SETS = ("sampled", "user")
+
+
+def target_turns(traj, k_target, which="sampled"):
+    """'sampled': turns that already carry resamples (the dev corpora sampled
+    only the UNDERDETERMINED attributes). 'user': turns on schema
+    user-dependent attributes (confirmatory corpora sample every turn)."""
+    keep = (lambda t: bool(t.samples)) if which == "sampled" else \
+        (lambda t: t.attribute in USER_DEPENDENT_SCHEMA)
+    return [i for i, t in enumerate(traj.turns) if keep(t) and len(t.samples) < k_target]
 
 
 def main(argv=None) -> None:
@@ -60,7 +70,10 @@ def main(argv=None) -> None:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--n", type=int, default=600, help="must match the generation run")
     ap.add_argument("--k-target", type=int, default=10)
-    ap.add_argument("--restrict", choices=["all", "test-union"], default="all")
+    ap.add_argument("--restrict", choices=["all", "test-union", "test-42"], default="all",
+                    help="test-42: only the test split of split seed 42 (cheapest)")
+    ap.add_argument("--turns", choices=TURN_SETS, default=None,
+                    help="which turns to augment (default: 'sampled' for v2 corpora, 'user' for v2fb)")
     ap.add_argument("--input", default=None, help="input cache (default data/trajectories/healthcare_v2/<model>_<seed>.jsonl)")
     add_run_args(ap, max_cost=8.0, concurrency=12)
     args = ap.parse_args(argv)
@@ -81,14 +94,19 @@ def main(argv=None) -> None:
         raise SystemExit(f"cache model {trajs[0].model} != --model {spec.model_id}: resamples must "
                          "come from the model that generated the cache")
 
+    protocol = protocol_of(trajs)
+    if args.turns is None:
+        args.turns = "sampled" if protocol == "v2" else "user"
     eligible = {t.task_id for t in trajs}
     if args.restrict == "test-union":
         eligible = set()
         for s in SPLIT_SEEDS:
             eligible |= split_task_ids([t.task_id for t in trajs], 0.7, s)[1]
-    todo = [t for t in trajs if t.task_id in eligible and target_turns(t, args.k_target)]
-    n_calls = sum(args.k_target - len(t.turns[i].samples) for t in todo for i in target_turns(t, args.k_target))
-    n_turns = sum(len(target_turns(t, args.k_target)) for t in todo)
+    elif args.restrict == "test-42":
+        eligible = set(split_task_ids([t.task_id for t in trajs], 0.7, 42)[1])
+    todo = [t for t in trajs if t.task_id in eligible and target_turns(t, args.k_target, args.turns)]
+    n_calls = sum(args.k_target - len(t.turns[i].samples) for t in todo for i in target_turns(t, args.k_target, args.turns))
+    n_turns = sum(len(target_turns(t, args.k_target, args.turns)) for t in todo)
     est = print_estimate(
         f"resamples k->{args.k_target} on {len(todo)} sessions / {n_turns} turns "
         f"(restrict={args.restrict}) {rel(src)} -> {rel(out)}",
@@ -111,11 +129,12 @@ def main(argv=None) -> None:
         agent = RoutedAgent(
             attribute_schedule=[t.attribute for t in traj.turns], client=client,
             allowed_values=ALLOWED_VALUES, attribute_descriptions=ATTR_DESCRIPTIONS_V2,
-            temperature=0.3, max_tokens=200, system_prompt=SYSTEM_PROMPT_HC, request_timeout=45.0,
+            temperature=0.3, max_tokens=200, system_prompt=PROTOCOLS[protocol]["system_prompt"],
+            feedback_display=PROTOCOLS[protocol]["feedback_display"], request_timeout=45.0,
         )
         full = dag_from_trajectory(traj)
         new = {}
-        for i in target_turns(traj, args.k_target):
+        for i in target_turns(traj, args.k_target, args.turns):
             prefix = type(full)(nodes=full.nodes[:i], edges=[(p, c) for p, c in full.edges if c < i])
             need = args.k_target - len(traj.turns[i].samples)
             new[i] = agent.resample(i, session.setup_answers, prefix, k=need, temperature=0.9)
@@ -136,7 +155,7 @@ def main(argv=None) -> None:
         save_jsonl(trajs, partial)
 
     for t in trajs:
-        if t.task_id in eligible and target_turns(t, args.k_target) and t.meta.get("k10_status") != "done":
+        if t.task_id in eligible and target_turns(t, args.k_target, args.turns) and t.meta.get("k10_status") != "done":
             t.meta["k10_status"] = "pending"
     stats = run_parallel(todo, one, args.concurrency, meter, on_result, label="session",
                          progress_every=50, checkpoint=checkpoint)

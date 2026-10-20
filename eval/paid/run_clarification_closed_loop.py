@@ -15,9 +15,10 @@ Conditions per test session:
                       whole session rerun. burden = number of answers.
   posterior@b         (B, b in --budgets) pick the b confident (p >= 0.6)
                       cached commitments with the highest posterior error q_t
-                      (IndependentPosterior(by_value=True) fit on the seed-42
-                      train split; q_t from eval.e8_clarification.
-                      turn_posteriors). Turns before the earliest pick are
+                      (--picker v6: ChannelPosterior, the pre-registered
+                      detector; v3: IndependentPosterior(by_value=True) as in
+                      offline e8; fit on the train split of --split-seed;
+                      q_t = det.turn_q). Turns before the earliest pick are
                       kept as cached; the agent re-runs every turn from there
                       on. From the turn of each pick onward the context holds
                       the patient's true answer for that attribute.
@@ -51,20 +52,19 @@ from pathlib import Path
 
 import numpy as np
 
-from eval.e8_clarification import confident, turn_posteriors
-from eval.generate_healthcare_v2 import SYSTEM_PROMPT_HC
+from eval.e8_clarification import confident
 from eval.paid.common import (
-    ALLOWED_VALUES, REPO, add_dag_node, add_model_args, add_run_args, check_mock_out,
-    is_failed, ledger_line, make_client, preflight, print_estimate, rel, run_parallel,
+    ALLOWED_VALUES, PROTOCOLS, REPO, add_dag_node, add_model_args, add_run_args, check_mock_out,
+    is_failed, ledger_line, make_client, preflight, print_estimate, protocol_of, rel, run_parallel,
     spec_from_args, write_run_json,
 )
 from eval.score_trajectories import split_task_ids
 from pge.agents.paid_client import CostMeter, RoutedAgent
-from pge.baselines.posterior import IndependentPosterior
+from pge.baselines.posterior import ChannelPosterior, IndependentPosterior
 from pge.benchmarks.healthcare_llmpatient import STATEMENTS
 from pge.benchmarks.healthcare_v2 import (
-    ATTR_DESCRIPTIONS_V2, NO_FEEDBACK_ATTRS, UNDERDETERMINED, AgentGuessV2, eval_label_v2,
-    sample_session_v2,
+    ATTR_DESCRIPTIONS_V2, NO_FEEDBACK_ATTRS, UNDERDETERMINED, AgentGuessV2, eval_label_user,
+    eval_label_v2, sample_session_v2, user_dependent_attrs,
 )
 from pge.dag import ChainOfThoughtDAG
 from pge.trajectory import Trajectory, Turn, load_jsonl, save_jsonl
@@ -127,7 +127,8 @@ def plans_for(traj, q, budgets, selection_budgets=(1,), split_seed=42) -> list[P
     return plans
 
 
-def run_plan(plan: Plan, traj: Trajectory, session, client, seed: int, epsilon: float):
+def run_plan(plan: Plan, traj: Trajectory, session, client, seed: int, epsilon: float,
+             protocol: str = "v2"):
     """Returns (trajectory, agent or None). Truth is used only to (a) phrase
     the patient's answers in the prompt and (b) the eps channel + label,
     exactly as in the generator."""
@@ -146,7 +147,8 @@ def run_plan(plan: Plan, traj: Trajectory, session, client, seed: int, epsilon: 
         agent = RoutedAgent(
             attribute_schedule=session.schedule, client=client, allowed_values=ALLOWED_VALUES,
             attribute_descriptions=ATTR_DESCRIPTIONS_V2, temperature=0.3, max_tokens=200,
-            system_prompt=SYSTEM_PROMPT_HC, request_timeout=45.0,
+            system_prompt=PROTOCOLS[protocol]["system_prompt"],
+            feedback_display=PROTOCOLS[protocol]["feedback_display"], request_timeout=45.0,
         )
         rng = np.random.default_rng((seed, NOISE_SALT, session.profile_id))
         for t in range(plan.start, n):
@@ -169,6 +171,9 @@ def run_plan(plan: Plan, traj: Trajectory, session, client, seed: int, epsilon: 
     n_q = len(plan.upfront) + len(plan.ask)
     wrong_conf = sum(1 for g in guesses.values()
                      if g.probability >= HIGH and g.value != session.user_state[g.attribute])
+    U = user_dependent_attrs(session.setup_answers)
+    wrong_conf_user = sum(1 for g in guesses.values() if g.probability >= HIGH and g.attribute in U
+                          and g.value != session.user_state[g.attribute])
     out = Trajectory(
         task_id=traj.task_id, domain="healthcare_v2", model=traj.model, seed=traj.seed, turns=turns,
         eval_label=eval_label_v2(guesses, session), label_source="programmatic",
@@ -180,6 +185,9 @@ def run_plan(plan: Plan, traj: Trajectory, session, client, seed: int, epsilon: 
             "questions": ([{"turn": 0, "attribute": a, "upfront": True} for a in plan.upfront]
                           + [{"turn": j, "attribute": a} for j, a in sorted(plan.ask.items())]),
             "wrong_confident": wrong_conf,
+            "label_user": eval_label_user(guesses, session),
+            "wrong_confident_user": wrong_conf_user,
+            "protocol": protocol,
             "label_before": traj.eval_label,
             "parse_status": statuses,
             "parse_failed_turns": [plan.start + k for k, s in enumerate(statuses) if is_failed(s)],
@@ -199,6 +207,15 @@ def paired_boot(a, b, n=2000, seed=1):
 
 
 def summarize(results: dict, conditions: list, header: str) -> str:
+    return "\n\n".join([
+        _summarize(results, conditions, header + "\n## outcome: composite label (eval_label_v2)",
+                   lambda r: r.eval_label, lambda r: r.meta["wrong_confident"]),
+        _summarize(results, conditions, "## outcome: user-specific label L_U (eval_label_user)",
+                   lambda r: r.meta["label_user"], lambda r: r.meta["wrong_confident_user"]),
+    ])
+
+
+def _summarize(results: dict, conditions: list, header: str, lab_of, wc_of) -> str:
     tids = sorted(tid for tid, r in results.items() if all(c in r for c in conditions))
     L = [header, f"paired sessions with every condition complete: {len(tids)}", "",
          f"{'condition':20s} {'questions/sess':>14s} {'hall. rate':>10s} {'wrong conf/sess':>15s} "
@@ -206,8 +223,8 @@ def summarize(results: dict, conditions: list, header: str) -> str:
     col = {}
     for c in conditions:
         rows = [results[t][c] for t in tids]
-        lab = np.array([r.eval_label for r in rows])
-        wc = np.array([r.meta["wrong_confident"] for r in rows])
+        lab = np.array([lab_of(r) for r in rows])
+        wc = np.array([wc_of(r) for r in rows])
         col[c] = (lab, wc)
         L.append(f"{c:20s} {np.mean([r.meta['n_questions'] for r in rows]):14.2f} {lab.mean():10.3f} "
                  f"{wc.mean():15.3f} {sum(len(r.turns) - r.meta['rerun_from'] for r in rows):11d} "
@@ -246,6 +263,9 @@ def main(argv=None) -> None:
                     help="budgets for the random@b / lowconf@b selection controls")
     ap.add_argument("--limit", type=int, default=None, help="only the first N test sessions (pilot)")
     ap.add_argument("--cache", default=None)
+    ap.add_argument("--picker", choices=["v6", "v3"], default="v6",
+                    help="posterior that ranks commitments: v6 = ChannelPosterior (pre-registered), "
+                         "v3 = IndependentPosterior(by_value=True) as in offline e8")
     add_run_args(ap, max_cost=5.0)
     args = ap.parse_args(argv)
     check_mock_out(args)
@@ -265,14 +285,15 @@ def main(argv=None) -> None:
     for t in trajs:
         assert [x.attribute for x in t.turns] == sessions[t.task_id].schedule, f"{t.task_id}: stream mismatch"
 
+    protocol = protocol_of(trajs)
     tr_ids, te_ids = split_task_ids(list(by_id), 0.7, args.split_seed)
     tr = sorted(tr_ids)
-    det = IndependentPosterior(by_value=True).fit([by_id[t] for t in tr], None,
-                                                  np.array([by_id[t].eval_label for t in tr]))
+    det = (ChannelPosterior() if args.picker == "v6" else IndependentPosterior(by_value=True)).fit(
+        [by_id[t] for t in tr], None, np.array([by_id[t].eval_label for t in tr]))
     test = sorted(te_ids, key=lambda s: int(s.split("_")[1]))
     if args.limit:
         test = test[: args.limit]
-    plans = {tid: plans_for(by_id[tid], turn_posteriors(det, by_id[tid]), args.budgets,
+    plans = {tid: plans_for(by_id[tid], det.turn_q(by_id[tid]), args.budgets,
                             args.selection_budgets, args.split_seed) for tid in test}
     conditions = [p.condition for p in plans[test[0]]]
 
@@ -285,7 +306,8 @@ def main(argv=None) -> None:
             rows.append((f"{c} (turns)", spec, turns_c, *EST_PER_TURN))
     est = print_estimate(
         f"closed-loop clarification on {len(test)} test sessions (split seed {args.split_seed}, "
-        f"posterior eps={det.eps}) -> {rel(out_dir)}  [anchor: e5_intervention $0.34/54 reruns]",
+        f"protocol {protocol}, picker {args.picker}) -> {rel(out_dir)}  "
+        f"[anchor: e5_intervention $0.34/54 reruns]",
         rows, args.max_cost)
     if args.estimate_only:
         return
@@ -300,7 +322,7 @@ def main(argv=None) -> None:
         for p in plans[tid]:
             if p.start >= len(by_id[tid].turns):
                 results.setdefault(tid, {})[p.condition] = run_plan(
-                    p, by_id[tid], sessions[tid], None, args.seed, args.epsilon)
+                    p, by_id[tid], sessions[tid], None, args.seed, args.epsilon, protocol)
     todo = [(tid, p) for tid, p in paid if p.condition not in results.get(tid, {})]
 
     meter = CostMeter(args.max_cost)
@@ -309,7 +331,7 @@ def main(argv=None) -> None:
 
     def one(unit):
         tid, p = unit
-        return run_plan(p, by_id[tid], sessions[tid], client, args.seed, args.epsilon)
+        return run_plan(p, by_id[tid], sessions[tid], client, args.seed, args.epsilon, protocol)
 
     def on_result(unit, traj):
         results.setdefault(unit[0], {})[unit[1].condition] = traj
@@ -328,7 +350,8 @@ def main(argv=None) -> None:
         partial.unlink()
     summ = meter.summary()
     header = (f"# closed-loop clarification (paid, measured) — {spec.model_id}, cache {rel(cache)}, "
-              f"test split seed {args.split_seed} ({len(test)} sessions), posterior eps={det.eps}, "
+              f"test split seed {args.split_seed} ({len(test)} sessions), protocol {protocol}, "
+              f"picker {args.picker}, "
               f"noise stream (seed, {NOISE_SALT}, i), cost ${summ['cost']:.3f}")
     text = summarize(results, conditions, header)
     (out_dir / "summary.txt").write_text(text + "\n")

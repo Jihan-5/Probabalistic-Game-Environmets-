@@ -37,12 +37,55 @@ from eval.paid.common import (
     is_failed, ledger_line, load_partial, make_client, preflight, print_estimate, rel,
     run_parallel, save_partial, spec_from_args, write_run_json,
 )
+from eval.paid.common import PROTOCOLS, add_dag_node
 from pge.agents.paid_client import CostMeter, RoutedAgent
-from pge.benchmarks.healthcare_v2 import ATTR_DESCRIPTIONS_V2, sample_session_v2
+from pge.benchmarks.healthcare_v2 import (
+    ATTR_DESCRIPTIONS_V2, NO_FEEDBACK_ATTRS, AgentGuessV2, eval_label_user, eval_label_v2,
+    sample_session_v2,
+)
+from pge.dag import ChainOfThoughtDAG
+from pge.trajectory import Trajectory, Turn
 
-OUT_DIR = REPO / "data" / "trajectories" / "healthcare_v2_models"
+OUT_DIRS = {"v2": REPO / "data" / "trajectories" / "healthcare_v2_models",
+            "v2fb": REPO / "data" / "trajectories" / "healthcare_confirm"}
+DEFAULT_SEED = {"v2": 42, "v2fb": 7}
 # Per agent call, from the 70B ledger: $2.46 / 5,909 turns at $0.88/M ~ 470 tokens.
+# Resample calls: k=3 augmentation, 7,449 calls for $3.02 at $0.88/M ~ 460 tokens.
 EST_IN, EST_OUT, EST_CALLS_PER_TURN = 470, 30, 1.1
+EST_RS_IN, EST_RS_OUT = 448, 14
+
+
+def run_session_v2fb(session, agent: RoutedAgent, model_id: str, seed: int, epsilon: float,
+                     rng: np.random.Generator, k: int, temperature: float) -> Trajectory:
+    """Confirmatory session loop. Same session, eps channel (same rng draws,
+    in the same order) and DAG as eval/generate_healthcare_v2.run_llm_session;
+    differences: the agent sees the raw reaction, and every turn gets k
+    resamples from the exact context of its own guess (temperature T)."""
+    G = ChainOfThoughtDAG()
+    node_idx: dict = {}
+    turns: list[Turn] = []
+    guesses: dict = {}
+    for t, attribute in enumerate(session.schedule):
+        guess, raw = agent.guess_full(t, session.setup_answers, G)
+        samples = agent.resample(t, session.setup_answers, G, k=k, temperature=temperature) if k else []
+        value = str(guess.value).strip().lower()
+        guesses[attribute] = AgentGuessV2(attribute, value, guess.probability)
+        if attribute in NO_FEEDBACK_ATTRS:
+            signal = 0
+        else:
+            signal = 1 if value == session.user_state[attribute] else -1
+            if rng.random() < epsilon:
+                signal = -signal
+        turns.append(Turn(attribute=attribute, guess_value=value, probability=guess.probability, turn=t,
+                          raw_response=raw, samples=list(samples), signals={"noisy_feedback": signal}))
+        add_dag_node(G, node_idx, attribute, value, guess.probability, signal, t)
+    return Trajectory(
+        task_id=f"hcv2_{session.profile_id}", domain="healthcare_v2", model=model_id, seed=seed,
+        turns=turns, eval_label=eval_label_v2(guesses, session), label_source="programmatic",
+        meta={"epsilon": epsilon, "n_turns": len(session.schedule),
+              # second evaluation label (truth-derived, never detector-visible)
+              "eval_label_user": eval_label_user(guesses, session)},
+    )
 
 
 def main(argv=None) -> None:
@@ -50,7 +93,12 @@ def main(argv=None) -> None:
     add_model_args(ap, default="qwen72b")
     ap.add_argument("--short-name", default=None, help="output file stem (default: registry short name)")
     ap.add_argument("--n", type=int, default=600)
-    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--protocol", choices=sorted(PROTOCOLS), default="v2fb",
+                    help="v2fb (default): raw feedback shown to the agent + resamples on every turn; "
+                         "v2: exact replay of the 2026-09 development protocol")
+    ap.add_argument("--seed", type=int, default=None, help="default 7 for v2fb, 42 for v2")
+    ap.add_argument("--resample-k", type=int, default=None, help="resamples per turn (default 3 for v2fb)")
+    ap.add_argument("--resample-temperature", type=float, default=0.9)
     ap.add_argument("--epsilon", type=float, default=0.25)
     ap.add_argument("--max-parse-fail", type=float, default=0.25,
                     help="stop early if > this fraction of turns fail to parse (after 10 sessions)")
@@ -59,16 +107,26 @@ def main(argv=None) -> None:
     check_mock_out(args)
 
     spec = spec_from_args(args, short_name=args.short_name)
-    out = Path(args.out) if args.out else OUT_DIR / f"{spec.short_name}_{args.seed}.jsonl"
+    proto = PROTOCOLS[args.protocol]
+    if args.seed is None:
+        args.seed = DEFAULT_SEED[args.protocol]
+    if args.resample_k is None:
+        args.resample_k = 3 if args.protocol == "v2fb" else 0
+    if args.protocol == "v2" and args.resample_k:
+        raise SystemExit("--protocol v2 replays the legacy loop, which has no resampling")
+    out = Path(args.out) if args.out else OUT_DIRS[args.protocol] / f"{spec.short_name}_{args.seed}.jsonl"
     rng = np.random.default_rng(args.seed)
     sessions = [sample_session_v2(rng, i) for i in range(args.n)]
     noise_rngs = [np.random.default_rng((args.seed, i)) for i in range(args.n)]
     n_turns = sum(len(s.schedule) for s in sessions)
 
+    rows = [("agent turns", spec, int(n_turns * EST_CALLS_PER_TURN), EST_IN, EST_OUT)]
+    if args.resample_k:
+        rows.append((f"resamples (k={args.resample_k}, T={args.resample_temperature})", spec,
+                     n_turns * args.resample_k, EST_RS_IN, EST_RS_OUT))
     est = print_estimate(
-        f"healthcare-v2 multimodel n={args.n} ({n_turns} turns) -> {rel(out)}",
-        [("agent turns", spec, int(n_turns * EST_CALLS_PER_TURN), EST_IN, EST_OUT)],
-        args.max_cost,
+        f"healthcare {args.protocol} n={args.n} seed {args.seed} ({n_turns} turns) -> {rel(out)}",
+        rows, args.max_cost,
     )
     if args.estimate_only:
         return
@@ -91,13 +149,22 @@ def main(argv=None) -> None:
             attribute_descriptions=ATTR_DESCRIPTIONS_V2,
             temperature=0.3,
             max_tokens=200,
-            system_prompt=SYSTEM_PROMPT_HC,
+            system_prompt=proto["system_prompt"],
+            feedback_display=proto["feedback_display"],
             request_timeout=45.0,
         )
-        traj, agent = run_llm_session(sessions[i], spec.model_id, args.seed, args.epsilon,
-                                      noise_rngs[i], agent=agent)
+        if args.protocol == "v2":
+            traj, agent = run_llm_session(sessions[i], spec.model_id, args.seed, args.epsilon,
+                                          noise_rngs[i], agent=agent)
+        else:
+            traj = run_session_v2fb(sessions[i], agent, spec.model_id, args.seed, args.epsilon,
+                                    noise_rngs[i], args.resample_k, args.resample_temperature)
         assert len(agent.parse_log) == len(traj.turns)
         traj.meta.update({
+            "protocol": args.protocol,
+            "feedback_display": proto["feedback_display"],
+            "resample_k": args.resample_k,
+            "resample_temperature": args.resample_temperature if args.resample_k else None,
             "provider": spec.provider,
             "short_name": spec.short_name,
             "parse_status": list(agent.parse_log),

@@ -118,8 +118,13 @@ class IndependentPosterior(TrajectoryScorer):
         em_iters: int = 20,
         high: float = HIGH,
         frac: float = 0.5,
+        event_attrs=None,
     ):
         self.high, self.frac = high, frac  # label event definition
+        # Label event restricted to commitments on these attributes (None =
+        # all), e.g. the user-dependent attributes for the user-specific label.
+        # Priors and the channel are still fit on every commitment.
+        self.event_attrs = None if event_attrs is None else frozenset(event_attrs)
         self.k = prior_strength
         self.by_value = by_value or use_samples
         self.use_samples = use_samples
@@ -131,6 +136,8 @@ class IndependentPosterior(TrajectoryScorer):
             if by_value
             else "pge_posterior_indep"
         )
+        if self.event_attrs is not None:
+            self.name += "+U"
         self.eps = None
         self.pi: dict = {}
         self.pi_bucket: dict = {}
@@ -201,20 +208,32 @@ class IndependentPosterior(TrajectoryScorer):
             A = num / num.sum(axis=0, keepdims=True)
         return A
 
+    def _likelihoods(self, turn):
+        s = turn_signal(turn)
+        l1, l0 = emission(s, 1, self.eps), emission(s, 0, self.eps)
+        if self.use_samples and self.A is not None:
+            c = agreement_count(turn)
+            if c is not None and c < len(self.A):
+                l1 *= self.A[c, 1]
+                l0 *= self.A[c, 0]
+        return l1, l0
+
+    def _q_turn(self, turn) -> float:
+        """Posterior probability that this commitment is wrong."""
+        pi = self._prior(turn)
+        l1, l0 = self._likelihoods(turn)
+        return pi * l1 / (pi * l1 + (1 - pi) * l0)
+
+    def _in_event(self, turn) -> bool:
+        return turn.probability >= self.high and (
+            self.event_attrs is None or turn.attribute in self.event_attrs)
+
+    def turn_q(self, traj) -> np.ndarray:
+        """q_t for EVERY turn (detector-visible inputs only)."""
+        return np.array([self._q_turn(turn) for turn in traj.turns])
+
     def _score(self, traj):
-        q = []
-        for turn in traj.turns:
-            if turn.probability < self.high:
-                continue
-            pi = self._prior(turn)
-            s = turn_signal(turn)
-            l1, l0 = emission(s, 1, self.eps), emission(s, 0, self.eps)
-            if self.use_samples and self.A is not None:
-                c = agreement_count(turn)
-                if c is not None and c < len(self.A):
-                    l1 *= self.A[c, 1]
-                    l0 *= self.A[c, 0]
-            q.append(pi * l1 / (pi * l1 + (1 - pi) * l0))
+        q = [self._q_turn(turn) for turn in traj.turns if self._in_event(turn)]
         if not q:
             return 0.0
         return poisson_binomial_tail(np.array(q), label_threshold(len(q), self.frac))
@@ -415,9 +434,11 @@ class ChannelPosterior(IndependentPosterior):
     is the special case r0 = g1 = eps, r1 = g0 = 1 - eps.
     """
 
-    def __init__(self, prior_strength: float = 5.0, high: float = HIGH, frac: float = 0.5):
-        super().__init__(prior_strength=prior_strength, by_value=True, high=high, frac=frac)
-        self.name = "pge_posterior_channel"
+    def __init__(self, prior_strength: float = 5.0, high: float = HIGH, frac: float = 0.5,
+                 event_attrs=None):
+        super().__init__(prior_strength=prior_strength, by_value=True, high=high, frac=frac,
+                         event_attrs=event_attrs)
+        self.name = "pge_posterior_channel" + ("+U" if self.event_attrs is not None else "")
         self.r = self.g = None
         self.observable: set = set()
 
@@ -477,17 +498,8 @@ class ChannelPosterior(IndependentPosterior):
             return g
         return max(1.0 - r - g, 1e-3)
 
-    def _score(self, traj):
-        q = []
-        for turn in traj.turns:
-            if turn.probability < self.high:
-                continue
-            pi = self._prior(turn)
-            l1, l0 = self._emission(turn, 1), self._emission(turn, 0)
-            q.append(pi * l1 / (pi * l1 + (1 - pi) * l0))
-        if not q:
-            return 0.0
-        return poisson_binomial_tail(np.array(q), label_threshold(len(q), self.frac))
+    def _likelihoods(self, turn):
+        return self._emission(turn, 1), self._emission(turn, 0)
 
     def fit(self, trajectories, dags=None, labels=None):
         if labels is None:

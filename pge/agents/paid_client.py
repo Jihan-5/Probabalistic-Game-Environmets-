@@ -29,7 +29,7 @@ from typing import Callable, Optional
 
 from pge import config
 from pge.agent import Guess
-from pge.agents.llama_together import LlamaTogetherAgent, _parse_guess
+from pge.agents.llama_together import LlamaTogetherAgent, _parse_guess, _format_history
 from pge.agents.registry import ModelSpec
 
 
@@ -297,6 +297,39 @@ def parse_commitment(
     return None, "failed"
 
 
+# ------------------------------------------------------- feedback display
+
+FEEDBACK_DISPLAYS = ("score_sign", "signal")
+_SIGNAL_MARK = {1: "+", -1: "-", 0: "none"}
+
+
+def format_history_signal(history, max_turns: int = 6) -> str:
+    """Prior turns with the RAW feedback signal: '+' / '-' / 'none'.
+
+    The legacy formatter (llama_together._format_history, display
+    'score_sign') shows sign(tanh(F * logit p)): 'no reaction' appears as '+'
+    and, for p < 0.5, accept and contradict appear inverted. Kept only to
+    replay the 2026-09 corpora exactly; every new protocol uses this one.
+    Requires GuessNode.signal (set by every builder in this repo)."""
+    if len(history) == 0:
+        return "(no prior guesses)"
+    lines = []
+    for node in history.nodes[-max_turns:]:
+        if node.signal is None:
+            raise ValueError("format_history_signal needs GuessNode.signal; build the DAG with signals")
+        lines.append(f"  turn {node.turn}: [{node.attribute}]: {node.value}, "
+                     f"p={node.probability:.2f}  (patient reaction: {_SIGNAL_MARK[int(node.signal)]})")
+    return "\n".join(lines)
+
+
+def format_history(history, display: str) -> str:
+    if display == "signal":
+        return format_history_signal(history)
+    if display == "score_sign":
+        return _format_history(history)
+    raise ValueError(f"feedback display must be one of {FEEDBACK_DISPLAYS}, got {display!r}")
+
+
 # ------------------------------------------------------------- routed agent
 
 
@@ -315,15 +348,34 @@ class RoutedAgent(LlamaTogetherAgent):
         attribute_schedule: list[str],
         client: ChatClient,
         allowed_values: Optional[dict[str, list[str]]] = None,
+        feedback_display: str = "score_sign",
         **kwargs,
     ):
         super().__init__(attribute_schedule, model=client.spec.model_id, api_key="(routed)", **kwargs)
+        if feedback_display not in FEEDBACK_DISPLAYS:
+            raise ValueError(f"feedback_display must be one of {FEEDBACK_DISPLAYS}")
+        self.feedback_display = feedback_display
         self.client = client
         self.base_url = client.spec.url
         self.allowed_values = allowed_values or {}
         self.cost = 0.0
         self.last_parse_status = ""
         self.parse_log: list[str] = []  # one status per guess_full call, in order
+
+    def _build_user_prompt(self, attribute, setup_answers, history):
+        """Legacy template, byte-identical for display 'score_sign'; with
+        'signal' only the history lines differ."""
+        if self.feedback_display == "score_sign":
+            return super()._build_user_prompt(attribute, setup_answers, history)
+        setup_str = "\n".join(f"  {k}: {v}" for k, v in setup_answers.items())
+        description = self.attribute_descriptions.get(attribute, "")
+        desc_line = f"\nThis attribute means: {description}\n" if description else ""
+        return (
+            f"Context (one-time, from the user/task):\n{setup_str}\n\n"
+            f"Prior turns in this session:\n{format_history_signal(history)}\n\n"
+            f"Now produce your guess for attribute: {attribute}{desc_line}\n"
+            f"Output format: [{attribute}]: <value>, p=<probability>"
+        )
 
     def _call_api(self, user_prompt: str, temperature: Optional[float] = None) -> str:
         text, tin, tout, cost = self.client.chat_full(

@@ -21,6 +21,10 @@ class GuessNode:
     score: float = 0.0
     turn: int = 0
     operation: Optional[object] = None  # used by MLCR
+    # Raw feedback signal for this commitment (+1 / -1 / 0), when known. Only
+    # used to DISPLAY feedback to agents (pge.agents.paid_client); detectors
+    # read Trajectory signals, never this field.
+    signal: Optional[int] = None
 
 
 @dataclass

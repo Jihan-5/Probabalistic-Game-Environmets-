@@ -22,7 +22,7 @@ LOG=logs/paid
 mkdir -p "$LOG"
 SPEND="$LOG/spend.tsv"
 touch "$SPEND"
-TOTAL_CAP=${TOTAL_CAP:-40}
+TOTAL_CAP=${TOTAL_CAP:-41}  # $50 budget - $7.96 already spent (ledger) - ~$1 margin
 GATE_LIFT=${GATE_LIFT:-1.5}
 # test hook only: PAID_EXTRA_ARGS="--mock" in a scratch copy of the repo (see RUN_PAID.md)
 read -r -a EXTRA <<< "${PAID_EXTRA_ARGS:-}"
@@ -48,7 +48,12 @@ step() {  # step <id> <cap> <output that marks the step done> -- <python args...
   echo "=== [$id] cap \$$cap   (recorded spend so far \$$s of TOTAL_CAP \$$TOTAL_CAP)"
   echo "    python3 $* --max-cost $cap"
   if [ "${DRY:-0}" = "1" ]; then
-    python3 "$@" ${EXTRA[@]+"${EXTRA[@]}"} --max-cost "$cap" --estimate-only | sed 's/^/    /'
+    local est
+    if est=$(python3 "$@" ${EXTRA[@]+"${EXTRA[@]}"} --max-cost "$cap" --estimate-only 2>&1); then
+      echo "$est" | sed 's/^/    /'
+    else
+      echo "    (no estimate yet: this step reads the output of an earlier step)"
+    fi
     return 0
   fi
   local log="$LOG/$id.log" rc=0 c
@@ -68,7 +73,7 @@ gate() {  # gate <id> <pilot jsonl> : 0 = run the full arm
   if [ "${DRY:-0}" = "1" ]; then echo "    (DRY) [$1] runs only if the pilot audit lift >= $GATE_LIFT"; return 0; fi
   [ -e "$2" ] || { echo "[run_paid] $1: pilot $2 missing; run its pilot step first"; exit 1; }
   local rc=0
-  python3 -m eval.paid.audit_llmpatient "$2" --seed 42 --gate-lift "$GATE_LIFT" \
+  python3 -m eval.paid.audit_llmpatient "$2" --seed "${SEED:-42}" --gate-lift "$GATE_LIFT" \
     --out "$LOG/audit_$(basename "$2" .jsonl).txt" > /dev/null || rc=$?
   if [ "$rc" -eq 0 ]; then echo "[gate $1] PASS (lift >= $GATE_LIFT)"; return 0; fi
   if [ "$rc" -eq 3 ]; then echo "[gate $1] FAIL (lift < $GATE_LIFT): skipping the n=600 arm"; return 1; fi
@@ -89,45 +94,59 @@ seed_from_pilot() {  # seed_from_pilot <pilot> <full output> <n>: reuse pilot se
 }
 
 LP=data/trajectories/healthcare_llmpatient
-MM=data/trajectories/healthcare_v2_models
+CF=data/trajectories/healthcare_confirm
+SEED=7   # confirmatory seed: sessions never used in development (dev corpora are seed 42)
 
-# 1. LLM-simulated patient (behavioral feedback): 100-session pilot per arm,
-#    then n=600 for each arm whose audit passes the gate.
-step 1a 1.2 "$LP/pilot/70B_42_n100.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
-  --model 70B --seed 42 --n 100 --patient-knows profile --out "$LP/pilot/70B_42_n100.jsonl" --resume
-step 1b 1.2 "$LP/pilot/70B_42_n100_informed.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
-  --model 70B --seed 42 --n 100 --patient-knows informed --out "$LP/pilot/70B_42_n100_informed.jsonl" --resume
-if gate 1c "$LP/pilot/70B_42_n100.jsonl"; then
-  seed_from_pilot "$LP/pilot/70B_42_n100.jsonl" "$LP/70B_42.jsonl" 600
-  step 1c 5.0 "$LP/70B_42.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
-    --model 70B --seed 42 --n 600 --patient-knows profile --out "$LP/70B_42.jsonl" --resume
+# Steps run in PRIORITY order: if TOTAL_CAP would be exceeded, only the tail
+# (optional) steps are refused. Analysis plan: results/PREREG_confirmatory.md
+# (committed before any confirmatory data existed).
+
+# 1. Confirmatory corpora: protocol v2fb (agent sees the raw reaction +/-/none),
+#    k=3 resamples on EVERY turn (T=0.9, same context as the guess), n=600, seed 7.
+step 1a 12.5 "$CF/70B_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
+  --model 70B --protocol v2fb --seed $SEED --n 600 --resume
+step 1b 1.5 "$CF/8B_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
+  --model 8B --protocol v2fb --seed $SEED --n 600 --resume
+step 1c 6.0 "$CF/qwen72b_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
+  --model qwen72b --protocol v2fb --seed $SEED --n 600 --resume
+step 1d 2.5 "$CF/gpt-4o-mini_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
+  --model gpt-4o-mini --protocol v2fb --seed $SEED --n 600 --resume
+step 1e 5.5 "$CF/mistral-small-24b_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
+  --model mistral-small-24b --protocol v2fb --seed $SEED --n 600 --resume
+
+# 2. LLM-simulated patient (behavioral feedback), seed 7: 100-session pilot per
+#    arm; the n=600 profile arm runs only if its pilot passes the audit gate.
+step 2a 1.2 "$LP/pilot/70B_${SEED}_n100.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
+  --model 70B --seed $SEED --n 100 --patient-knows profile --out "$LP/pilot/70B_${SEED}_n100.jsonl" --resume
+step 2b 1.2 "$LP/pilot/70B_${SEED}_n100_informed.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
+  --model 70B --seed $SEED --n 100 --patient-knows informed --out "$LP/pilot/70B_${SEED}_n100_informed.jsonl" --resume
+if gate 2c "$LP/pilot/70B_${SEED}_n100.jsonl"; then
+  seed_from_pilot "$LP/pilot/70B_${SEED}_n100.jsonl" "$LP/70B_$SEED.jsonl" 600
+  step 2c 5.0 "$LP/70B_$SEED.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
+    --model 70B --seed $SEED --n 600 --patient-knows profile --out "$LP/70B_$SEED.jsonl" --resume
 fi
-if gate 1d "$LP/pilot/70B_42_n100_informed.jsonl"; then
-  seed_from_pilot "$LP/pilot/70B_42_n100_informed.jsonl" "$LP/70B_42_informed.jsonl" 600
-  step 1d 5.0 "$LP/70B_42_informed.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
-    --model 70B --seed 42 --n 600 --patient-knows informed --out "$LP/70B_42_informed.jsonl" --resume
+
+# 3. Measured closed-loop clarification on the confirmatory 70B corpus (test split
+#    of split seed 42; V6 picks; both labels). Done marker = a per-condition file,
+#    written only when every condition is complete.
+step 3 9.0 "results/e8_closed_loop/70B_$SEED/rerun_full.jsonl" -- -m eval.paid.run_clarification_closed_loop \
+  --model 70B --cache "$CF/70B_$SEED.jsonl" --seed $SEED --picker v6 --resume
+
+# 4. CoVe (70B self-verification) on the confirmatory 70B test splits.
+step 4 1.5 "results/cove_baseline/70B_on_70B_$SEED/scores.json" -- -m eval.paid.run_cove \
+  --model 70B --corpus "$CF/70B_$SEED.jsonl" --gen-seed $SEED
+
+# 5. OPTIONAL (refused automatically if TOTAL_CAP would be exceeded):
+#    5a informed-patient arm at n=600 (upper-bound channel), if its pilot passes;
+#    5b k=10 resamples on user-dependent turns of the 70B split-seed-42 test sessions.
+if gate 5a "$LP/pilot/70B_${SEED}_n100_informed.jsonl"; then
+  seed_from_pilot "$LP/pilot/70B_${SEED}_n100_informed.jsonl" "$LP/70B_${SEED}_informed.jsonl" 600
+  step 5a 5.0 "$LP/70B_${SEED}_informed.jsonl" -- -m eval.paid.generate_healthcare_llmpatient \
+    --model 70B --seed $SEED --n 600 --patient-knows informed --out "$LP/70B_${SEED}_informed.jsonl" --resume
 fi
-
-# 2. New model families on healthcare-v2 (n=600, seed 42, same eps channel).
-step 2a 2.5 "$MM/qwen72b_42.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
-  --model qwen72b --seed 42 --n 600 --resume
-step 2b 2.0 "$MM/mistral-small-24b_42.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
-  --model mistral-small-24b --seed 42 --n 600 --resume
-step 2c 1.5 "$MM/gpt-4o-mini_42.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
-  --model gpt-4o-mini --seed 42 --n 600 --resume
-
-# 3. Measured closed-loop clarification (180 test sessions; reruns for detailed_questions,
-#    rerun_full, posterior@1/2, no_question@1/2, random@1, lowconf@1). Done marker is a
-#    per-condition file, written only when every condition is complete.
-step 3 9.0 "results/e8_closed_loop/70B_42/rerun_full.jsonl" -- -m eval.paid.run_clarification_closed_loop \
-  --model 70B --seed 42 --resume
-
-# 4. k=10 resamples on the 70B healthcare corpus (new file; the k=3 cache is only read).
-step 4 8.0 "data/trajectories/healthcare_v2_k10/70B_42_k10.jsonl" -- -m eval.paid.augment_resamples_k10 \
-  --model 70B --seed 42 --k-target 10 --resume
-
-# 5. CoVe baseline (70B self-verification) on the healthcare 70B test splits.
-step 5 1.5 "results/cove_baseline/70B_on_70B_42/scores.json" -- -m eval.paid.run_cove --model 70B
+step 5b 4.0 "data/trajectories/healthcare_confirm_k10/70B_${SEED}_k10.jsonl" -- -m eval.paid.augment_resamples_k10 \
+  --model 70B --input "$CF/70B_$SEED.jsonl" --seed $SEED --k-target 10 --restrict test-42 --turns user \
+  --out "data/trajectories/healthcare_confirm_k10/70B_${SEED}_k10.jsonl" --resume
 
 echo
 echo "[run_paid] done. Recorded spend this machine: \$$(spent) (logs/paid/spend.tsv). Send back the files listed in RUN_PAID.md."
