@@ -38,7 +38,7 @@ from pge.baselines.posterior import (
     ChannelPosterior, IndependentPosterior, label_threshold, poisson_binomial_tail, turn_signal,
 )
 from pge.baselines.selfcheckgpt import SelfCheckGPT
-from pge.baselines.semantic_entropy import SemanticEntropy
+from pge.baselines.semantic_entropy import SemanticEntropy, _extract_final_value
 from pge.benchmarks import healthcare_llmpatient
 from pge.benchmarks.healthcare_v2 import (
     USER_DEPENDENT_SCHEMA, AgentGuessV2, derive_ground_truth_v2, eval_label_user, sample_session_v2,
@@ -383,6 +383,103 @@ def rules_aware(trajs, sessions, y, dags, eps):
     return run_protocol(trajs, y, F, dags=dags)
 
 
+# ------------------------------- per-commitment check of Corollary 1 (descriptive)
+
+
+def percommit(trajs, sessions):
+    """On confident and non-confident commitments whose truth is user-dependent
+    in that session: resample agreement vs error (e0, e1), Corollary 1's bound
+    |AUROC - 1/2| <= (1 - (1-e0)(1-e1))/2, the measured AUROC of resample
+    disagreement and of one feedback bit for predicting THAT commitment's error.
+    Truth reconstructed from the seed stream (analysis only)."""
+    dis, fb, wr = [], [], []
+    for t in trajs:
+        s = sessions[t.task_id]
+        U = user_dependent_attrs(s.setup_answers)
+        for turn in t.turns:
+            if turn.attribute not in U or not turn.samples:
+                continue
+            vals = [str(x) for x in turn.samples]
+            agree = [(_extract_final_value(v) or "").strip().lower() == turn.guess_value for v in vals]
+            dis.append(1.0 - float(np.mean(agree)))
+            fb.append(-turn_signal(turn))
+            wr.append(int(turn.guess_value != s.user_state[turn.attribute]))
+    if not wr:
+        return None
+    dis, fb, wr = np.array(dis), np.array(fb), np.array(wr)
+    anyd = dis > 0
+    e1, e0 = float(anyd[wr == 1].mean()), float(anyd[wr == 0].mean())
+    obs = fb != 0
+    return {"n": int(len(wr)), "wrong": float(wr.mean()), "all_agree": float(1 - anyd.mean()),
+            "e1": e1, "e0": e0, "cor1_bound": 0.5 + 0.5 * (1 - (1 - e0) * (1 - e1)),
+            "auroc_disagreement": float(auroc(dis, wr)),
+            "auroc_feedback_bit": float(auroc(fb[obs], wr[obs])) if obs.any() and 0 < wr[obs].sum() < obs.sum() else float("nan")}
+
+
+def channel_stats(trajs, sessions):
+    """Empirical feedback channel on turns that can receive a reaction
+    (analysis only): P(signal | commitment wrong / right) and the contradiction lift."""
+    from pge.benchmarks.healthcare_v2 import NO_FEEDBACK_ATTRS
+    c = {(w, s): 0 for w in (0, 1) for s in (-1, 0, 1)}
+    for t in trajs:
+        st = sessions[t.task_id].user_state
+        for turn in t.turns:
+            if turn.attribute in NO_FEEDBACK_ATTRS:
+                continue
+            c[(int(turn.guess_value != st[turn.attribute]), turn_signal(turn))] += 1
+    nw, nr = sum(c[(1, s)] for s in (-1, 0, 1)), sum(c[(0, s)] for s in (-1, 0, 1))
+    if not nw or not nr:
+        return None
+    d = {f"P({s}|{'w' if w else 'r'})": c[(w, s)] / (nw if w else nr) for w in (0, 1) for s in (-1, 0, 1)}
+    d["lift"] = d["P(-1|w)"] / max(d["P(-1|r)"], 1e-9)
+    d["n_wrong"], d["n_right"] = nw, nr
+    return d
+
+
+CLAR_CONDS = ["cached", "detailed_questions", "rerun_full", "posterior@1", "no_question@1", "posterior@2",
+              "no_question@2", "random@1", "lowconf@1"]
+CLAR_COMPS = [("posterior@1", "no_question@1"), ("posterior@1", "random@1"), ("posterior@1", "lowconf@1"),
+              ("posterior@2", "detailed_questions"), ("posterior@2", "rerun_full"),
+              ("detailed_questions", "rerun_full"), ("posterior@1", "detailed_questions"),
+              ("posterior@1", "cached"), ("rerun_full", "cached")]
+
+
+def clarification(numbers):
+    """Pre-registered clarification comparisons from the per-condition JSONL."""
+    d = CLAR.parent
+    files = {c: d / f"{c.replace('@', '_at')}.jsonl" for c in CLAR_CONDS}
+    if not all(f.exists() for f in files.values()):
+        return []
+    R = {c: {t.task_id: t for t in load_jsonl(f)} for c, f in files.items()}
+    tids = sorted(set.intersection(*[set(v) for v in R.values()]))
+    out = {"n_sessions": len(tids)}
+    metrics = {"questions": lambda t: t.meta["n_questions"], "L": lambda t: t.eval_label,
+               "L_U": lambda t: t.meta["label_user"], "wrong_conf": lambda t: t.meta["wrong_confident"],
+               "wrong_conf_user": lambda t: t.meta["wrong_confident_user"]}
+    for c in CLAR_CONDS:
+        out[c] = {m: float(np.mean([f(R[c][t]) for t in tids])) for m, f in metrics.items()}
+    rng = np.random.default_rng(1)
+    B = rng.integers(0, len(tids), (N_BOOT, len(tids)))
+    for a, b in CLAR_COMPS:
+        for m in ("wrong_conf_user", "L_U", "L", "wrong_conf"):
+            diff = np.array([metrics[m](R[a][t]) - metrics[m](R[b][t]) for t in tids], dtype=float)
+            bs = diff[B].mean(axis=1)
+            out.setdefault("diffs", {})[f"{m}: {a} - {b}"] = (float(diff.mean()), float(np.percentile(bs, 2.5)),
+                                                               float(np.percentile(bs, 97.5)))
+    numbers["clarification"] = out
+    L = ["", "## Measured clarification: pre-registered comparisons (paired bootstrap over sessions)", "",
+         f"{len(tids)} sessions. Primary outcome: wrong confident user-dependent commitments per session.", "",
+         "| condition | questions | L_U rate | wrong conf. user-dep. | L rate | wrong conf. |", "|---|---|---|---|---|---|"]
+    for c in CLAR_CONDS:
+        o = out[c]
+        L.append(f"| {c} | {o['questions']:.2f} | {o['L_U']:.3f} | {o['wrong_conf_user']:.3f} | {o['L']:.3f} | {o['wrong_conf']:.3f} |")
+    L += ["", "| A - B | wrong conf. user-dep. (primary) | L_U | L |", "|---|---|---|---|"]
+    for a, b in CLAR_COMPS:
+        L.append(f"| {a} - {b} | " + " | ".join(fmt(out['diffs'][f'{m}: {a} - {b}']) for m in
+                                               ("wrong_conf_user", "L_U", "L")) + " |")
+    return L
+
+
 # ------------------------------------------------------------------ report
 
 
@@ -436,6 +533,12 @@ def analyse(corpora, label_sets, out_name, full=True):
         trajs, L, LU = load(path, seed, n)
         dags = [build_dag(t) for t in trajs]
         sessions = load.sessions
+        pc = percommit(trajs, sessions)
+        if pc:
+            numbers.setdefault("percommit", {})[tag] = pc
+        ch = channel_stats(trajs, sessions)
+        if ch:
+            numbers.setdefault("channel", {})[tag] = ch
         if "L_U" in label_sets:
             eps = None if any(t.domain == healthcare_llmpatient.DOMAIN for t in trajs) else \
                 float(trajs[0].meta.get("epsilon", 0.25))
@@ -502,6 +605,13 @@ def analyse(corpora, label_sets, out_name, full=True):
                 c = claim(hid, ci) if hid != "sec." else "reported as is"
                 lines.append(f"| {hid} | {q} | {fmt(ci, signed=b is not None)} | {c} |")
                 numbers[lab].setdefault("pooled", {})[f"{hid}: {q}"] = ci
+    if numbers.get("percommit"):
+        lines += ["", "## Per-commitment check of Corollary 1 (user-dependent commitments; descriptive)", "",
+                  "| corpus | n | wrong | all resamples agree | e1 = P(disagree|wrong) | e0 = P(disagree|right) | "
+                  "Cor. 1 bound | AUROC disagreement | AUROC one feedback bit |", "|---|---|---|---|---|---|---|---|---|"]
+        for tag, d in numbers["percommit"].items():
+            lines.append(f"| {tag} | {d['n']} | {d['wrong']:.3f} | {d['all_agree']:.3f} | {d['e1']:.3f} | {d['e0']:.3f} | "
+                         f"{d['cor1_bound']:.3f} | {d['auroc_disagreement']:.3f} | {d['auroc_feedback_bit']:.3f} |")
     if rules:
         lines += ["", "## Amendment 2: rules-aware analyses on L_U (oracle information: the simulator's rules and "
                   "hidden-fact prior; not deployable)", "",
@@ -582,6 +692,7 @@ def main(argv=None):
             lines += ["", "# LLM-simulated patient (behavioral feedback)", ""] + pl
             numbers["llm_patient"] = pn
         k10_block(lines, numbers)
+        lines += clarification(numbers)
         if CLAR.exists():
             lines += ["", "# Measured closed-loop clarification (results/e8_closed_loop/70B_7/summary.txt)",
                       "", "```", CLAR.read_text().rstrip(), "```"]
