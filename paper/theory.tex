@@ -1,0 +1,196 @@
+% ===================== Section: Theory =====================
+\section{What Resampling and Feedback Can Reveal}
+\label{sec:theory}
+
+\paragraph{Setup.}
+A user $u$ is drawn from a population. At turn $t$ the agent conditions on a
+context $X_t$: the coarse intake $\phi(u)$, the question, and the interaction
+history, which in PGE displays earlier reactions; $X$ denotes
+$(X_1,\dots,X_T)$. It emits a commitment $c_t=(a_t,v_t,p_t)$
+(attribute, value, reported confidence) from its policy $\pi(\cdot\mid X_t)$.
+Apart from the truth and the reactions, nothing depends on $u$ except through
+$X$. The truth $y_{a}(u)$ is private to the user; the commitment is wrong if
+$w_t=\mathbf{1}[v_t\neq y_{a_t}(u)]$. With confident set $H=\{t:p_t\ge\tau\}$
+and error fraction $\rho$, a session hallucinates iff
+\begin{equation}
+L=\mathbf{1}\Big[\,|H|\ge 1\ \text{and}\ \textstyle\sum_{t\in H} w_t \ \ge\ \lceil \rho\,|H|\rceil\Big].
+\label{eq:label}
+\end{equation}
+The results below hold for any binary label determined by $(C,u)$: a single $w_t$, or $L_A$,
+Eq.~\eqref{eq:label} with $H$ replaced by $H_A=\{t\in H:a_t\in A\}$ for an
+attribute set $A$ determined by $X$ (for the user-specific label $\LU$, the
+attributes the intake does not determine). We write $L$.
+
+A \emph{context-and-sample detector} is any $S=h(X,C,Z,\xi)$ with $\xi$
+independent randomness and $Z$ drawn, given $(u,X,C)$, from a kernel
+$K(\cdot\mid X,C)$ that does not involve $u$: resamples at any temperature,
+token log-probabilities, hidden states. A \emph{feedback detector} also sees
+reactions $F_t\in\{-1,0,+1\}$ (contradicts, none, accepts). By the
+Neyman--Pearson (NP) lemma \citep{neyman1933problem}, among all, possibly
+randomized, detectors that are functions of an observation $O$, thresholding
+$P(L=1\mid O)$ (randomized at ties) has the highest true-positive rate at
+every false-positive rate, hence the highest AUROC; ties count $\tfrac12$.
+Theorem~\ref{thm:bound} is the standard data-processing consequence of NP
+\citep{neyman1933problem,blackwell1953equivalent}, stated for this setting.
+
+\begin{theorem}[Self-consistency bound]
+\label{thm:bound}
+Let $\eta_\varnothing=P(L=1\mid X,C)$ and $S$ be a context-and-sample
+detector. Given $(X,C)$, $S$ is independent of $u$ and $L$, so within a
+context it ranks hallucinating above clean sessions with probability exactly
+$\tfrac12$. Across contexts, its ROC curve lies
+pointwise below that of the Bayes predictor $\eta_\varnothing$.
+\end{theorem}
+\begin{proof}
+Given $(u,X,C)$, $S$ depends only on $(Z,\xi)$, whose law does not involve
+$u$, and $L$ is a function of $(C,u)$. So the law of $S$ given $(X,C)$ does
+not depend on $L$, $P(L=1\mid X,C,S)=\eta_\varnothing$, and NP applies to
+$O=(X,C,S)$.
+\end{proof}
+
+\noindent Since $X$ contains the reactions the agent was shown,
+$\eta_\varnothing$ is not feedback-free, and detectors built from $(X,C)$,
+such as context-only classifiers, can reflect them and exploit base rates
+across contexts. Resampling cannot add to $(X,C)$ or separate users who share
+a context; a feedback detector reads the reactions directly, including the
+last. For dispersion scores, more is true:
+
+\begin{corollary}[Dispersion under systematic fabrication]
+\label{cor:degenerate}
+Let $S$ be a score of the commitments and their $k$ resamples (agreement
+rate, semantic entropy, SelfCheck-style inconsistency) that takes a fixed
+value $s^\star$ whenever every resample equals its commitment, and
+$e_\ell=P(S\neq s^\star\mid L=\ell)$. Then
+\[
+\big|\mathrm{AUROC}(S)-\tfrac12\big|\ \le\ \tfrac12\big(1-(1-e_0)(1-e_1)\big)
+\ \le\ \tfrac12(e_0+e_1).
+\]
+If $s^\star$ is the least suspicious value of $S$, then
+$\big|\mathrm{AUROC}(S)-\tfrac12-\tfrac12(e_1-e_0)\big|\le\tfrac12e_0e_1$. If
+every turn's resampling distribution is a point mass at the committed value,
+$\mathrm{AUROC}(S)=\tfrac12$ however often the commitments are wrong.
+\end{corollary}
+\begin{proof}
+For independent positive and negative draws, both scores equal $s^\star$
+with probability $(1-e_0)(1-e_1)$; such pairs are ties and contribute
+exactly $\tfrac12$. All other pairs contribute a value in $[0,1]$. If
+$s^\star$ is least suspicious, a pair where only the positive (negative)
+differs from $s^\star$ contributes $1$ ($0$); only pairs where both differ,
+with probability $e_0e_1$, are free.
+\end{proof}
+
+\noindent On the development corpora (\S\ref{sec:exp-dissociation}), the 70B
+agent's user-dependent commitments (label $w_t$) have
+$e_1=\val{D/PC/70B/e1}$ and $e_0=\val{D/PC/70B/e0}$: the corollary caps
+disagreement's AUROC at \val{D/PC/70B/cor1_bound}, and its sharp form pins it
+within $\tfrac12e_0e_1$ of $\tfrac12+\tfrac12(e_1-e_0)\approx\tfrac12$; we
+measure \val{D/PC/70B/auroc_disagreement}, against
+\val{D/PC/70B/auroc_feedback_bit} for one noisy reaction. For the less
+self-consistent 8B agent the cap (\val{D/PC/8B/cor1_bound}) is loose.
+
+Theorem~\ref{thm:feedback} is Blackwell's garbling theorem
+\citep{blackwell1953equivalent} for a symmetric channel. Let $F^\varepsilon$
+be feedback generated for the detector: given $(u,X,C)$, which
+$F^\varepsilon_t$ are $0$ has a law depending only on $(X,C)$, and each other
+$F^\varepsilon_t$ is $1-2w_t$ with its sign flipped independently with
+probability $\varepsilon$. Let $\eta_\varepsilon=P(L=1\mid X,C,F^\varepsilon)$
+($\varepsilon=0$ is perfect feedback).
+
+\begin{theorem}[Less noisy feedback cannot hurt]
+\label{thm:feedback}
+Fix the joint law of $(u,X,C)$; in particular, it does not depend on
+$\varepsilon$. For $0\le\varepsilon\le\varepsilon'\le\tfrac12$ the ROC curve
+of $\eta_\varepsilon$ lies pointwise above that of $\eta_{\varepsilon'}$,
+which lies above that of $\eta_\varnothing$, and
+$\eta_{1/2}=\eta_\varnothing$ almost surely.
+\end{theorem}
+\begin{proof}
+If $\varepsilon'=\varepsilon$ there is nothing to show. Otherwise
+$\varepsilon<\tfrac12$, and flipping each nonzero $F^{\varepsilon}_t$
+independently with probability
+$\delta=(\varepsilon'-\varepsilon)/(1-2\varepsilon)\in[0,\tfrac12]$ yields
+flip rate $\varepsilon+\delta(1-2\varepsilon)=\varepsilon'$, hence the joint
+law of $(u,X,C,F^{\varepsilon'})$. So every detector using $F^{\varepsilon'}$
+is a randomized detector using $F^{\varepsilon}$, and NP gives the first
+inequality; ignoring $F$ gives the second. At $\varepsilon=\tfrac12$,
+$F^\varepsilon$ is independent of $u$ given $(X,C)$: whether a reaction
+occurs depends only on $(X,C)$, and every observed sign is a fair coin.
+\end{proof}
+
+\noindent The premise is essential: if the agent conditions on the same
+reactions, the law of $(X,C)$ changes with $\varepsilon$ and monotonicity can
+fail. In a two-turn example where the agent copies the reaction to an
+unconfident answer into a confident one on a correlated attribute without
+feedback, $\mathrm{AUROC}(\eta_\varepsilon)$ is $0.50$ at $\varepsilon=0$ and $0.71$ at
+$\varepsilon=0.25$. In PGE, Theorem~\ref{thm:feedback} thus covers
+regenerating feedback for the detector with the agent's trajectories fixed.
+
+\paragraph{The label-event posterior.}
+Let $\kappa_t=(a_t,v_t,b(p_t))$ be the detector-visible \emph{cell}, where
+$b(\cdot)$ buckets confidence, and $\mathcal{H}_t=(X_t,c_{1:t},F_{<t},w_{<t})$
+the history up to the $t$-th commitment with the earlier errors. (A1) Given
+$\mathcal{H}_t$, $w_t\sim\mathrm{Bernoulli}(\pi_{\kappa_t})$. (A2) Given
+$(\mathcal{H}_t,w_t)$, $F_t=0$ with a probability that depends only on $a_t$,
+and otherwise $F_t=1-2w_t$ with its sign flipped with probability
+$\varepsilon$. Up to a factor free of $w_t$, the likelihood of $F_t$ is
+$\ell_{w_t}(F_t)$ with $\ell_w(0)=1$, $\ell_1(-1)=\ell_0(+1)=1-\varepsilon$
+and $\ell_1(+1)=\ell_0(-1)=\varepsilon$. (A1) excludes error cascades and
+intake information beyond the cell, but lets the agent choose cells after
+seeing feedback.
+
+\begin{proposition}[Exact posterior]
+\label{prop:posterior}
+Under (A1)--(A2), $P(w_{1:T}\mid X,C,F)=\prod_t q_t^{w_t}(1-q_t)^{1-w_t}$ with
+$q_t=\pi_{\kappa_t}\ell_1(F_t)/\big(\pi_{\kappa_t}\ell_1(F_t)+(1-\pi_{\kappa_t})\ell_0(F_t)\big)$.
+Hence $\eta_\varepsilon=P(L=1\mid X,C,F)$ is $0$ if $H=\varnothing$ and
+otherwise the Poisson-binomial tail
+$P\big(\sum_{t\in H}B_t\ge\lceil\rho|H|\rceil\big)$,
+$B_t\sim\mathrm{Bernoulli}(q_t)$ independent, computable in $O(|H|^2)$. It is
+Bayes-optimal under (A1)--(A2) with the true priors and channel; the
+implementation plugs in estimates.
+\end{proposition}
+\begin{proof}
+Write the joint law in the order $c_1,w_1,F_1,c_2,\dots$. The policy and the
+questions see $u$ only through $X$, so
+$p(X,C,F,w)=A(X,C,F)\prod_t\pi_{\kappa_t}^{w_t}(1-\pi_{\kappa_t})^{1-w_t}\ell_{w_t}(F_t)$,
+where $A$ collects the intake prior, the questions, the policy and the
+$w$-free factors of (A2). Normalizing over $w\in\{0,1\}^T$ gives independent
+$\mathrm{Bernoulli}(q_t)$. $H$ is fixed by $C$, $L$ depends on $w$ only
+through $\sum_{t\in H}w_t$, and NP gives optimality.
+\end{proof}
+
+\noindent The same proof gives the posterior of $L_A$ (the tail over $H_A$),
+and holds for any channel $P(F_t\mid\mathcal{H}_t,w_t)=\ell_{w_t}(F_t)$
+that may depend on $a_t$, as in the general-channel detector. Under (A1) this
+user's reactions enter only through $\ell_1(F_t)/\ell_0(F_t)$; setting these to $1$ leaves the population
+base rates $\pi_\kappa$ (the prior-only ablation). Cascades violate (A1), but
+a simple cascade model does not help (\S\ref{sec:exp-robust}).
+
+\begin{proposition}[Priors are identified where feedback exists]
+\label{prop:identify}
+Assume (A2) and let $\pi_\kappa=P(w_t=1\mid\kappa_t=\kappa)$. Let $n_\kappa$
+count the commitments in cell $\kappa$ that received a reaction ($F_t\neq0$)
+and $\hat r_\kappa$ the fraction contradicted, and assume their errors are
+independent given $n_\kappa$ (implied by (A1), or by i.i.d.\ sessions in
+which each attribute is committed at most once). Then the contradiction rate
+is $r_\kappa=\varepsilon+(1-2\varepsilon)\pi_\kappa$, and for known
+$\varepsilon<\tfrac12$, $\hat\pi_\kappa=(\hat r_\kappa-\varepsilon)/(1-2\varepsilon)$
+needs no labels and, given $n_\kappa$, with probability at least $1-\delta$
+\citep{hoeffding1963probability},
+\[
+|\hat\pi_\kappa-\pi_\kappa|\ \le\ \frac{1}{1-2\varepsilon}\sqrt{\frac{\log(2/\delta)}{2n_\kappa}};
+\]
+projecting onto $[0,1]$ does not increase the error. Cells on attributes that
+never receive feedback are not identified. If $\varepsilon$ is unknown, the
+reactions depend on $(\pi,\varepsilon)$ only through $(r_\kappa)_\kappa$, so
+every $\varepsilon'\in[0,\tfrac12)$ with
+$\varepsilon'\le\min_\kappa\min(r_\kappa,1-r_\kappa)$, with
+$\pi'_\kappa=(r_\kappa-\varepsilon')/(1-2\varepsilon')$, fits equally well.
+\end{proposition}
+
+\noindent One scalar anchor ($\varepsilon$, or one cell's
+$\pi_\kappa\neq\tfrac12$) resolves this; we choose $\varepsilon$ by
+training-split label likelihood. Unidentified cells get the bucket prior
+pooled over the other attributes. The bound covers the raw estimate, not the
+implementation's clipping to $[0.01,0.99]$ and shrinkage toward coarser cells
+(value $\to$ attribute $\to$ bucket).
