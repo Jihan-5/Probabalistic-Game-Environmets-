@@ -15,7 +15,8 @@ from pathlib import Path
 
 TAG = {"70B": "70B", "8B": "8B", "qwen72b": "qwen", "gpt-4o-mini": "gpt", "mistral-small-24b": "mistral",
        "70B (dev)": "70B", "8B (dev)": "8B",
-       "70B LLM-patient (profile)": "pat", "70B LLM-patient (informed)": "patinf"}
+       "70B LLM-patient (profile)": "pat", "70B LLM-patient (informed)": "patinf",
+       "gpt-4o-mini (travel)": "gpt", "8B (travel)": "8B"}
 
 
 def a3(x, lead=True):
@@ -42,11 +43,15 @@ def main(repo):
         if v is not None:
             out.append(f"\\setval{{{k}}}{{{v}}}")
 
+    blocks = []
     for pre, fn in (("C", "numbers.json"), ("D", "dev_numbers.json")):
         f = Path(repo) / "results" / "e11_confirmatory" / fn
-        if not f.exists():
-            continue
-        N = json.loads(f.read_text())
+        if f.exists():
+            N = json.loads(f.read_text())
+            blocks.append((pre, N))
+            if "travel_v1" in N:
+                blocks.append(("T", N["travel_v1"]))  # second domain: same structure
+    for pre, N in blocks:
         for tag, d in N.get("corpora", {}).items():
             t = TAG.get(tag, tag)
             put(f"{pre}/N/{t}/n", d["n"])

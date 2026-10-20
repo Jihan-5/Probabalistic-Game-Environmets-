@@ -222,7 +222,13 @@ answers are shown to the agent; four hidden fields (days since treatment,
 allergy severity, kidney function, anxiety) are not. Each session asks for
 6--12 of 12 attributes in dependency order. Six attributes can depend on a hidden field, but only for some intakes (a seventh, \texttt{transport\_assistance}, depends on one in the schema but is always fixed by the intake). Ground truth is a deterministic function of intake and hidden
 fields; the hidden fields are independent draws from a fixed prior. The
-agent is a real LLM; only the patient is simulated.
+agent is a real LLM; only the patient is simulated. A second domain, a
+travel-booking assistant, has the same structure with different content:
+five intake answers (trip type, budget, travellers, duration, booking
+window), four undisclosed traveller facts (loyalty tier, mobility needs,
+dietary needs, seat preference), and twelve booking attributes, six of which
+can depend on an undisclosed fact. It was specified and registered before
+any of its data existed.
 
 \paragraph{Reactions.} In the main corpora the reaction to a commitment is
 its correctness bit flipped with probability $\varepsilon=0.25$, absent for
@@ -245,9 +251,7 @@ feedback-free classifier nearly matched the posterior on $L$. Before
 generating new data, we committed an analysis plan to the code repository
 \citep{nosek2018preregistration}: labels, detectors (V6 primary), every
 comparison, the statistics, and the wording each outcome licenses. Two
-amendments, also committed before any confirmatory data existed, added the
-analyses of Sections~\ref{sec:exp-decomp} and the supervised feedback
-increment. The confirmatory corpora use a fresh random seed (no session
+amendments, also committed before any confirmatory data existed, added the analyses of Section~\ref{sec:exp-decomp}, the supervised feedback increment, and the second domain. The confirmatory corpora use a fresh random seed (no session
 seen in development), show the agent the raw reaction, draw three
 resamples on every turn from that turn's own context, and cover five agents:
 Llama-3.3-70B, Llama-3.1-8B, Qwen2.5-72B, GPT-4o-mini and
@@ -417,6 +421,28 @@ which \chk{costs it \pending{gap} against V6-session}: knowing \emph{which}
 commitments concern undisclosed facts matters as much as how the evidence is
 combined.
 
+\subsection{A second domain}
+\label{sec:exp-travel}
+
+\begin{table}[t]
+\centering
+\caption{Second domain (travel booking), AUROC on $\LU$, 600 sessions per agent.}
+\label{tab:travel}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Agent & SelfCheck & ctx-LR & ctx-LR+F & V6 & $\bar\eta$ & $\eta_F$ \\
+\midrule
+GPT-4o-mini & \tv{T/L_U/gpt/SelfCheckGPT} & \tv{T/L_U/gpt/ctx_lr} & \tv{T/L_U/gpt/ctx_lr+fb} & \tv{T/L_U/gpt/V6} & \tv{T/RA/gpt/eta0 (Bayes, no feedback)} & \tv{T/RA/gpt/etaF (Bayes, feedback)} \\
+Llama-8B & \tv{T/L_U/8B/SelfCheckGPT} & \tv{T/L_U/8B/ctx_lr} & \tv{T/L_U/8B/ctx_lr+fb} & \tv{T/L_U/8B/V6} & \tv{T/RA/8B/eta0 (Bayes, no feedback)} & \tv{T/RA/8B/etaF (Bayes, feedback)} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\chk{\pending{second-domain paragraph: does the pattern transfer (sampling
+near chance, population risk large, reactions add, V6 vs supervised)?}}
+
 \subsection{Natural-language reactions}
 \label{sec:exp-patient}
 
@@ -455,9 +481,10 @@ consistency, not significance. Structure-based detection does not help: graphon 
 \emph{Simulation.} The agents are real, but the patient is simulated: by a
 noisy correctness bit in the main corpora and by an LLM in one corpus. The
 oracle analyses rely on the simulator's known rules and prior, which a
-deployment does not have. \emph{One domain.} All private-attribute results
-come from one clinic schema; a second domain with hidden user preferences
-(e.g.\ a retail or travel assistant) is the most important next test.
+deployment does not have. \emph{Two synthetic domains.} Both private-attribute domains are
+simulators we designed, with deterministic rules and independent hidden
+facts; real user populations have correlated, partially self-reported
+facts.
 \emph{Labels.} Labels are programmatic and noise-free by construction; there
 is no human evaluation. \emph{Supervision.} The posterior and the supervised
 baselines are fit on labelled training sessions; the posterior can run
