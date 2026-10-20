@@ -12,6 +12,13 @@ Pooled-over-agents estimates use a stratified cluster bootstrap (sessions
 resampled within each agent). The claim column applies the wording rules of
 the pre-registration mechanically.
 
+Domains. Sessions, truth, labels, the user-dependent sets, the hidden-fact
+prior and the no-feedback attributes come from the corpus's domain via
+pge.benchmarks.domains (healthcare_v2; travel_v1, the second domain of
+Amendment 4). The travel corpora are analysed as a separate block, exactly
+like the healthcare confirmatory corpora, with pooled estimates computed
+within the domain.
+
 Writes results/e11_confirmatory/{summary.md, numbers.json} (or dev_*).
 """
 
@@ -39,11 +46,7 @@ from pge.baselines.posterior import (
 )
 from pge.baselines.selfcheckgpt import SelfCheckGPT
 from pge.baselines.semantic_entropy import SemanticEntropy, _extract_final_value
-from pge.benchmarks import healthcare_llmpatient
-from pge.benchmarks.healthcare_v2 import (
-    USER_DEPENDENT_SCHEMA, AgentGuessV2, derive_ground_truth_v2, eval_label_user, sample_session_v2,
-    user_dependent_attrs,
-)
+from pge.benchmarks import domains, healthcare_llmpatient, healthcare_v2
 from pge.graphon import GraphonEstimator
 from pge.trajectory import load_jsonl
 
@@ -65,6 +68,10 @@ PATIENT = [
 DEV = [
     ("70B (dev)", T / "healthcare_v2" / "70B_42.jsonl", 42, 600),
     ("8B (dev)", T / "healthcare_v2" / "8B_42.jsonl", 42, 200),
+]
+TRAVEL = [  # second domain (travel_v1, Amendment 4); same protocol v2fb, seed 7
+    ("gpt-4o-mini (travel)", T / "travel_confirm" / "gpt-4o-mini_7.jsonl", 7, 600),
+    ("8B (travel)", T / "travel_confirm" / "8B_7.jsonl", 7, 600),
 ]
 COVE = REPO / "results" / "cove_baseline" / "70B_on_70B_7" / "scores.json"
 K10 = T / "healthcare_confirm_k10" / "70B_7_k10.jsonl"
@@ -130,10 +137,13 @@ class Graphon(TrajectoryScorer):
         return -self.est.log_likelihood(dag if dag is not None else build_dag(trajectory))
 
 
-def factories(label: str, full: bool = True):
-    """Pre-registered detector set for label 'L_U' or 'L'."""
-    ea = USER_DEPENDENT_SCHEMA if label == "L_U" else None
-    sample_attrs = USER_DEPENDENT_SCHEMA if label == "L_U" else None
+def factories(label: str, full: bool = True, dom=None):
+    """Pre-registered detector set for label 'L_U' or 'L'. `dom`: the corpus's
+    domain module (default healthcare_v2); its USER_DEPENDENT_SCHEMA is the
+    L_U label event and the sampling detectors' turn set."""
+    schema = (healthcare_v2 if dom is None else dom).USER_DEPENDENT_SCHEMA
+    ea = schema if label == "L_U" else None
+    sample_attrs = schema if label == "L_U" else None
 
     def sampled(det):
         return SampleRestricted(det, sample_attrs) if sample_attrs is not None else det
@@ -162,21 +172,33 @@ def factories(label: str, full: bool = True):
 # ------------------------------------------------------------------ data
 
 
+def corpus_domain(trajs):
+    """Domain module (pge.benchmarks.domains) whose sessions, truth and labels
+    a corpus uses; one domain per corpus. Trajectory-domain aliases resolve
+    (healthcare_llmpatient -> healthcare_v2). Empty corpus: healthcare_v2."""
+    ds = {t.domain for t in trajs}
+    if len(ds) > 1:
+        raise SystemExit(f"corpus mixes domains {sorted(ds)}")
+    return domains.get(ds.pop()) if ds else healthcare_v2
+
+
 def load(path: Path, seed: int, n: int):
     trajs = load_jsonl(path)
+    dom = corpus_domain(trajs)
     rng = np.random.default_rng(seed)
-    sessions = {f"hcv2_{i}": sample_session_v2(rng, i) for i in range(n)}
+    sessions = {f"{dom.TASK_PREFIX}_{i}": dom.sample_session(rng, i) for i in range(n)}
     L, LU = [], []
     for t in trajs:
         s = sessions[t.task_id]
         assert [x.attribute for x in t.turns] == s.schedule, f"{path.name} {t.task_id}: stream mismatch"
-        g = {x.attribute: AgentGuessV2(x.attribute, x.guess_value, x.probability) for x in t.turns}
-        lu = eval_label_user(g, s)
+        g = {x.attribute: dom.AgentGuess(x.attribute, x.guess_value, x.probability) for x in t.turns}
+        lu = dom.eval_label_user(g, s)
         if "eval_label_user" in t.meta:
             assert t.meta["eval_label_user"] == lu, f"{t.task_id}: stored L_U mismatch"
         L.append(t.eval_label)
         LU.append(lu)
     load.sessions = sessions
+    load.domain = dom
     return trajs, np.array(L, dtype=int), np.array(LU, dtype=int)
 
 
@@ -286,27 +308,28 @@ def claim(hid, ci):
 
 
 # --------------------------------------- Amendment 2: rules-aware analyses
-# ORACLE INFORMATION (the simulator's clinic rules and its prior over hidden
-# patient facts), never available to a deployed detector. Used to measure how
+# ORACLE INFORMATION (the simulator's domain rules, e.g. the clinic's or the
+# travel agency's, and its prior over hidden user facts), never available to a
+# deployed detector. Used to measure how
 # much of L_U is predictable without the user (eta0, the context-only Bayes
 # predictor, Theorem 1's bound made concrete) and how much the user's reactions
 # add (etaF, Bayes with the true eps channel); and to compare detectors given
 # the same per-session information (which commitments concern hidden facts).
+# The rules and the prior (dom.derive_ground_truth, dom.HIDDEN_PRIOR) come from
+# the trajectory's domain; healthcare_v2.HIDDEN_PRIOR is the prior this script
+# used before the domain registry (same weights, same order).
 
-import itertools as _it  # noqa: E402
 import math as _math  # noqa: E402
-
-_HID = [((d, s, k, a), (1 / 31) * (0.7 if s == "mild" else 0.3) * (0.8 if k == "normal" else 0.2)
-         * (0.65 if a == "low" else 0.35))
-        for d, s, k, a in _it.product(range(31), ("mild", "severe"), ("normal", "impaired"), ("low", "high"))]
 
 
 def bayes_LU(traj, setup, eps=None, shown_only=False):
     """P(L_U = 1 | intake, commitments[, feedback]) under the simulator's
     hidden-fact prior; with eps, the symmetric channel on reactions to
     user-dependent commitments (the others' likelihood does not depend on the
-    hidden facts and cancels)."""
-    U = user_dependent_attrs(setup)
+    hidden facts and cancels). Domain from traj.domain (both the eta0/etaF
+    path and the shown_only etaX path)."""
+    dom = domains.get(traj.domain)
+    U = dom.user_dependent_attrs(setup)
     H = [t for t in traj.turns if t.probability >= 0.6 and t.attribute in U]
     if not H:
         return 0.0
@@ -314,9 +337,8 @@ def bayes_LU(traj, setup, eps=None, shown_only=False):
     turns = traj.turns[:-1] if shown_only else traj.turns  # the last reaction is never shown to the agent
     obs = [(t, turn_signal(t)) for t in turns if t.attribute in U] if eps is not None else []
     num = den = 0.0
-    for (d, sv, kd, a), w in _HID:
-        tr = derive_ground_truth_v2(setup, {"days_since_treatment": d, "allergy_severity": sv,
-                                            "kidney_function": kd, "anxiety_level": a})
+    for hidden, w in dom.HIDDEN_PRIOR:
+        tr = dom.derive_ground_truth(setup, hidden)
         lab = sum(t.guess_value != tr[t.attribute] for t in H) >= k
         lik = 1.0
         for t, sig in obs:
@@ -373,7 +395,8 @@ class LRSession(ContextLR):
 
 def rules_aware(trajs, sessions, y, dags, eps):
     """Amendment 2 detectors on L_U; eps=None (unknown channel) skips etaF."""
-    U = {t.task_id: user_dependent_attrs(sessions[t.task_id].setup_answers) for t in trajs}
+    dom = corpus_domain(trajs)
+    U = {t.task_id: dom.user_dependent_attrs(sessions[t.task_id].setup_answers) for t in trajs}
     V6Session.U = LRSession.U = U
     e0 = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers) for t in trajs}
     F = [("eta0 (Bayes, no feedback)", lambda: Fixed("eta0", e0)),
@@ -398,10 +421,11 @@ def percommit(trajs, sessions):
     |AUROC - 1/2| <= (1 - (1-e0)(1-e1))/2, the measured AUROC of resample
     disagreement and of one feedback bit for predicting THAT commitment's error.
     Truth reconstructed from the seed stream (analysis only)."""
+    dom = corpus_domain(trajs)
     dis, fb, wr = [], [], []
     for t in trajs:
         s = sessions[t.task_id]
-        U = user_dependent_attrs(s.setup_answers)
+        U = dom.user_dependent_attrs(s.setup_answers)
         for turn in t.turns:
             if turn.attribute not in U or not turn.samples:
                 continue
@@ -425,7 +449,7 @@ def percommit(trajs, sessions):
 def channel_stats(trajs, sessions):
     """Empirical feedback channel on turns that can receive a reaction
     (analysis only): P(signal | commitment wrong / right) and the contradiction lift."""
-    from pge.benchmarks.healthcare_v2 import NO_FEEDBACK_ATTRS
+    NO_FEEDBACK_ATTRS = corpus_domain(trajs).NO_FEEDBACK_ATTRS
     c = {(w, s): 0 for w in (0, 1) for s in (-1, 0, 1)}
     for t in trajs:
         st = sessions[t.task_id].user_state
@@ -538,7 +562,7 @@ def analyse(corpora, label_sets, out_name, full=True):
             continue
         trajs, L, LU = load(path, seed, n)
         dags = [build_dag(t) for t in trajs]
-        sessions = load.sessions
+        sessions, dom = load.sessions, load.domain
         pc = percommit(trajs, sessions)
         if pc:
             numbers.setdefault("percommit", {})[tag] = pc
@@ -557,14 +581,15 @@ def analyse(corpora, label_sets, out_name, full=True):
         for lab, y in (("L_U", LU), ("L", L)):
             if lab not in label_sets:
                 continue
-            R = run_protocol(trajs, y, factories(lab, full=full), dags=dags)
+            R = run_protocol(trajs, y, factories(lab, full=full, dom=dom), dags=dags)
             best_graphon(R)
-            if tag.startswith("70B") and COVE.exists() and "dev" not in tag and "patient" not in tag:
+            if (tag.startswith("70B") and COVE.exists() and "dev" not in tag and "patient" not in tag
+                    and dom is healthcare_v2):  # CoVe scores exist for the healthcare 70B corpus only
                 cove = json.loads(COVE.read_text())["score_by_task"]
                 add_external(R, "cove", cove)
             runs[lab][tag] = (R, len(trajs))
             if full and len(trajs) >= MIN_SESSIONS:
-                LC_EVENT[0] = USER_DEPENDENT_SCHEMA if lab == "L_U" else None
+                LC_EVENT[0] = dom.USER_DEPENDENT_SCHEMA if lab == "L_U" else None
                 numbers.setdefault("learning_curve", {}).setdefault(lab, {})[tag] = {
                     f"{k[0]}@{k[1]}": v for k, v in learning_curve(trajs, y, dags).items()}
             print(f"  [{lab}] V6 {mean_auc(R, 'V6'):.3f} V6-prior {mean_auc(R, 'V6-prior'):.3f} "
@@ -670,7 +695,7 @@ def k10_block(lines, numbers):
         y = np.array([by[t][idx] for t in te])
         res = {}
         for k in (3, 10):
-            det = SampleRestricted(SelfCheckGPT(), USER_DEPENDENT_SCHEMA)
+            det = SampleRestricted(SelfCheckGPT(), load.domain.USER_DEPENDENT_SCHEMA)
             s = []
             for t in te:
                 tt = copy.deepcopy(by[t][0])
@@ -680,6 +705,21 @@ def k10_block(lines, numbers):
             res[k] = auroc(np.array(s), y)
         lines.append(f"- {lab}: SelfCheckGPT k=3 {res[3]:.3f}, k=10 {res[10]:.3f} (n={len(te)})")
         numbers.setdefault("k10", {})[lab] = res
+
+
+def travel_block(lines, numbers, full=True, corpora=None):
+    """Amendment 4: the second domain (travel_v1), analysed exactly like the
+    healthcare confirmatory corpora (both labels, same detectors, rules-aware
+    eta0/etaX/etaF, per-commitment check, channel stats); pooled estimates pool
+    the travel corpora only. Appended only if a travel corpus exists."""
+    tl, tn, _ = analyse(TRAVEL if corpora is None else corpora, ("L_U", "L"), "", full=full)
+    if not any("|" in x for x in tl):
+        return
+    lines += ["", "# Second domain: travel booking (travel_v1, protocol v2fb, seed 7; Amendment 4)", "",
+              "Same labels, detectors, splits, statistics and wording rules as the healthcare corpora, "
+              "applied within this domain; L_U uses travel_v1.USER_DEPENDENT_SCHEMA; pooled rows pool the "
+              "travel corpora only.", ""] + tl
+    numbers["travel_v1"] = tn
 
 
 def main(argv=None):
@@ -705,6 +745,7 @@ def main(argv=None):
         if CLAR.exists():
             lines += ["", "# Measured closed-loop clarification (results/e8_closed_loop/70B_7/summary.txt)",
                       "", "```", CLAR.read_text().rstrip(), "```"]
+        travel_block(lines, numbers, full=not args.quick)
     lines.append(f"\nruntime {secs:.0f}s")
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / f"{prefix}summary.md").write_text("\n".join(head + lines) + "\n")

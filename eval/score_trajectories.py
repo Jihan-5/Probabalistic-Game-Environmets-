@@ -49,7 +49,7 @@ from pge.baselines.structural import (
     ConfidentCascadeScore,
     NegNegEdgeFraction,
 )
-from pge.benchmarks import dbbench_v2, healthcare_llmpatient, healthcare_v2
+from pge.benchmarks import dbbench_v2, healthcare_llmpatient, healthcare_v2, travel_v1
 from pge.calibration import apply_temperature, fit_temperature
 from pge.graphon import GraphonEstimator
 from pge.trajectory import Trajectory, load_jsonl
@@ -75,6 +75,7 @@ DAG_BUILDERS = {
     "dbbench_v2": dbbench_v2.dag_from_trajectory,
     "healthcare_v2": healthcare_v2.dag_from_trajectory,
     "healthcare_llmpatient": healthcare_llmpatient.dag_from_trajectory,
+    "travel_v1": travel_v1.dag_from_trajectory,
 }
 
 # Optional baseline modules another workstream may add concurrently.

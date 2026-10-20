@@ -20,13 +20,14 @@ import numpy as np
 
 from pge.agents.paid_client import BudgetExceeded, ChatClient, CostMeter, NonRetryableHTTP
 from pge.agents.registry import PROVIDERS, REGISTRY, ModelSpec, resolve
+from pge.benchmarks import domains
 from pge.benchmarks.healthcare_v2 import ATTRIBUTES_V2
 from pge.dag import ChainOfThoughtDAG, GuessNode
 from pge.scoring import bayesian_score
 from pge.trajectory import Trajectory, load_jsonl, save_jsonl
 
 REPO = Path(__file__).resolve().parent.parent.parent
-ALLOWED_VALUES = {a: vals for a, (vals, _) in ATTRIBUTES_V2.items()}
+ALLOWED_VALUES = {a: vals for a, (vals, _) in ATTRIBUTES_V2.items()}  # healthcare_v2
 
 # Agent-side protocol of a healthcare corpus (Trajectory.meta["protocol"]).
 #   v2   : the 2026-09 development corpora. The agent saw sign(tanh(F logit p))
@@ -40,6 +41,23 @@ PROTOCOLS = {
     "v2fb": {"system_prompt": (_PROMPTS / "healthcare_v2fb_system.txt").read_text(),
              "feedback_display": "signal"},
 }
+
+# Per-domain views. ALLOWED_VALUES / PROTOCOLS above stay the healthcare_v2
+# entries. Other domains run the confirmatory protocol v2fb only.
+ALLOWED_VALUES_BY_DOMAIN = {
+    name: {a: vals for a, (vals, _) in mod.ATTRIBUTES.items()} for name, mod in domains.DOMAINS.items()
+}
+ALLOWED_VALUES_BY_DOMAIN["healthcare_v2"] = ALLOWED_VALUES
+PROTOCOLS_BY_DOMAIN = {
+    "healthcare_v2": PROTOCOLS,
+    "travel_v1": {"v2fb": {"system_prompt": (_PROMPTS / "travel_v1fb_system.txt").read_text(),
+                           "feedback_display": "signal"}},
+}
+# Attribute -> allowed values over every domain (attribute names are disjoint).
+_ALL_ALLOWED: dict = {}
+for _vals in ALLOWED_VALUES_BY_DOMAIN.values():
+    assert not set(_vals) & set(_ALL_ALLOWED), "attribute names must be unique across domains"
+    _ALL_ALLOWED.update(_vals)
 
 
 def protocol_of(trajs) -> str:
@@ -220,12 +238,14 @@ def _tid_key(t: Trajectory):
 
 
 def add_dag_node(G: ChainOfThoughtDAG, node_idx: dict, attribute: str, value: str,
-                 probability: float, signal: int, t: int) -> None:
-    """Identical node/edge construction to eval/generate_healthcare_v2.py."""
+                 probability: float, signal: int, t: int, attributes: Optional[dict] = None) -> None:
+    """Identical node/edge construction to eval/generate_healthcare_v2.py.
+    `attributes`: the domain's schema (default healthcare_v2's ATTRIBUTES_V2)."""
+    schema = ATTRIBUTES_V2 if attributes is None else attributes
     idx = G.add_node(GuessNode(attribute=attribute, value=value, probability=probability,
                                score=bayesian_score(probability, signal), turn=t, signal=signal))
     node_idx[attribute] = idx
-    for dep in ATTRIBUTES_V2[attribute][1]:
+    for dep in schema[attribute][1]:
         if dep.startswith("attr:") and dep[5:] in node_idx:
             parent = node_idx[dep[5:]]
             if parent < idx:
@@ -290,7 +310,8 @@ class MockLLM:
 
     # ---- roles
     def _allowed(self, user: str, attr: str) -> list[str]:
-        return ALLOWED_VALUES.get(attr, ["yes", "no"])
+        # any registered domain (healthcare_v2 attributes resolve exactly as before)
+        return _ALL_ALLOWED.get(attr, ["yes", "no"])
 
     def _agent(self, user: str) -> str:
         m = re.search(r"Now produce your guess for attribute: (\w+)", user)
@@ -390,7 +411,7 @@ class MockLLM:
     def _verify(self, user: str) -> str:
         m = re.search(r'what is the value of "(\w+)"', user)
         attr = m.group(1) if m else ""
-        vals = ALLOWED_VALUES.get(attr, ["yes", "no"])
+        vals = _ALL_ALLOWED.get(attr, ["yes", "no"])
         if self._r() < self.malformed:
             return "It depends on information not provided."
         return f"[final_answer]: {self._choice(vals)}, p={round(0.4 + 0.5 * self._r(), 2)}"

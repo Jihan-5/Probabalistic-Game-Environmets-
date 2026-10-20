@@ -303,14 +303,16 @@ FEEDBACK_DISPLAYS = ("score_sign", "signal")
 _SIGNAL_MARK = {1: "+", -1: "-", 0: "none"}
 
 
-def format_history_signal(history, max_turns: int = 6) -> str:
+def format_history_signal(history, max_turns: int = 6, reactor: str = "patient") -> str:
     """Prior turns with the RAW feedback signal: '+' / '-' / 'none'.
 
     The legacy formatter (llama_together._format_history, display
     'score_sign') shows sign(tanh(F * logit p)): 'no reaction' appears as '+'
     and, for p < 0.5, accept and contradict appear inverted. Kept only to
     replay the 2026-09 corpora exactly; every new protocol uses this one.
-    Requires GuessNode.signal (set by every builder in this repo)."""
+    Requires GuessNode.signal (set by every builder in this repo).
+    `reactor` names who reacts ("patient" for healthcare, the domain's
+    USER_ROLE otherwise)."""
     if len(history) == 0:
         return "(no prior guesses)"
     lines = []
@@ -318,13 +320,13 @@ def format_history_signal(history, max_turns: int = 6) -> str:
         if node.signal is None:
             raise ValueError("format_history_signal needs GuessNode.signal; build the DAG with signals")
         lines.append(f"  turn {node.turn}: [{node.attribute}]: {node.value}, "
-                     f"p={node.probability:.2f}  (patient reaction: {_SIGNAL_MARK[int(node.signal)]})")
+                     f"p={node.probability:.2f}  ({reactor} reaction: {_SIGNAL_MARK[int(node.signal)]})")
     return "\n".join(lines)
 
 
-def format_history(history, display: str) -> str:
+def format_history(history, display: str, reactor: str = "patient") -> str:
     if display == "signal":
-        return format_history_signal(history)
+        return format_history_signal(history, reactor=reactor)
     if display == "score_sign":
         return _format_history(history)
     raise ValueError(f"feedback display must be one of {FEEDBACK_DISPLAYS}, got {display!r}")
@@ -349,12 +351,14 @@ class RoutedAgent(LlamaTogetherAgent):
         client: ChatClient,
         allowed_values: Optional[dict[str, list[str]]] = None,
         feedback_display: str = "score_sign",
+        reactor: str = "patient",
         **kwargs,
     ):
         super().__init__(attribute_schedule, model=client.spec.model_id, api_key="(routed)", **kwargs)
         if feedback_display not in FEEDBACK_DISPLAYS:
             raise ValueError(f"feedback_display must be one of {FEEDBACK_DISPLAYS}")
         self.feedback_display = feedback_display
+        self.reactor = reactor  # who reacts, in the 'signal' history lines
         self.client = client
         self.base_url = client.spec.url
         self.allowed_values = allowed_values or {}
@@ -372,7 +376,7 @@ class RoutedAgent(LlamaTogetherAgent):
         desc_line = f"\nThis attribute means: {description}\n" if description else ""
         return (
             f"Context (one-time, from the user/task):\n{setup_str}\n\n"
-            f"Prior turns in this session:\n{format_history_signal(history)}\n\n"
+            f"Prior turns in this session:\n{format_history_signal(history, reactor=self.reactor)}\n\n"
             f"Now produce your guess for attribute: {attribute}{desc_line}\n"
             f"Output format: [{attribute}]: <value>, p=<probability>"
         )
