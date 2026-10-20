@@ -88,9 +88,9 @@ def poisson_binomial_tail(q: np.ndarray, k: int) -> float:
     return float(dist[k:].sum())
 
 
-def label_threshold(n_high: int) -> int:
-    """Smallest wrong-count with wrong / n_high >= 0.5 (eval_label_v2 rule)."""
-    return int(np.ceil(0.5 * n_high - 1e-12))
+def label_threshold(n_high: int, frac: float = 0.5) -> int:
+    """Smallest wrong-count with wrong / n_high >= frac (eval_label_v2 rule)."""
+    return int(np.ceil(frac * n_high - 1e-12))
 
 
 def agreement_count(turn):
@@ -116,7 +116,10 @@ class IndependentPosterior(TrajectoryScorer):
         by_value: bool = False,
         use_samples: bool = False,
         em_iters: int = 20,
+        high: float = HIGH,
+        frac: float = 0.5,
     ):
+        self.high, self.frac = high, frac  # label event definition
         self.k = prior_strength
         self.by_value = by_value or use_samples
         self.use_samples = use_samples
@@ -201,7 +204,7 @@ class IndependentPosterior(TrajectoryScorer):
     def _score(self, traj):
         q = []
         for turn in traj.turns:
-            if turn.probability < HIGH:
+            if turn.probability < self.high:
                 continue
             pi = self._prior(turn)
             s = turn_signal(turn)
@@ -214,7 +217,7 @@ class IndependentPosterior(TrajectoryScorer):
             q.append(pi * l1 / (pi * l1 + (1 - pi) * l0))
         if not q:
             return 0.0
-        return poisson_binomial_tail(np.array(q), label_threshold(len(q)))
+        return poisson_binomial_tail(np.array(q), label_threshold(len(q), self.frac))
 
     def fit(self, trajectories, dags=None, labels=None):
         if labels is None:
@@ -247,7 +250,9 @@ class DagPosterior(TrajectoryScorer):
 
     name = "pge_posterior_dag"
 
-    def __init__(self, parents_fn, prior_strength: float = 5.0, em_iters: int = 10):
+    def __init__(self, parents_fn, prior_strength: float = 5.0, em_iters: int = 10,
+                 high: float = HIGH, frac: float = 0.5):
+        self.high, self.frac = high, frac
         self.parents_fn = parents_fn  # traj -> list[list[int]]
         self.k = prior_strength
         self.em_iters = em_iters
@@ -284,11 +289,11 @@ class DagPosterior(TrajectoryScorer):
         return W, post / post.sum(), parents
 
     def _event_prob(self, traj, W, post):
-        high = np.array([t.probability >= HIGH for t in traj.turns])
+        high = np.array([t.probability >= self.high for t in traj.turns])
         nh = int(high.sum())
         if nh == 0:
             return 0.0
-        return float(post[W[:, high].sum(axis=1) >= label_threshold(nh)].sum())
+        return float(post[W[:, high].sum(axis=1) >= label_threshold(nh, self.frac)].sum())
 
     def _em(self, trajs, eps):
         self.theta, self.theta_back = {}, {}

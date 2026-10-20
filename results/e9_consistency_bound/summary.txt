@@ -1,0 +1,14 @@
+# e9_consistency_bound — per-commitment AUROC on underdetermined attributes
+
+## healthcare 70B_42: 2483 commitments, 41% wrong
+  all 3 resamples agree: 92.6% of commitments
+  P(any disagreement | wrong) = 0.103   P(any disagreement | right) = 0.053
+  AUROC resample disagreement  0.525 [0.513, 0.536]
+  AUROC one noisy feedback bit 0.760 [0.742, 0.776]
+
+## healthcare 8B_42: 826 commitments, 28% wrong
+  all 3 resamples agree: 55.4% of commitments
+  P(any disagreement | wrong) = 0.571   P(any disagreement | right) = 0.397
+  AUROC resample disagreement  0.607 [0.564, 0.647]
+  AUROC one noisy feedback bit 0.768 [0.736, 0.799]
+
