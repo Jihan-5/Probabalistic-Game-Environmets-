@@ -1,0 +1,111 @@
+{
+  "script": "generate_healthcare_llmpatient",
+  "args": {
+    "model": "70B",
+    "provider": null,
+    "price_in": null,
+    "price_out": null,
+    "patient_model": "8B",
+    "patient_provider": null,
+    "patient_price_in": null,
+    "patient_price_out": null,
+    "extractor_model": "8B",
+    "extractor_provider": null,
+    "extractor_price_in": null,
+    "extractor_price_out": null,
+    "short_name": null,
+    "n": 100,
+    "seed": 7,
+    "feedback_on_all": false,
+    "max_parse_fail": 0.25,
+    "patient_knows": "profile",
+    "max_cost": 1.2,
+    "concurrency": 8,
+    "out": "data/trajectories/healthcare_llmpatient/pilot/70B_7_n100.jsonl",
+    "estimate_only": false,
+    "resume": true,
+    "mock": false,
+    "mock_malformed": 0.15,
+    "mock_seed": 0
+  },
+  "agent": {
+    "short_name": "70B",
+    "model_id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "provider": "together",
+    "price_in": 0.88,
+    "price_out": 0.88,
+    "price_status": "ledger (2026-09 runs)"
+  },
+  "patient": {
+    "short_name": "8B",
+    "model_id": "meta-llama/llama-3.1-8b-instruct",
+    "provider": "openrouter",
+    "price_in": 0.05,
+    "price_out": 0.05,
+    "price_status": "conservative upper bound (ledger)"
+  },
+  "extractor": {
+    "short_name": "8B",
+    "model_id": "meta-llama/llama-3.1-8b-instruct",
+    "provider": "openrouter",
+    "price_in": 0.05,
+    "price_out": 0.05,
+    "price_status": "conservative upper bound (ledger)"
+  },
+  "complete": true,
+  "n_written": 100,
+  "parse_status_counts": {
+    "strict": 952
+  },
+  "extractor_status_counts": {
+    "strict": 817,
+    "no_feedback_attr": 135
+  },
+  "signal_counts": {
+    "-1": 659,
+    "0": 262,
+    "1": 31
+  },
+  "hall_rate": 0.26,
+  "meter": {
+    "cost": 0.547579,
+    "max_cost": 1.2,
+    "tokens_in": 1008074,
+    "tokens_out": 45920,
+    "calls": 2588,
+    "usage_missing_calls": 0,
+    "tripped": false,
+    "stop_reason": "",
+    "by_role": {
+      "agent": {
+        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "calls": 953,
+        "tokens_in": 582946,
+        "tokens_out": 12761,
+        "cost": 0.524222
+      },
+      "patient": {
+        "model": "meta-llama/llama-3.1-8b-instruct",
+        "calls": 818,
+        "tokens_in": 282120,
+        "tokens_out": 28803,
+        "cost": 0.015817
+      },
+      "extractor": {
+        "model": "meta-llama/llama-3.1-8b-instruct",
+        "calls": 817,
+        "tokens_in": 143008,
+        "tokens_out": 4356,
+        "cost": 0.007539
+      }
+    }
+  },
+  "runner": {
+    "done": 100,
+    "failed": 0,
+    "budget_stopped": 0,
+    "cancelled": 0,
+    "errors": {},
+    "seconds": 309.7
+  }
+}

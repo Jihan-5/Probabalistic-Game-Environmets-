@@ -1,0 +1,70 @@
+{
+  "script": "generate_healthcare_multimodel",
+  "domain": "healthcare_v2",
+  "args": {
+    "model": "70B",
+    "provider": null,
+    "price_in": null,
+    "price_out": null,
+    "domain": "healthcare_v2",
+    "short_name": null,
+    "n": 600,
+    "protocol": "v2fb",
+    "seed": 7,
+    "resample_k": 3,
+    "resample_temperature": 0.9,
+    "epsilon": 0.25,
+    "max_parse_fail": 0.25,
+    "max_cost": 12.5,
+    "concurrency": 8,
+    "out": null,
+    "estimate_only": false,
+    "resume": true,
+    "mock": false,
+    "mock_malformed": 0.15,
+    "mock_seed": 0
+  },
+  "model": {
+    "short_name": "70B",
+    "model_id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "provider": "together",
+    "price_in": 0.88,
+    "price_out": 0.88,
+    "price_status": "ledger (2026-09 runs)"
+  },
+  "complete": false,
+  "n_written": 375,
+  "parse_status_counts": {
+    "strict": 3637
+  },
+  "hall_rate": 0.28,
+  "meter": {
+    "cost": 6.516499,
+    "max_cost": 12.5,
+    "tokens_in": 7207399,
+    "tokens_out": 197713,
+    "calls": 14735,
+    "usage_missing_calls": 0,
+    "tripped": false,
+    "stop_reason": "",
+    "by_role": {
+      "agent": {
+        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "calls": 14735,
+        "tokens_in": 7207399,
+        "tokens_out": 197713,
+        "cost": 6.516499
+      }
+    }
+  },
+  "runner": {
+    "done": 375,
+    "failed": 225,
+    "budget_stopped": 0,
+    "cancelled": 0,
+    "errors": {
+      "NonRetryableHTTP": 225
+    },
+    "seconds": 1417.4
+  }
+}

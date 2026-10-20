@@ -1,0 +1,62 @@
+[estimate] healthcare v2fb n=600 seed 7 (5826 turns) -> data/trajectories/healthcare_confirm/70B_7.jsonl
+  agent turns                  meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 6408 calls x (~470 in + ~30 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $2.82
+  resamples (k=3, T=0.9)       meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 17478 calls x (~448 in + ~14 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $7.11
+  TOTAL ~$9.93   hard cap --max-cost $12.50
+[preflight] ok: meta-llama/Llama-3.3-70B-Instruct-Turbo via together
+  progress 20/600 done=20 failed=0 cost=$0.410 (90s)
+  progress 40/600 done=40 failed=0 cost=$0.714 (175s)
+  progress 60/600 done=60 failed=0 cost=$1.090 (249s)
+  progress 80/600 done=80 failed=0 cost=$1.399 (308s)
+  progress 100/600 done=100 failed=0 cost=$1.743 (373s)
+  progress 120/600 done=120 failed=0 cost=$2.066 (440s)
+  progress 140/600 done=140 failed=0 cost=$2.404 (519s)
+  progress 160/600 done=160 failed=0 cost=$2.751 (575s)
+  progress 180/600 done=180 failed=0 cost=$3.113 (643s)
+  progress 200/600 done=200 failed=0 cost=$3.454 (711s)
+  progress 220/600 done=220 failed=0 cost=$3.804 (771s)
+  progress 240/600 done=240 failed=0 cost=$4.154 (829s)
+  progress 260/600 done=260 failed=0 cost=$4.474 (880s)
+  progress 280/600 done=280 failed=0 cost=$4.841 (937s)
+  progress 300/600 done=300 failed=0 cost=$5.192 (993s)
+  progress 320/600 done=320 failed=0 cost=$5.518 (1048s)
+  progress 340/600 done=340 failed=0 cost=$5.901 (1124s)
+  progress 360/600 done=360 failed=0 cost=$6.208 (1217s)
+  [session 376] ERROR NonRetryableHTTP: HTTP 402 from https://api.together.xyz/v1/chat/completions: {
+  "id": "p61DfQe-fdNmn-a4d94f4038282440",
+  "error": {
+    "message": "Credit limit exceeded, please [add credits](https://api.together.ai/settings/billing). If you've already made a payment, please wait up to 5 minutes for balances to up
+  [session 383] ERROR NonRetryableHTTP: HTTP 402 from https://api.together.xyz/v1/chat/completions: {
+  "id": "p61DfUx-fdNmn-a4d94f41dbfbed69",
+  "error": {
+    "message": "Credit limit exceeded, please [add credits](https://api.together.ai/settings/billing). If you've already made a payment, please wait up to 5 minutes for balances to up
+  [session 380] ERROR NonRetryableHTTP: HTTP 402 from https://api.together.xyz/v1/chat/completions: {
+  "id": "p61Dfrh-fdNmn-a4d94f49b8dec94e",
+  "error": {
+    "message": "Credit limit exceeded, please [add credits](https://api.together.ai/settings/billing). If you've already made a payment, please wait up to 5 minutes for balances to up
+  [session 385] ERROR NonRetryableHTTP: HTTP 402 from https://api.together.xyz/v1/chat/completions: {
+  "id": "p61Dfuz-fdNmn-a4d94f4ad9f3a9c4",
+  "error": {
+    "message": "Credit limit exceeded, please [add credits](https://api.together.ai/settings/billing). If you've already made a payment, please wait up to 5 minutes for balances to up
+  [session 386] ERROR NonRetryableHTTP: HTTP 402 from https://api.together.xyz/v1/chat/completions: {
+  "id": "p61DfyE-fdNmn-a4d94f4bfd5fc9bc",
+  "error": {
+    "message": "Credit limit exceeded, please [add credits](https://api.together.ai/settings/billing). If you've already made a payment, please wait up to 5 minutes for balances to up
+  progress 380/600 done=375 failed=5 cost=$6.513 (1397s)
+  progress 400/600 done=375 failed=25 cost=$6.515 (1399s)
+  progress 420/600 done=375 failed=45 cost=$6.515 (1400s)
+  progress 440/600 done=375 failed=65 cost=$6.515 (1401s)
+  progress 460/600 done=375 failed=85 cost=$6.515 (1402s)
+  progress 480/600 done=375 failed=105 cost=$6.515 (1403s)
+  progress 500/600 done=375 failed=125 cost=$6.515 (1404s)
+  progress 520/600 done=375 failed=145 cost=$6.515 (1405s)
+  progress 540/600 done=375 failed=165 cost=$6.515 (1406s)
+  progress 560/600 done=375 failed=185 cost=$6.515 (1407s)
+  progress 580/600 done=375 failed=205 cost=$6.515 (1407s)
+  progress 600/600 done=375 failed=225 cost=$6.516 (1417s)
+[partial] 375/600 sessions saved to data/trajectories/healthcare_confirm/70B_7.jsonl.partial.jsonl; rerun with --resume (and a higher --max-cost if the cap stopped it)
+
+[done] 375 trajectories -> data/trajectories/healthcare_confirm/70B_7.jsonl.partial.jsonl  (1417s)
+[labels] hallucinating 105/375 = 28.0%
+[parse] {'strict': 3637}  failed turns 0/3637 = 0.00%; sessions with >=1 failed turn: 0
+[cost] $6.516  in=7207399 out=197713 calls=14735  ($0.0174/session; estimate was $9.93)
+[ledger] | 2026-10-20 | healthcare v2 corpus (70B, seed 7, n=375) | eps=0.25 noisy partial feedback, meta-llama/Llama-3.3-70B-Instruct-Turbo via together; parse-failed turns 0/3637 | 375 trajectories, 28.0% hallucinating | $6.52 | `data/trajectories/healthcare_confirm/70B_7.jsonl.partial.jsonl` |

@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/jihanmankani/Probabalistic-Game-Environmets--1/eval/paid/run_clarification_closed_loop.py", line 383, in <module>
+    main()
+  File "/Users/jihanmankani/Probabalistic-Game-Environmets--1/eval/paid/run_clarification_closed_loop.py", line 278, in main
+    trajs = load_jsonl(cache)
+            ^^^^^^^^^^^^^^^^^
+  File "/Users/jihanmankani/Probabalistic-Game-Environmets--1/pge/trajectory.py", line 138, in load_jsonl
+    with Path(path).open() as f:
+         ^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/pathlib.py", line 1044, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/trajectories/healthcare_confirm/70B_7.jsonl'

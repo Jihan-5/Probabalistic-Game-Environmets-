@@ -1,0 +1,33 @@
+# audit_llmpatient: data/trajectories/healthcare_llmpatient/pilot/70B_7_n100.jsonl (n=100 sessions, 952 turns, seed 7; hall rate 0.260)
+
+ANALYSIS ONLY (truth reconstructed from the seed stream).
+
+agent parse failures: 0/952; extractor failures (-> signal 0): 0/817; patient replies with verdict words: 2/817
+
+## channel on turns with a patient reply (w = agent wrong vs noise-free truth)
+  ALL observed               n_wrong=  318 P(-1|w)=0.833 P(0|w)=0.142 P(+1|w)=0.025 | n_right=  499 P(-1|r)=0.790 P(0|r)=0.164 P(+1|r)=0.046 | P(0)=0.155
+  ALL turns (incl. no-reply) n_wrong=  367 P(-1|w)=0.722 P(0|w)=0.256 P(+1|w)=0.022 | n_right=  585 P(-1|r)=0.674 P(0|r)=0.287 P(+1|r)=0.039 | P(0)=0.275
+  contradiction lift P(-1|w)/P(-1|r) = 1.06; v2 reference (eps=0.25, symmetric): P(-1|w)=0.75, P(-1|r)=0.25, P(0)=0
+  among nonzero signals: disagreement with truth = 0.583 (v2: eps = 0.25)
+
+## per attribute (observed turns)
+  contrast_risk_level        n_wrong=   36 P(-1|w)=0.833 P(0|w)=0.167 P(+1|w)=0.000 | n_right=   57 P(-1|r)=0.702 P(0|r)=0.281 P(+1|r)=0.018 | P(0)=0.237
+  drug_interaction_concern   n_wrong=   44 P(-1|w)=0.727 P(0|w)=0.273 P(+1|w)=0.000 | n_right=   29 P(-1|r)=0.655 P(0|r)=0.345 P(+1|r)=0.000 | P(0)=0.301
+  fasting_required           n_wrong=   52 P(-1|w)=0.942 P(0|w)=0.019 P(+1|w)=0.038 | n_right=   19 P(-1|r)=0.947 P(0|r)=0.053 P(+1|r)=0.000 | P(0)=0.028
+  needs_contrast             n_wrong=   37 P(-1|w)=0.730 P(0|w)=0.243 P(+1|w)=0.027 | n_right=   59 P(-1|r)=0.881 P(0|r)=0.119 P(+1|r)=0.000 | P(0)=0.167
+  premedication_needed       n_wrong=   15 P(-1|w)=0.733 P(0|w)=0.267 P(+1|w)=0.000 | n_right=   57 P(-1|r)=0.719 P(0|r)=0.281 P(+1|r)=0.000 | P(0)=0.278
+  renal_screening_required   n_wrong=   50 P(-1|w)=0.960 P(0|w)=0.000 P(+1|w)=0.040 | n_right=   26 P(-1|r)=0.846 P(0|r)=0.038 P(+1|r)=0.115 | P(0)=0.013
+  requires_specialist        n_wrong=   17 P(-1|w)=0.765 P(0|w)=0.235 P(+1|w)=0.000 | n_right=   55 P(-1|r)=0.909 P(0|r)=0.091 P(+1|r)=0.000 | P(0)=0.125
+  scan_safe_now              n_wrong=   20 P(-1|w)=1.000 P(0|w)=0.000 P(+1|w)=0.000 | n_right=   53 P(-1|r)=0.642 P(0|r)=0.189 P(+1|r)=0.170 | P(0)=0.137
+  schedule_priority          n_wrong=    9 P(-1|w)=0.889 P(0|w)=0.000 P(+1|w)=0.111 | n_right=   83 P(-1|r)=0.843 P(0|r)=0.072 P(+1|r)=0.084 | P(0)=0.065
+  sedation_assessment        n_wrong=   38 P(-1|w)=0.711 P(0|w)=0.237 P(+1|w)=0.053 | n_right=   61 P(-1|r)=0.787 P(0|r)=0.164 P(+1|r)=0.049 | P(0)=0.192
+
+## per persona (observed turns)
+  anxious                    n_wrong=   81 P(-1|w)=0.778 P(0|w)=0.222 P(+1|w)=0.000 | n_right=  112 P(-1|r)=0.804 P(0|r)=0.196 P(+1|r)=0.000 | P(0)=0.207
+  attentive                  n_wrong=  148 P(-1|w)=0.953 P(0|w)=0.047 P(+1|w)=0.000 | n_right=  224 P(-1|r)=0.906 P(0|r)=0.089 P(+1|r)=0.004 | P(0)=0.073
+  trusting                   n_wrong=   89 P(-1|w)=0.685 P(0|w)=0.225 P(+1|w)=0.090 | n_right=  163 P(-1|r)=0.620 P(0|r)=0.245 P(+1|r)=0.135 | P(0)=0.238
+
+## per confidence band (observed turns)
+  p in [0, 0.6)              n_wrong=  194 P(-1|w)=0.804 P(0|w)=0.175 P(+1|w)=0.021 | n_right=  215 P(-1|r)=0.744 P(0|r)=0.237 P(+1|r)=0.019 | P(0)=0.208
+  p in [0.6, 0.75)           n_wrong=  116 P(-1|w)=0.888 P(0|w)=0.095 P(+1|w)=0.017 | n_right=  238 P(-1|r)=0.861 P(0|r)=0.101 P(+1|r)=0.038 | P(0)=0.099
+  p in [0.75, 1.01)          n_wrong=    8 P(-1|w)=0.750 P(0|w)=0.000 P(+1|w)=0.250 | n_right=   46 P(-1|r)=0.630 P(0|r)=0.152 P(+1|r)=0.217 | P(0)=0.130
