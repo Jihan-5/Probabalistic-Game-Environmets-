@@ -41,6 +41,19 @@ Pooled over 4 corpora (stratified cluster bootstrap):
 - AUROC(intake_lr): +0.892 [+0.874, +0.909]
 - AUROC(intake_lr+fb): +0.903 [+0.885, +0.919]
 
+### L_U label-budget curve, intake-aware LRs (same subsets as e11)
+
+| corpus | detector | 25 | 50 | 100 | 200 | all |
+|---|---|---|---|---|---|---|
+| 8B | intake_lr | 0.636 | 0.684 | 0.716 | 0.757 | 0.772 |
+| 8B | intake_lr+fb | 0.633 | 0.687 | 0.726 | 0.770 | 0.782 |
+| qwen72b | intake_lr | 0.610 | 0.642 | 0.666 | 0.707 | 0.723 |
+| qwen72b | intake_lr+fb | 0.621 | 0.660 | 0.689 | 0.739 | 0.749 |
+| gpt-4o-mini | intake_lr | 0.593 | 0.611 | 0.640 | 0.665 | 0.678 |
+| gpt-4o-mini | intake_lr+fb | 0.600 | 0.628 | 0.650 | 0.693 | 0.717 |
+| mistral-small-24b | intake_lr | 0.543 | 0.570 | 0.567 | 0.582 | 0.585 |
+| mistral-small-24b | intake_lr+fb | 0.559 | 0.600 | 0.621 | 0.659 | 0.690 |
+
 ### Per-commitment q_t (V6, L_U fit; confident user-dependent commitments, test splits)
 
 | corpus | n per split | wrong | mean q | AUROC(q) | ECE(q) |
@@ -50,4 +63,4 @@ Pooled over 4 corpora (stratified cluster bootstrap):
 | gpt-4o-mini | 246 | 0.394 | 0.440 | 0.753 | 0.108 |
 | mistral-small-24b | 319 | 0.406 | 0.448 | 0.797 | 0.093 |
 
-runtime 133s
+runtime 150s

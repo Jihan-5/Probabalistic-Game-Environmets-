@@ -12,6 +12,8 @@ corpora, splits and bootstrap as eval/e11_confirmatory.py:
    (attribute, value, intake question, intake answer) cell of the confident
    commitments; intake_lr+fb adds ctx_lr+fb's reaction cells. Same L2
    logistic regression, C = 0.1, no tuning.
+   Also their label-budget curve (same subsets as e11's Amendment 1 curve:
+   identical rng seeds per (split seed, size, draw)).
 2. Per-commitment risk (the posterior's q_t). On the test split, every
    confident commitment on a user-dependent attribute: AUROC of q_t for
    that commitment's error, and expected calibration error (10 equal-width
@@ -110,6 +112,31 @@ def per_commitment(trajs, LU, sessions, dom):
             "auroc_q": float(auroc(qs, ws)), "ece_q": ece(qs, ws)}
 
 
+def lc_intake(trajs, y, sizes=(25, 50, 100, 200), draws=5):
+    """e11.learning_curve's subsets and test sets, for the intake-aware LRs."""
+    ids = [t.task_id for t in trajs]
+    make = {"intake_lr": lambda: IntakeLR(), "intake_lr+fb": lambda: IntakeLR(True)}
+    out = {}
+    for seed in SEEDS:
+        tr_ids, te_ids = split_task_ids(ids, 0.7, seed)
+        tr = np.array([i for i, t in enumerate(ids) if t in tr_ids])
+        te = [i for i, t in enumerate(ids) if t in te_ids]
+        for n in list(sizes) + [len(tr)]:
+            for d in range(draws if n < len(tr) else 1):
+                rng = np.random.default_rng((seed, n, d))
+                for _ in range(50):
+                    sub = tr if n >= len(tr) else rng.choice(tr, n, replace=False)
+                    if 0 < y[sub].sum() < len(sub):
+                        break
+                else:
+                    continue
+                for name, mk in make.items():
+                    det = mk().fit([trajs[i] for i in sub], None, y[sub])
+                    sc = np.array([det.score(trajs[i]) for i in te])
+                    out.setdefault(f"{name}@{'all' if n >= len(tr) else n}", []).append(auroc(sc, y[te]))
+    return {k: float(np.mean(v)) for k, v in out.items()}
+
+
 def block(corpora, title):
     lines, numbers, runs = [f"## {title}", ""], {}, {"L_U": {}, "L": {}}
     for tag, path, seed, n in corpora:
@@ -128,6 +155,8 @@ def block(corpora, title):
             R = run_protocol(trajs, y, Fl, dags=dags)
             runs[lab][tag] = (R, len(trajs))
             numbers.setdefault(lab, {})[tag] = {d: mean_auc(R, d) for d in R["auroc"]}
+        if len(trajs) >= MIN_SESSIONS:
+            numbers.setdefault("learning_curve", {})[tag] = lc_intake(trajs, LU)
         pc = per_commitment(trajs, LU, sessions, dom)
         numbers.setdefault("percommit_q", {})[tag] = pc
         print(f"[{tag}] " + " ".join(f"{d} {v:.3f}" for d, v in numbers["L_U"][tag].items()) +
@@ -149,6 +178,14 @@ def block(corpora, title):
                 q = f"AUROC({a})" if b is None else f"{a} - {b}"
                 numbers[lab].setdefault("pooled", {})[q] = ci
                 lines.append(f"- {q}: {ci[0]:+.3f} [{ci[1]:+.3f}, {ci[2]:+.3f}]")
+        lines.append("")
+    if numbers.get("learning_curve"):
+        lines += ["### L_U label-budget curve, intake-aware LRs (same subsets as e11)", "",
+                  "| corpus | detector | 25 | 50 | 100 | 200 | all |", "|---|---|---|---|---|---|---|"]
+        for tag, d in numbers["learning_curve"].items():
+            for name in ("intake_lr", "intake_lr+fb"):
+                lines.append(f"| {tag} | {name} | " + " | ".join(f"{d[f'{name}@{n}']:.3f}" for n in
+                                                               (25, 50, 100, 200, "all")) + " |")
         lines.append("")
     if numbers.get("percommit_q"):
         lines += ["### Per-commitment q_t (V6, L_U fit; confident user-dependent commitments, test splits)", "",
