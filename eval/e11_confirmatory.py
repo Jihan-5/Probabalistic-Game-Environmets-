@@ -301,7 +301,7 @@ _HID = [((d, s, k, a), (1 / 31) * (0.7 if s == "mild" else 0.3) * (0.8 if k == "
         for d, s, k, a in _it.product(range(31), ("mild", "severe"), ("normal", "impaired"), ("low", "high"))]
 
 
-def bayes_LU(traj, setup, eps=None):
+def bayes_LU(traj, setup, eps=None, shown_only=False):
     """P(L_U = 1 | intake, commitments[, feedback]) under the simulator's
     hidden-fact prior; with eps, the symmetric channel on reactions to
     user-dependent commitments (the others' likelihood does not depend on the
@@ -311,7 +311,8 @@ def bayes_LU(traj, setup, eps=None):
     if not H:
         return 0.0
     k = _math.ceil(0.5 * len(H))
-    obs = [(t, turn_signal(t)) for t in traj.turns if t.attribute in U] if eps is not None else []
+    turns = traj.turns[:-1] if shown_only else traj.turns  # the last reaction is never shown to the agent
+    obs = [(t, turn_signal(t)) for t in turns if t.attribute in U] if eps is not None else []
     num = den = 0.0
     for (d, sv, kd, a), w in _HID:
         tr = derive_ground_truth_v2(setup, {"days_since_treatment": d, "allergy_severity": sv,
@@ -380,6 +381,11 @@ def rules_aware(trajs, sessions, y, dags, eps):
     if eps is not None:
         eF = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers, eps) for t in trajs}
         F.insert(1, ("etaF (Bayes, feedback)", lambda: Fixed("etaF", eF)))
+        # Descriptive (added before confirmatory data): Theorem 1's bound for
+        # anything computed from the agent's context, P(L_U | X, C), uses the
+        # reactions the agent was shown (all but the last turn's).
+        eX = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers, eps, shown_only=True) for t in trajs}
+        F.insert(2, ("etaX (Bayes, shown reactions)", lambda: Fixed("etaX", eX)))
     return run_protocol(trajs, y, F, dags=dags)
 
 
@@ -615,15 +621,17 @@ def analyse(corpora, label_sets, out_name, full=True):
     if rules:
         lines += ["", "## Amendment 2: rules-aware analyses on L_U (oracle information: the simulator's rules and "
                   "hidden-fact prior; not deployable)", "",
-                  "| corpus | eta0 (Bayes, no feedback) | etaF (Bayes, feedback) | V6-session | LR-session | LR-session+fb |",
-                  "|---|---|---|---|---|---|"]
+                  "| corpus | eta0 (Bayes, no feedback) | etaX (Bayes, shown reactions) | etaF (Bayes, feedback) | V6-session | LR-session | LR-session+fb |",
+                  "|---|---|---|---|---|---|---|"]
         for tag, (R, _) in rules.items():
             cells = [f"{mean_auc(R, d):.3f}" if d in R["auroc"] else "n/a" for d in
-                     ("eta0 (Bayes, no feedback)", "etaF (Bayes, feedback)", "V6-session", "LR-session", "LR-session+fb")]
+                     ("eta0 (Bayes, no feedback)", "etaX (Bayes, shown reactions)", "etaF (Bayes, feedback)",
+                      "V6-session", "LR-session", "LR-session+fb")]
             lines.append(f"| {tag} | " + " | ".join(cells) + " |")
             numbers.setdefault("rules_aware", {})[tag] = {d: mean_auc(R, d) for d in R["auroc"]}
         lines += ["", "Differences per corpus (session-clustered):", ""]
-        comps = [("etaF (Bayes, feedback)", "eta0 (Bayes, no feedback)"), ("V6-session", "LR-session+fb"),
+        comps = [("etaF (Bayes, feedback)", "eta0 (Bayes, no feedback)"),
+                 ("etaF (Bayes, feedback)", "etaX (Bayes, shown reactions)"), ("V6-session", "LR-session+fb"),
                  ("V6-session", "eta0 (Bayes, no feedback)"), ("LR-session+fb", "LR-session")]
         for tag, (R, _) in rules.items():
             y = np.concatenate(R["y"]); g = np.concatenate(R["tid"]); row = []
@@ -638,7 +646,8 @@ def analyse(corpora, label_sets, out_name, full=True):
             lines += ["", f"Pooled over {len(pool)} corpora:", "", "| id | quantity | estimate [95% CI] | licensed claim |",
                       "|---|---|---|---|"]
             for hid, a, b in [("H5", "etaF (Bayes, feedback)", "eta0 (Bayes, no feedback)"),
-                              ("H6", "V6-session", "LR-session+fb"), ("sec.", "V6-session", "eta0 (Bayes, no feedback)")]:
+                              ("H6", "V6-session", "LR-session+fb"), ("sec.", "V6-session", "eta0 (Bayes, no feedback)"),
+                              ("sec.", "etaF (Bayes, feedback)", "etaX (Bayes, shown reactions)")]:
                 ci = strat_boot(pool, a, b)
                 c = {"H5": ("the user's reactions carry information beyond the best possible context-only predictor"
                             if ci[1] > 0 else "no information beyond the context-only Bayes predictor detected"),

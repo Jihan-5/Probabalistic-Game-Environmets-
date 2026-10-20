@@ -173,3 +173,16 @@ labelled as using oracle information. Added (L_U only; `rules_aware` in
 Also reported, without a claim: V6-session - eta0, LR-session+fb - LR-session.
 Development values (dev corpora, for reference only): etaF - eta0 = +0.045
 [+0.023, +0.070] (70B), +0.073 [+0.033, +0.122] (8B).
+
+## Amendment 3 (committed 2026-10-20, before any confirmatory data was pushed or seen by the analysts)
+
+Theory check of Amendment 2: in protocol v2fb the agent is shown earlier
+reactions, so its commitments can carry reaction information, and eta0
+(computed with the hidden-fact prior and no reactions) is the **population
+risk** of the commitments, not the best possible context-only predictor.
+Wording of H5 is narrowed accordingly (analysis unchanged): if etaF - eta0 > 0,
+"the user's reactions carry information beyond the population risk of the
+commitments". Added, descriptive: **etaX** = P(L_U | X, C), the exact Bayes
+posterior using only the reactions the agent was shown (all but the last
+turn's), which is Theorem 1's bound for any detector computed from the
+agent's context and its resamples; reported with etaF - etaX.
