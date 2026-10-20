@@ -34,12 +34,15 @@ from pge.baselines.confidence import HighConfContradicted, MeanConfidence, Negat
 from pge.baselines.context_lr import ContextLR, PriorOnly
 from pge.baselines.dag_logreg import DagFeatureClassifier
 from pge.baselines.gcn import GCNClassifier
-from pge.baselines.posterior import ChannelPosterior, IndependentPosterior
+from pge.baselines.posterior import (
+    ChannelPosterior, IndependentPosterior, label_threshold, poisson_binomial_tail, turn_signal,
+)
 from pge.baselines.selfcheckgpt import SelfCheckGPT
 from pge.baselines.semantic_entropy import SemanticEntropy
 from pge.benchmarks import healthcare_llmpatient
 from pge.benchmarks.healthcare_v2 import (
-    USER_DEPENDENT_SCHEMA, AgentGuessV2, eval_label_user, sample_session_v2,
+    USER_DEPENDENT_SCHEMA, AgentGuessV2, derive_ground_truth_v2, eval_label_user, sample_session_v2,
+    user_dependent_attrs,
 )
 from pge.graphon import GraphonEstimator
 from pge.trajectory import load_jsonl
@@ -173,6 +176,7 @@ def load(path: Path, seed: int, n: int):
             assert t.meta["eval_label_user"] == lu, f"{t.task_id}: stored L_U mismatch"
         L.append(t.eval_label)
         LU.append(lu)
+    load.sessions = sessions
     return trajs, np.array(L, dtype=int), np.array(LU, dtype=int)
 
 
@@ -281,6 +285,104 @@ def claim(hid, ci):
     }[hid]
 
 
+# --------------------------------------- Amendment 2: rules-aware analyses
+# ORACLE INFORMATION (the simulator's clinic rules and its prior over hidden
+# patient facts), never available to a deployed detector. Used to measure how
+# much of L_U is predictable without the user (eta0, the context-only Bayes
+# predictor, Theorem 1's bound made concrete) and how much the user's reactions
+# add (etaF, Bayes with the true eps channel); and to compare detectors given
+# the same per-session information (which commitments concern hidden facts).
+
+import itertools as _it  # noqa: E402
+import math as _math  # noqa: E402
+
+_HID = [((d, s, k, a), (1 / 31) * (0.7 if s == "mild" else 0.3) * (0.8 if k == "normal" else 0.2)
+         * (0.65 if a == "low" else 0.35))
+        for d, s, k, a in _it.product(range(31), ("mild", "severe"), ("normal", "impaired"), ("low", "high"))]
+
+
+def bayes_LU(traj, setup, eps=None):
+    """P(L_U = 1 | intake, commitments[, feedback]) under the simulator's
+    hidden-fact prior; with eps, the symmetric channel on reactions to
+    user-dependent commitments (the others' likelihood does not depend on the
+    hidden facts and cancels)."""
+    U = user_dependent_attrs(setup)
+    H = [t for t in traj.turns if t.probability >= 0.6 and t.attribute in U]
+    if not H:
+        return 0.0
+    k = _math.ceil(0.5 * len(H))
+    obs = [(t, turn_signal(t)) for t in traj.turns if t.attribute in U] if eps is not None else []
+    num = den = 0.0
+    for (d, sv, kd, a), w in _HID:
+        tr = derive_ground_truth_v2(setup, {"days_since_treatment": d, "allergy_severity": sv,
+                                            "kidney_function": kd, "anxiety_level": a})
+        lab = sum(t.guess_value != tr[t.attribute] for t in H) >= k
+        lik = 1.0
+        for t, sig in obs:
+            if sig != 0:
+                lik *= (1 - eps) if sig == (1 if t.guess_value == tr[t.attribute] else -1) else eps
+        num += w * lik * lab
+        den += w * lik
+    return num / den
+
+
+class Fixed(TrajectoryScorer):
+    def __init__(self, name, table):
+        self.name, self.table = name, table
+
+    def score(self, trajectory, dag=None):
+        return self.table[trajectory.task_id]
+
+
+class V6Session(ChannelPosterior):
+    """V6 with the label event over each session's exact user-dependent set."""
+    U: dict = {}
+
+    def __init__(self):
+        super().__init__()
+        self.name = "V6-session"
+
+    def _score(self, traj):
+        Ut = self.U[traj.task_id]
+        q = [self._q_turn(t) for t in traj.turns if t.probability >= self.high and t.attribute in Ut]
+        return poisson_binomial_tail(np.array(q), label_threshold(len(q), self.frac)) if q else 0.0
+
+
+class LRSession(ContextLR):
+    """ctx_lr(+fb) given the same per-session information: cells only for
+    confident commitments in the session's user-dependent set, plus |H_U|."""
+    U: dict = {}
+
+    def __init__(self, with_feedback=False):
+        super().__init__(with_feedback=with_feedback)
+        self.name = "LR-session" + ("+fb" if with_feedback else "")
+
+    def _features(self, traj):
+        Ut = self.U[traj.task_id]
+        x = np.zeros(len(self.vocab))
+        for turn in traj.turns:
+            if turn.probability < self.high or turn.attribute not in Ut:
+                continue
+            for k in self._keys(turn):
+                if k in self.vocab:
+                    x[self.vocab[k]] += 1
+        hu = sum(t.probability >= self.high and t.attribute in Ut for t in traj.turns)
+        return np.concatenate([x, [hu, len(traj.turns), float(np.mean([t.probability for t in traj.turns]))]])
+
+
+def rules_aware(trajs, sessions, y, dags, eps):
+    """Amendment 2 detectors on L_U; eps=None (unknown channel) skips etaF."""
+    U = {t.task_id: user_dependent_attrs(sessions[t.task_id].setup_answers) for t in trajs}
+    V6Session.U = LRSession.U = U
+    e0 = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers) for t in trajs}
+    F = [("eta0 (Bayes, no feedback)", lambda: Fixed("eta0", e0)),
+         ("V6-session", V6Session), ("LR-session", LRSession), ("LR-session+fb", lambda: LRSession(True))]
+    if eps is not None:
+        eF = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers, eps) for t in trajs}
+        F.insert(1, ("etaF (Bayes, feedback)", lambda: Fixed("etaF", eF)))
+    return run_protocol(trajs, y, F, dags=dags)
+
+
 # ------------------------------------------------------------------ report
 
 
@@ -326,12 +428,18 @@ def analyse(corpora, label_sets, out_name, full=True):
     t0 = time.time()
     lines, numbers = [], {}
     runs = {lab: {} for lab in ("L_U", "L")}
+    rules = {}
     for tag, path, seed, n in corpora:
         if not path.exists():
             lines.append(f"> {tag}: `{path.relative_to(REPO)}` not found; skipped.")
             continue
         trajs, L, LU = load(path, seed, n)
         dags = [build_dag(t) for t in trajs]
+        sessions = load.sessions
+        if "L_U" in label_sets:
+            eps = None if any(t.domain == healthcare_llmpatient.DOMAIN for t in trajs) else \
+                float(trajs[0].meta.get("epsilon", 0.25))
+            rules[tag] = (rules_aware(trajs, sessions, LU, dags, eps), len(trajs))
         nfail = sum(len(t.meta.get("parse_failed_turns", [])) for t in trajs)
         print(f"[{tag}] n={len(trajs)} L={L.mean():.3f} L_U={LU.mean():.3f} parse-failed turns={nfail}",
               flush=True)
@@ -394,6 +502,41 @@ def analyse(corpora, label_sets, out_name, full=True):
                 c = claim(hid, ci) if hid != "sec." else "reported as is"
                 lines.append(f"| {hid} | {q} | {fmt(ci, signed=b is not None)} | {c} |")
                 numbers[lab].setdefault("pooled", {})[f"{hid}: {q}"] = ci
+    if rules:
+        lines += ["", "## Amendment 2: rules-aware analyses on L_U (oracle information: the simulator's rules and "
+                  "hidden-fact prior; not deployable)", "",
+                  "| corpus | eta0 (Bayes, no feedback) | etaF (Bayes, feedback) | V6-session | LR-session | LR-session+fb |",
+                  "|---|---|---|---|---|---|"]
+        for tag, (R, _) in rules.items():
+            cells = [f"{mean_auc(R, d):.3f}" if d in R["auroc"] else "n/a" for d in
+                     ("eta0 (Bayes, no feedback)", "etaF (Bayes, feedback)", "V6-session", "LR-session", "LR-session+fb")]
+            lines.append(f"| {tag} | " + " | ".join(cells) + " |")
+            numbers.setdefault("rules_aware", {})[tag] = {d: mean_auc(R, d) for d in R["auroc"]}
+        lines += ["", "Differences per corpus (session-clustered):", ""]
+        comps = [("etaF (Bayes, feedback)", "eta0 (Bayes, no feedback)"), ("V6-session", "LR-session+fb"),
+                 ("V6-session", "eta0 (Bayes, no feedback)"), ("LR-session+fb", "LR-session")]
+        for tag, (R, _) in rules.items():
+            y = np.concatenate(R["y"]); g = np.concatenate(R["tid"]); row = []
+            for a, b in comps:
+                if a in R["scores"] and b in R["scores"]:
+                    ci = cluster_boot_diff(pooled_rows(R, a), pooled_rows(R, b), y, g, n=N_BOOT)
+                    numbers["rules_aware"][tag][f"{a} - {b}"] = ci
+                    row.append(f"{a} - {b}: {fmt(ci)}")
+            lines.append(f"- **{tag}**: " + "; ".join(row))
+        pool = [R for tag, (R, n) in rules.items() if n >= MIN_SESSIONS and "etaF (Bayes, feedback)" in R["auroc"]]
+        if len(pool) >= 2:
+            lines += ["", f"Pooled over {len(pool)} corpora:", "", "| id | quantity | estimate [95% CI] | licensed claim |",
+                      "|---|---|---|---|"]
+            for hid, a, b in [("H5", "etaF (Bayes, feedback)", "eta0 (Bayes, no feedback)"),
+                              ("H6", "V6-session", "LR-session+fb"), ("sec.", "V6-session", "eta0 (Bayes, no feedback)")]:
+                ci = strat_boot(pool, a, b)
+                c = {"H5": ("the user's reactions carry information beyond the best possible context-only predictor"
+                            if ci[1] > 0 else "no information beyond the context-only Bayes predictor detected"),
+                     "H6": ("given the same information, the PGE posterior beats the supervised detector"
+                            if ci[1] > 0 else "given the same information, the PGE posterior does not beat the supervised detector"),
+                     "sec.": "reported as is"}[hid]
+                lines.append(f"| {hid} | {a} - {b} | {fmt(ci)} | {c} |")
+                numbers["rules_aware"].setdefault("pooled", {})[f"{hid}: {a} - {b}"] = ci
     return lines, numbers, time.time() - t0
 
 

@@ -144,3 +144,32 @@ Terminology for the paper: "PGE" names the protocol (explicit commitments +
 implicit reactions); V6 is the protocol's label-event posterior; ctx_lr and
 ctx_lr+fb are generic supervised detectors on the same observables. Claims
 about "PGE beats X" in H3/H4 refer to V6, as originally registered.
+
+## Amendment 2 (committed 2026-10-20, before any confirmatory data was pushed or seen by the analysts)
+
+Motivation: on the development corpora, restricting V6's label event to each
+session's exact user-dependent set raised V6 on L_U from 0.678 to 0.904 (70B)
+and 0.722 to 0.956 (8B). That set needs the clinic's rules, i.e. information a
+deployed detector may not have, so these analyses are separated from H1-H4 and
+labelled as using oracle information. Added (L_U only; `rules_aware` in
+`eval/e11_confirmatory.py`):
+
+- **eta0**: exact P(L_U = 1 | intake answers, commitments) under the
+  simulator's rules and prior over hidden patient facts, no feedback. The best
+  any context-only detector can do under that prior (Theorem 1's bound made
+  concrete). No training.
+- **etaF**: the same with the user's reactions to user-dependent commitments
+  under the true symmetric channel (eps from `meta.epsilon`). Not computed for
+  the LLM-patient corpora (channel unknown).
+- **V6-session**: V6 with the label event over the session's user-dependent set.
+- **LR-session, LR-session+fb**: ctx_lr / ctx_lr+fb given the same information
+  (cells only for confident commitments in that set, plus |H_U|).
+
+| id | comparison (L_U, pooled over the five healthcare corpora) | claim if CI excludes 0 | claim otherwise |
+|---|---|---|---|
+| H5 | etaF - eta0 > 0 | "the user's reactions carry information beyond the best possible context-only predictor" | "no information beyond the context-only Bayes predictor detected" |
+| H6 | V6-session - LR-session+fb > 0 | "given the same information, the PGE posterior beats the supervised detector" | "given the same information, the PGE posterior does not beat the supervised detector" |
+
+Also reported, without a claim: V6-session - eta0, LR-session+fb - LR-session.
+Development values (dev corpora, for reference only): etaF - eta0 = +0.045
+[+0.023, +0.070] (70B), +0.073 [+0.033, +0.122] (8B).
