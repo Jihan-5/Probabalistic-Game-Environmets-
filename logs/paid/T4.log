@@ -1,0 +1,4 @@
+[estimate] CoVe on 394 test-union tasks (3833 turns, 3833 uncached) of data/trajectories/healthcare_confirm/70B_7.jsonl, verifier meta-llama/Llama-3.3-70B-Instruct-Turbo -> results/cove_baseline/70B_on_70B_7
+  verification queries         meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 3833 calls x (~243 in + ~15 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.87
+  TOTAL ~$0.87   hard cap --max-cost $0.90
+[preflight] ok: meta-llama/Llama-3.3-70B-Instruct-Turbo via together

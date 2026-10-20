@@ -1,0 +1,15 @@
+[estimate] travel_v1 v2fb n=600 seed 7 (6018 turns) -> data/trajectories/travel_confirm/gpt-4o-mini_7.jsonl
+  agent turns                  openai/gpt-4o-mini via openrouter: 6619 calls x (~470 in + ~30 out) @ $0.15/$0.6 per M [verify on provider site] = $0.59
+  resamples (k=3, T=0.9)       openai/gpt-4o-mini via openrouter: 18054 calls x (~448 in + ~14 out) @ $0.15/$0.6 per M [verify on provider site] = $1.36
+  TOTAL ~$1.95   hard cap --max-cost $2.55
+[preflight] ok: openai/gpt-4o-mini via openrouter
+  progress 20/600 done=20 failed=0 cost=$0.072 (204s)
+  progress 40/600 done=40 failed=0 cost=$0.130 (369s)
+  progress 60/600 done=60 failed=0 cost=$0.193 (540s)
+  progress 80/600 done=80 failed=0 cost=$0.255 (723s)
+  progress 100/600 done=100 failed=0 cost=$0.316 (897s)
+  progress 120/600 done=120 failed=0 cost=$0.378 (1029s)
+  progress 140/600 done=140 failed=0 cost=$0.440 (1176s)
+  progress 160/600 done=160 failed=0 cost=$0.497 (1297s)
+  progress 180/600 done=180 failed=0 cost=$0.559 (1471s)
+  progress 200/600 done=200 failed=0 cost=$0.627 (1650s)

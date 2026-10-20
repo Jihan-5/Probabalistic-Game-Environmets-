@@ -15,7 +15,7 @@
     "resample_temperature": 0.9,
     "epsilon": 0.25,
     "max_parse_fail": 0.25,
-    "max_cost": 12.5,
+    "max_cost": 4.6,
     "concurrency": 8,
     "out": null,
     "estimate_only": false,
@@ -32,39 +32,38 @@
     "price_out": 0.88,
     "price_status": "ledger (2026-09 runs)"
   },
-  "complete": false,
-  "n_written": 375,
+  "complete": true,
+  "n_written": 600,
   "parse_status_counts": {
-    "strict": 3637
+    "strict": 5825,
+    "strict_normalized": 1
   },
-  "hall_rate": 0.28,
+  "hall_rate": 0.2733333333333333,
   "meter": {
-    "cost": 6.516499,
-    "max_cost": 12.5,
-    "tokens_in": 7207399,
-    "tokens_out": 197713,
-    "calls": 14735,
-    "usage_missing_calls": 0,
+    "cost": 3.881063,
+    "max_cost": 4.6,
+    "tokens_in": 4286122,
+    "tokens_out": 117440,
+    "calls": 8765,
+    "usage_missing_calls": 8,
     "tripped": false,
     "stop_reason": "",
     "by_role": {
       "agent": {
         "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-        "calls": 14735,
-        "tokens_in": 7207399,
-        "tokens_out": 197713,
-        "cost": 6.516499
+        "calls": 8765,
+        "tokens_in": 4286122,
+        "tokens_out": 117440,
+        "cost": 3.881063
       }
     }
   },
   "runner": {
-    "done": 375,
-    "failed": 225,
+    "done": 225,
+    "failed": 0,
     "budget_stopped": 0,
     "cancelled": 0,
-    "errors": {
-      "NonRetryableHTTP": 225
-    },
-    "seconds": 1417.4
+    "errors": {},
+    "seconds": 1912.1
   }
 }

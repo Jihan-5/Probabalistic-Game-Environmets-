@@ -4,3 +4,20 @@
   TOTAL ~$9.93   hard cap --max-cost $4.60   (estimate EXCEEDS cap: run will stop at the cap)
 [preflight] ok: meta-llama/Llama-3.3-70B-Instruct-Turbo via together
 [resume] 375 sessions already in data/trajectories/healthcare_confirm/70B_7.jsonl.partial.jsonl
+  progress 20/225 done=20 failed=0 cost=$0.401 (325s)
+  progress 40/225 done=40 failed=0 cost=$0.756 (585s)
+  progress 60/225 done=60 failed=0 cost=$1.106 (776s)
+  progress 80/225 done=80 failed=0 cost=$1.444 (968s)
+  progress 100/225 done=100 failed=0 cost=$1.802 (1122s)
+  progress 120/225 done=120 failed=0 cost=$2.167 (1255s)
+  progress 140/225 done=140 failed=0 cost=$2.498 (1366s)
+  progress 160/225 done=160 failed=0 cost=$2.830 (1501s)
+  progress 180/225 done=180 failed=0 cost=$3.190 (1641s)
+  progress 200/225 done=200 failed=0 cost=$3.493 (1769s)
+  progress 220/225 done=220 failed=0 cost=$3.845 (1867s)
+
+[done] 600 trajectories -> data/trajectories/healthcare_confirm/70B_7.jsonl  (1912s)
+[labels] hallucinating 164/600 = 27.3%
+[parse] {'strict': 5825, 'strict_normalized': 1}  failed turns 0/5826 = 0.00%; sessions with >=1 failed turn: 0
+[cost] $3.881  in=4286122 out=117440 calls=8765  ($0.0065/session; estimate was $9.93)
+[ledger] | 2026-10-20 | healthcare v2 corpus (70B, seed 7, n=600) | eps=0.25 noisy partial feedback, meta-llama/Llama-3.3-70B-Instruct-Turbo via together; parse-failed turns 0/5826 | 600 trajectories, 27.3% hallucinating | $3.88 | `data/trajectories/healthcare_confirm/70B_7.jsonl` |
