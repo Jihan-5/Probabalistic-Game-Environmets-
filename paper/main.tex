@@ -43,15 +43,15 @@ and the user's implicit reactions are recorded, and a label-event posterior
 that turns commitments and reactions into per-commitment and per-session
 risk. In a simulator where the truth is known, exact Bayes predictors split what is detectable into population risk, the chance that these commitments are wrong for a user with the same intake, and individual evidence from the user's reactions.
 In a pre-registered evaluation on fresh sessions with five LLM agents from
-four families, \chk{sampling detectors score \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)}
-AUROC on user-specific hallucination, detectors on PGE observables
-reach up to \pending{max}, and reactions add
-\val{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}
-AUROC beyond the population risk of the same commitments}. With a simulated
-patient that answers in natural language, and with the agent re-reasoning
-after each answer, choosing what to ask by posterior risk
-\chk{\pending{clarification headline}}. We report every pre-registered
-outcome, including those against our method.
+four families, sampling detectors are near chance on user-specific
+hallucination (SelfCheckGPT \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} AUROC
+pooled), while detectors that read commitments and reactions are well above
+it. The user's reactions add \val{C/L_U/pooled/H2: V6 - V6-prior} AUROC to our
+posterior and, at the Bayes level, \val{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}
+beyond the population risk of the same commitments. Our posterior is the most
+label-efficient detector, but with hundreds of labelled sessions a supervised
+model on the same inputs overtakes it. \chk{\pending{clarification headline}}
+We report every pre-registered outcome, including those against our method.
 \end{abstract}
 
 \noindent\textbf{Keywords:} LLM agents; hallucination detection; uncertainty; clarification; implicit feedback.
@@ -87,14 +87,16 @@ contradicting it, or ignoring it) is recorded. Reactions are noisy and partial, 
 \item \textbf{Why sampling fails, measured.} A within-context
 impossibility result and a dispersion bound, checked per commitment on five
 agents: on commitments whose truth depends on undisclosed user facts,
-resample disagreement predicts error at
-\chk{\pending{range over agents}} AUROC, a single noisy reaction at
-\chk{\pending{range}}.
+resample disagreement predicts error at \val{C/PC/range/auroc_disagreement}
+AUROC across agents, a single reaction with 25\% noise at
+\val{C/PC/range/auroc_feedback_bit}.
 \item \textbf{A decomposition of detectability.} Exact Bayes predictors in a simulator with known truth separate the population risk of the commitments from the individual evidence in the reactions; the posterior given commitments and reactions bounds what any detector, with or without resamples, can achieve.
 \item \textbf{A protocol and a posterior.} PGE's commitments and reactions
 make user-specific hallucination detectable; its label-event posterior
-gives per-commitment risk that is exact under a conditional-independence model (estimated by plug-in), which we use to choose what to ask the
-user, measured with the agent re-reasoning after each answer.
+gives per-commitment risk that is exact under a conditional-independence
+model (estimated by plug-in), is the most label-efficient detector we test,
+and tells the agent what to ask the user, which we measure with the agent
+re-reasoning after each answer.
 \item \textbf{A pre-registered evaluation.} After an independent audit of our
 development results, we fixed the analysis, fixed a protocol bug, and
 generated fresh sessions with five agents from four families and a
@@ -240,6 +242,9 @@ plain-language sentence, and replies in one or two sentences. A third model
 that sees only the sentence and the reply labels it as agreement,
 contradiction or neither. The agent reads the patient's verbatim replies.
 An \emph{informed} variant also tells the patient the clinic's decision.
+A registered gate guards this corpus: a 100-session pilot runs first, and
+the full 600 sessions run only if contradictions are at least $1.5$ times as
+frequent after wrong commitments as after correct ones.
 
 \paragraph{Development and confirmation.} All method development used two
 development corpora (Llama-3.3-70B, 600 sessions; Llama-3.1-8B, 200).
@@ -307,15 +312,16 @@ noise carries a great deal.} The development corpora show the same pattern
 (70B: all three resamples agree on \val{D/PC/70B/all_agree}\% of these
 commitments, disagreement AUROC \val{D/PC/70B/auroc_disagreement}, one
 reaction \val{D/PC/70B/auroc_feedback_bit}). At the session level
-(Table~\ref{tab:main}), \chk{SelfCheckGPT and semantic entropy score
+(Table~\ref{tab:main}), SelfCheckGPT and semantic entropy score
 \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} and
-\val{C/L_U/pooled/H1: AUROC(semantic_entropy)} pooled over agents
-(\pending{H1 licensed claim})}. Ten resamples instead of three give
-\val{C/K10/L_U/10} against \val{C/K10/L_U/3} for the 70B agent.
-The contrast with tasks whose errors are computational is sharp: on
-AgentBench database questions \citep{liu2024agentbench}, where errors vary
-across samples, SelfCheckGPT reaches 0.712 with the same 70B agent
-(development).
+\val{C/L_U/pooled/H1: AUROC(semantic_entropy)} pooled over agents, both
+intervals inside the registered band of $[0.40, 0.60]$ (H1): sampling
+detectors are near chance on user-specific hallucination. They are not near chance everywhere. On the composite label,
+where many errors are guesses about clinic rules that do vary across
+resamples, SelfCheckGPT reaches \val{C/L/pooled/H1: AUROC(SelfCheckGPT)}, and
+on AgentBench database questions \citep{liu2024agentbench}, where errors are
+computational, it reaches 0.712 with the 70B agent (development). The
+failure is specific to facts the user never disclosed.
 
 \subsection{Detecting user-specific hallucination}
 \label{sec:exp-detection}
@@ -353,7 +359,35 @@ $L$ is in the repository. CoVe was run for the 70B agent only.}
 
 Table~\ref{tab:main} gives the confirmatory results and
 Table~\ref{tab:hyp} the registered hypotheses, pooled over agents.
-\chk{\pending{H2/H2b/H3/H4/H4b paragraph, worded by the registered rules}}
+\chk{The user's implicit reactions add detectable signal beyond population
+base rates: \val{C/L_U/pooled/H2: V6 - V6-prior} to the posterior (H2,
+significant for every agent) and
+\val{C/L_U/pooled/H2b: ctx_lr+fb - ctx_lr} to a supervised detector (H2b).
+Detectors that read commitments and reactions beat both sampling detectors
+by wide margins (H4, H4b). The registered comparison with the strongest
+context-only detector goes the other way: the posterior does not beat a
+supervised model that sees only the commitments
+(\val{C/L_U/pooled/H3: V6 - ctx_lr}, H3), so on this label context alone
+matches PGE's posterior, and a supervised model given the same commitments
+and reactions is ahead of it when trained on the full split
+(\val{C/L_U/pooled/sec.: V6 - ctx_lr+fb}).} The ordering depends on how many
+labelled sessions are available (Figure~\ref{fig:lc}): \chk{with 25, the
+posterior leads on every agent (mean \val{C/LC/L_U/mean/V6@25} against
+\val{C/LC/L_U/mean/ctx_lr+fb@25}); the supervised model catches up at about
+100 and is ahead with all \val{C/LC/L_U/mean/V6@all} vs.\
+\val{C/LC/L_U/mean/ctx_lr+fb@all}.} Labels for user-specific hallucination
+require knowing the user's private facts, so small label budgets are the
+realistic case. On the composite label the posterior beats the
+context-only model (\val{C/L/pooled/H3: V6 - ctx_lr}) and ties the supervised
+model with reactions (\val{C/L/pooled/sec.: V6 - ctx_lr+fb}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_lc.pdf}
+\caption{Test AUROC on $\LU$ against the number of labelled training
+sessions (mean over agents; thin lines: individual agents).}
+\label{fig:lc}
+\end{figure}
 
 \begin{table}[t]
 \centering
@@ -414,12 +448,26 @@ user's reactions add $\eta_F-\bar\eta$ beyond it (H5). Almost all of that
 information is already in the conversation the agent sees ($\eta_\varnothing$
 is close to $\eta_F$), so the failure of sampling detectors is not that the
 information is absent from their input; it is that agreement between
-resamples does not read it.} \chk{\pending{H6 sentence: posterior vs supervised
-given the same information}} Without the oracle knowledge, V6 targets a
-schema-level set of attributes that is only a proxy for the label's support,
-which \chk{costs it \pending{gap} against V6-session}: knowing \emph{which}
-commitments concern undisclosed facts matters as much as how the evidence is
-combined.
+resamples does not read it.} \chk{Given the same information (which commitments concern undisclosed
+facts), the PGE posterior beats the supervised detector (H6), though by a
+small margin whose interval nearly reaches zero
+(\val{C/RA/pooled/H6: V6-session - LR-session+fb}); it also exceeds the
+population risk (\val{C/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}).} Without
+that knowledge, V6 targets a schema-level set of attributes that is only a
+proxy for the label's support, which costs it
+\val{C/derived/V6session_gap/range} AUROC against V6-session: knowing
+\emph{which} commitments concern undisclosed facts matters as much as how
+the evidence is combined.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_ladder.pdf}
+\caption{Where the signal is, on $\LU$. Sampling sits near chance; practical
+detectors on PGE observables in the middle; the population risk
+$\bar\eta$ and the Bayes posterior with reactions $\eta_F$ (oracle
+information) bound what is achievable without and with the user.}
+\label{fig:ladder}
+\end{figure}
 
 \subsection{A second domain}
 \label{sec:exp-travel}
@@ -446,9 +494,19 @@ near chance, population risk large, reactions add, V6 vs supervised)?}}
 \subsection{Natural-language reactions}
 \label{sec:exp-patient}
 
-\chk{\pending{LLM-patient paragraph: audit (P(-1|wrong), P(-1|right), lift
-for profile and informed arms), detection V6 / V6-prior / ctx-LR / ctx-LR+F
-on both labels}}
+\chk{The first simulated patient failed its gate. It contradicted 83\% of
+wrong commitments and 79\% of correct ones (lift $1.06$; 100 sessions,
+817 replies), against $75\%$ and $25\%$ for the noisy bit. Reading its
+replies shows why: the patient voiced doubt about facts it had not been
+given, and the labeller counted doubt as contradiction. As registered, it
+was not run at scale. A second version, registered before its data existed
+(Amendment~5), uses GPT-4o-mini for both roles, lets the patient object only
+to commitments that conflict with its listed facts, and labels a reply as a
+contradiction only if it states a conflict.}
+\chk{\pending{v2 audit (P(-1|wrong), P(-1|right), lift) and, if it passes,
+detection V6 / V6-prior / ctx-LR / ctx-LR+F on both labels}} A simulated
+user that does not track its own facts produces reactions that no detector
+can use; the gate is what keeps such a corpus out of the results.
 
 \subsection{Choosing what to ask}
 \label{sec:exp-loop}
