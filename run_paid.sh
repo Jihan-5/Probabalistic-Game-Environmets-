@@ -136,6 +136,17 @@ step 3 9.0 "results/e8_closed_loop/70B_$SEED/rerun_full.jsonl" -- -m eval.paid.r
 step 4 1.5 "results/cove_baseline/70B_on_70B_$SEED/scores.json" -- -m eval.paid.run_cove \
   --model 70B --corpus "$CF/70B_$SEED.jsonl" --gen-seed $SEED
 
+# 6. Second domain (travel booking, pge/benchmarks/travel_v1.py; PREREG Amendment 4):
+#    protocol v2fb, k=3 resamples on EVERY turn (T=0.9), n=600, seed 7. Runs after
+#    every healthcare step, so it never displaces them (refused if TOTAL_CAP would be
+#    exceeded; run it alone with `bash run_paid.sh 6`). Caps ~1.3x the --estimate-only figure.
+TC=data/trajectories/travel_confirm
+step 6a 2.55 "$TC/gpt-4o-mini_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
+  --domain travel_v1 --model gpt-4o-mini --protocol v2fb --seed $SEED --n 600 --resume
+step 6b 0.75 "$TC/8B_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
+  --domain travel_v1 --model 8B --protocol v2fb --seed $SEED --n 600 --resume
+
+
 # 5. OPTIONAL (refused automatically if TOTAL_CAP would be exceeded):
 #    5a informed-patient arm at n=600 (upper-bound channel), if its pilot passes;
 #    5b k=10 resamples on user-dependent turns of the 70B split-seed-42 test sessions.
@@ -147,16 +158,6 @@ fi
 step 5b 4.0 "data/trajectories/healthcare_confirm_k10/70B_${SEED}_k10.jsonl" -- -m eval.paid.augment_resamples_k10 \
   --model 70B --input "$CF/70B_$SEED.jsonl" --seed $SEED --k-target 10 --restrict test-42 --turns user \
   --out "data/trajectories/healthcare_confirm_k10/70B_${SEED}_k10.jsonl" --resume
-
-# 6. Second domain (travel booking, pge/benchmarks/travel_v1.py; PREREG Amendment 4):
-#    protocol v2fb, k=3 resamples on EVERY turn (T=0.9), n=600, seed 7. Runs after
-#    every healthcare step, so it never displaces them (refused if TOTAL_CAP would be
-#    exceeded; run it alone with `bash run_paid.sh 6`). Caps ~1.3x the --estimate-only figure.
-TC=data/trajectories/travel_confirm
-step 6a 2.55 "$TC/gpt-4o-mini_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
-  --domain travel_v1 --model gpt-4o-mini --protocol v2fb --seed $SEED --n 600 --resume
-step 6b 0.75 "$TC/8B_$SEED.jsonl" -- -m eval.paid.generate_healthcare_multimodel \
-  --domain travel_v1 --model 8B --protocol v2fb --seed $SEED --n 600 --resume
 
 echo
 echo "[run_paid] done. Recorded spend this machine: \$$(spent) (logs/paid/spend.tsv). Send back the files listed in RUN_PAID.md."
