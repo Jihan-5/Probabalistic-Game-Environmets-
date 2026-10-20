@@ -472,3 +472,32 @@ def generate_dataset_v2(
         trajs.append(traj)
         dags.append(G)
     return trajs, dags
+
+
+# ------------------------------------------------- generic domain interface
+# Aliases so domain-generic code (pge.benchmarks.domains) treats this module
+# like any other private-attribute domain (e.g. travel_v1). Additive only:
+# every existing name and behaviour above is unchanged.
+
+DOMAIN = "healthcare_v2"
+TASK_PREFIX = "hcv2"
+USER_ROLE = "patient"  # who reacts to the agent's commitments (agent-facing wording)
+ATTRIBUTES = ATTRIBUTES_V2
+ATTR_DESCRIPTIONS = ATTR_DESCRIPTIONS_V2
+SETUP_QUESTIONS = SETUP_QUESTIONS_V2
+derive_ground_truth = derive_ground_truth_v2
+sample_session = sample_session_v2
+eval_label = eval_label_v2
+AgentGuess = AgentGuessV2
+Session = SessionV2
+generate_dataset = generate_dataset_v2
+
+# Simulator prior over the hidden profile, [(hidden_dict, weight)] over the
+# whole support (the distribution sample_session_v2 draws from). Same weights,
+# same float expression and same order as the prior eval/e11_confirmatory.py
+# used before the domain registry. ORACLE information (analysis only).
+HIDDEN_PRIOR: list[tuple[dict, float]] = [
+    ({"days_since_treatment": d, "allergy_severity": s, "kidney_function": k, "anxiety_level": a},
+     (1 / 31) * (0.7 if s == "mild" else 0.3) * (0.8 if k == "normal" else 0.2) * (0.65 if a == "low" else 0.35))
+    for d, s, k, a in _HIDDEN_SUPPORT
+]
