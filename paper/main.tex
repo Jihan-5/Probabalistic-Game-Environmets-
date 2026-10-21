@@ -308,6 +308,7 @@ Detector & Int. & Com. & Rea. & Res. & Sch. & Rul. & Lab. \\
 \midrule
 SelfCheckGPT, semantic entropy & $\cdot$ & \checkmark & $\cdot$ & \checkmark & \checkmark & $\cdot$ & $\cdot$ \\
 CoVe & \checkmark & \checkmark & \checkmark & \checkmark & $\cdot$ & $\cdot$ & $\cdot$ \\
+LLM judge & \checkmark & \checkmark & \checkmark & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ \\
 Stated confidence & $\cdot$ & \checkmark & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
 ctx-LR / ctx-LR+F & $\cdot$ & \checkmark & +F & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
 Intake-LR+F & \checkmark & \checkmark & \checkmark & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
@@ -451,10 +452,9 @@ does.} At the session level
 \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} and
 \val{C/L_U/pooled/H1: AUROC(semantic_entropy)} pooled over agents, both
 intervals inside the registered band of $[0.40, 0.60]$ (H1): sampling
-detectors are near chance on user-specific hallucination. Resampling sessions jointly across agents, which share them, widens
-SelfCheckGPT's interval to \val{J/L_U/H1: AUROC(SelfCheckGPT)}, its upper end
-just outside the band: the registered criterion holds under the registered
-bootstrap, not under this stricter one. H1 is a pooled
+detectors are near chance on user-specific hallucination. Resampling sessions jointly across agents, which share them, gives
+\val{J/L_U/H1: AUROC(SelfCheckGPT)} and
+\val{J/L_U/H1: AUROC(semantic_entropy)}, \val{J/L_U/H1band}. H1 is a pooled
 claim: per agent SelfCheckGPT ranges over \val{C/L_U/range/SelfCheckGPT};
 \chk{the top value (\val{C/derived/L_U/argmax/SelfCheckGPT}) lies just
 outside the band.} They are not near chance everywhere. On the composite label,
@@ -469,17 +469,19 @@ resamples, SelfCheckGPT reaches \val{C/L/pooled/H1: AUROC(SelfCheckGPT)}. The fa
 \caption{Session AUROC on the user-specific label $\LU$ (mean of three
 splits; confirmatory corpora, 600 sessions per agent). $^\dagger$Added after the registered plan: ctx-LR+F plus the intake answers and
 commitment$\times$intake cells; the comparator of H8 (Amendment~6). $^\ddagger$Registered in Amendment~6 after the other results were known;
-designed on development data only. CoVe was run for the 70B agent only. The
-composite label $L$ is in the repository.}
+designed on development data only. CoVe was run for the 70B agent only. $^\S$GPT-4o-mini reading the whole
+transcript with its reactions (zero-shot; exploratory). The composite label
+$L$ is in the repository.}
 \label{tab:main}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{llccccc}
 \toprule
 & Detector & Llama-70B & Llama-8B & Qwen-72B & GPT-4o-mini & Mistral-24B \\
 \midrule
-\multirow{3}{*}{\shortstack[l]{Base-\\lines}} & SelfCheckGPT & \tv{C/L_U/70B/SelfCheckGPT} & \tv{C/L_U/8B/SelfCheckGPT} & \tv{C/L_U/qwen/SelfCheckGPT} & \tv{C/L_U/gpt/SelfCheckGPT} & \tv{C/L_U/mistral/SelfCheckGPT} \\
+\multirow{4}{*}{\shortstack[l]{Base-\\lines}} & SelfCheckGPT & \tv{C/L_U/70B/SelfCheckGPT} & \tv{C/L_U/8B/SelfCheckGPT} & \tv{C/L_U/qwen/SelfCheckGPT} & \tv{C/L_U/gpt/SelfCheckGPT} & \tv{C/L_U/mistral/SelfCheckGPT} \\
 & Semantic entropy & \tv{C/L_U/70B/semantic_entropy} & \tv{C/L_U/8B/semantic_entropy} & \tv{C/L_U/qwen/semantic_entropy} & \tv{C/L_U/gpt/semantic_entropy} & \tv{C/L_U/mistral/semantic_entropy} \\
 & CoVe & \tv{C/L_U/70B/cove} & -- & -- & -- & -- \\
+& LLM judge$^\S$ & \tv{JD/L_U/70B/llm_judge} & \tv{JD/L_U/8B/llm_judge} & \tv{JD/L_U/qwen/llm_judge} & \tv{JD/L_U/gpt/llm_judge} & \tv{JD/L_U/mistral/llm_judge} \\
 \midrule
 \multirow{3}{*}{\shortstack[l]{PGE:\\commit-\\ments}} & Mean confidence & \tv{C/L_U/70B/mean_confidence (oriented)} & \tv{C/L_U/8B/mean_confidence (oriented)} & \tv{C/L_U/qwen/mean_confidence (oriented)} & \tv{C/L_U/gpt/mean_confidence (oriented)} & \tv{C/L_U/mistral/mean_confidence (oriented)} \\
 & ctx-LR & \tv{C/L_U/70B/ctx_lr} & \tv{C/L_U/8B/ctx_lr} & \tv{C/L_U/qwen/ctx_lr} & \tv{C/L_U/gpt/ctx_lr} & \tv{C/L_U/mistral/ctx_lr} \\
@@ -550,16 +552,26 @@ user's reactions carry part of it: scored without them, V7 loses
 \val{S/pooled/V7 - V7-prior} (significant for
 \val{S/npos/V7 - V7-prior} agents).}
 
+\chk{A zero-shot LLM judge that reads the whole transcript, reactions
+included (GPT-4o-mini; exploratory), reaches
+\val{JD/L_U/pooled/AUROC(llm_judge)}: above SelfCheckGPT
+(\val{JD/L_U/pooled/llm_judge - SelfCheckGPT}) but far below V7
+(\val{JD/L_U/pooled/V7 - llm_judge}, significant for
+\val{JD/L_U/npos/V7 - llm_judge} agents). Reading the reactions is not
+enough without the population structure.}
+
 \paragraph{Label budgets.} Labels for user-specific hallucination require
 knowing the user's private facts, so small budgets are the realistic case
 (Figure~\ref{fig:lc}; descriptive). \chk{With 25 labelled sessions V7 leads
 both supervised detectors on \val{V/hc/budget/lead_vs_intake_lr+fb/25}
 agents (mean \val{V/hc/budget/mean/V7@25}, against
 \val{V/hc/budget/mean/intake_lr+fb@25} for intake-LR+F and
-\val{V/hc/budget/mean/ctx_lr+fb@25} for ctx-LR+F); the two tie on average at
-50, and V7 is ahead on average at 100 and 200 (\val{V/hc/budget/mean/V7@200}
-against \val{V/hc/budget/mean/intake_lr+fb@200}), though behind on
-Qwen-72B. The classifier handed V7's structure is as good at every budget
+\val{V/hc/budget/mean/ctx_lr+fb@25} for ctx-LR+F), and leads intake-LR+F
+on \val{V/hc/budget/lead_vs_intake_lr+fb/50},
+\val{V/hc/budget/lead_vs_intake_lr+fb/100} and
+\val{V/hc/budget/lead_vs_intake_lr+fb/200} agents at 50, 100 and 200 labels
+(mean \val{V/hc/budget/mean/V7@200} against
+\val{V/hc/budget/mean/intake_lr+fb@200} at 200). The classifier handed V7's structure is as good at every budget
 (mean \val{S/budget/mean/dep_lr+fb (cv)@25} at 25 labels and
 \val{S/budget/mean/dep_lr+fb (cv)@200} at 200): with the structure given,
 the posterior's advantage is per-commitment risk, not session accuracy.}
@@ -644,9 +656,8 @@ reactions to earlier commitments are displayed later in the session, so a
 detector reading the transcript could use them. Per-turn resampling cannot:
 agreement between samples ignores the reactions, and each resample is drawn
 before its own commitment's reaction.} \chk{Given the same information (which commitments concern undisclosed
-facts), the PGE posterior beats the supervised detector (H6), though by a
-small margin whose interval nearly reaches zero
-(\val{C/RA/pooled/H6: V6-session - LR-session+fb}); it does not survive
+facts), the PGE posterior beats the supervised detector (H6), by a small
+margin (\val{C/RA/pooled/H6: V6-session - LR-session+fb}) that does not survive
 resampling sessions jointly across agents (Holm
 $p=\val{J/L_U/holm/H6: V6-session - LR-session+fb}$), so we do not rely on it. Registered without a claim: V6-session $-$ $\bar\eta$
 is \val{C/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}, and the
@@ -694,17 +705,28 @@ Llama-8B & \tv{T/L_U/8B/SelfCheckGPT} & \tv{T/L_U/8B/ctx_lr+fb} & \tv{V/tr/L_U/8
 \end{tabular}}
 \end{table}
 
-\chk{\pending{second-domain paragraph: does the pattern transfer (sampling
-near chance, population risk large, reactions add, V6 vs supervised)?}}
+\chk{The pattern transfers to travel booking (Table~\ref{tab:travel}).
+For Llama-8B, SelfCheckGPT scores \val{T/L_U/8B/SelfCheckGPT} and V7, run
+once on this corpus, \val{V/tr/L_U/8B/V7}: above V6
+(\val{V/tr/L_U/8B/V7 - V6}), the registered supervised detector
+(\val{V/tr/L_U/8B/V7 - ctx_lr+fb}) and SelfCheckGPT
+(\val{V/tr/L_U/8B/V7 - SelfCheckGPT}), and level with intake-LR+F
+(\val{V/tr/L_U/8B/V7 - intake_lr+fb}). The intake fixes more of the risk here:
+the population risk alone reaches \val{T/RA/8B/eta0 (Bayes, no feedback)},
+and the reactions add \val{T/RA/8B/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}
+to it.} \pending{GPT-4o-mini travel corpus (one session left) and the pooled
+within-domain tests}
 
 \subsection{Natural-language reactions}
 \label{sec:exp-patient}
 
-\chk{The first simulated patient failed its gate. It contradicted 83\% of
-wrong commitments and 79\% of correct ones (lift $1.06$; 100 sessions,
-817 replies), against $75\%$ and $25\%$ for the noisy bit; the informed
-variant, told the clinic's decision, did little better (97\% and 80\%, lift
-$1.21$). Reading the replies shows why: the patient voiced doubt about facts
+\chk{The first simulated patient failed its gate. Among commitments it
+replied to, it contradicted a fraction \val{P/CH/patv1/P(-1|w)} of the wrong
+ones and \val{P/CH/patv1/P(-1|r)} of the correct ones (lift
+\val{P/CH/patv1/lift}; 100 sessions), against $0.75$ and $0.25$ for the noisy
+bit; the informed variant, told the clinic's decision, did little better
+(\val{P/CH/patv1inf/P(-1|w)} and \val{P/CH/patv1inf/P(-1|r)}, lift
+\val{P/CH/patv1inf/lift}). Reading the replies shows why: the patient voiced doubt about facts
 it had not been given, and the labeller counted doubt as contradiction. As
 registered, neither was run at scale. A second version, registered before its data existed
 (Amendment~5), uses GPT-4o-mini for both roles, lets the patient object only
@@ -732,10 +754,24 @@ it reaches \val{PC/user_dependent/pooled/auroc_V7}, against
 \val{PC/user_dependent/pooled/auroc_reaction} for the reaction alone. The measured loop (70B agent)
 uses the first 120 test sessions of split seed 42 instead of the registered
 180, a deviation forced by the API budget.
-\chk{\pending{measured clarification: posterior@1 vs no-question, random,
-lowest-confidence; posterior@2 vs detailed questions and the full-rerun
-control; questions per session; primary outcome wrong confident
-user-dependent commitments}}
+\chk{The registered test failed. On the primary outcome, wrong confident
+user-dependent commitments per session (\val{CL/cached/wrong_conf_user}
+without questions), one question chosen by V6's risk did no better than one
+chosen at random (\val{CL/d/wrong_conf_user: posterior@1 - random@1}), so the
+registered claim that choosing by posterior risk beats choosing at random is
+not supported; it did improve on rerunning without a question
+(\val{CL/d/wrong_conf_user: posterior@1 - no_question@1}). The registered
+picker ranked commitments by V6 fit to the composite label, which counts
+rule errors. On that label two posterior-chosen questions match asking about
+every user-dependent attribute in hallucination rate
+(\val{CL/d/L: posterior@2 - detailed_questions}, with
+\val{CL/posterior@2/questions} instead of \val{CL/detailed_questions/questions}
+questions per session) and leave fewer wrong confident commitments
+(\val{CL/d/wrong_conf: posterior@2 - detailed_questions}); on $\LU$, asking
+about everything remains far better
+(\val{CL/d/L_U: posterior@2 - detailed_questions}).}
+\pending{Amendment 7: the same loop with V7, fit to $\LU$, choosing the
+question (H9)}
 
 \subsection{Robustness to the user's behaviour}
 \label{sec:exp-robust}
@@ -743,17 +779,20 @@ user-dependent commitments}}
 Our users react with a designed noise level. To see how much that matters,
 we regenerated the reactions seen by the detectors on the confirmatory
 trajectories, with the agents' trajectories fixed (Theorem~\ref{thm:feedback}'s
-setting; exploratory). \chk{As the flip rate rises from $0.05$ to $0.45$, V7's
-mean AUROC on $\LU$ falls from \val{E/mean/eps=0.05,rho=1.0/V7} to
-\val{E/mean/eps=0.45,rho=1.0/V7}, tracking the Bayes bound
-(\val{E/mean/eps=0.05,rho=1.0/etaF (oracle)} to
-\val{E/mean/eps=0.45,rho=1.0/etaF (oracle)}); it leads intake-LR+F at every
-flip rate up to $0.35$ and ties it at $0.45$. When only half of the
-commitments receive a reaction it still leads
-(\val{E/mean/eps=0.25,rho=0.5/V7} vs.\ \val{E/mean/eps=0.25,rho=0.5/intake_lr+fb});
-at a quarter it trails (\val{E/mean/eps=0.25,rho=0.25/V7} vs.\
-\val{E/mean/eps=0.25,rho=0.25/intake_lr+fb}), failing on one agent.
-SelfCheckGPT stays at \val{E/mean/eps=0.25,rho=1.0/SelfCheckGPT} throughout.}
+setting; exploratory; mean over agents of \val{E/draws} draws). \chk{As the
+flip rate rises from $0.05$ to $0.45$, V7's mean AUROC on $\LU$ falls from
+\val{E/mean/eps=0.05,rho=1.0/V7} to \val{E/mean/eps=0.45,rho=1.0/V7}, faster
+than the Bayes bound (\val{E/mean/eps=0.05,rho=1.0/etaF (oracle)} to
+\val{E/mean/eps=0.45,rho=1.0/etaF (oracle)}), against
+\val{E/mean/eps=0.05,rho=1.0/intake_lr+fb} to
+\val{E/mean/eps=0.45,rho=1.0/intake_lr+fb} for intake-LR+F. With reactions to
+half or a quarter of the commitments, V7 scores
+\val{E/mean/eps=0.25,rho=0.5/V7} and \val{E/mean/eps=0.25,rho=0.25/V7}
+(intake-LR+F: \val{E/mean/eps=0.25,rho=0.5/intake_lr+fb} and
+\val{E/mean/eps=0.25,rho=0.25/intake_lr+fb}). SelfCheckGPT, which reads no
+reactions, stays at \val{E/mean/eps=0.25,rho=1.0/SelfCheckGPT}.} This
+measures the detectors' robustness only: the agents conditioned on the
+recorded reactions.
 
 On the development corpora (protocol v2, label $L$), a ``lazy'' user who
 contradicts 60\% of wrong commitments and never confirms correct ones breaks a
@@ -815,9 +854,9 @@ policy, without names.}
 \label{app:peragent}
 
 Table~\ref{tab:peragent} gives every registered difference per agent on both
-labels (paired session-clustered bootstrap; $^{*}$: 95\% CI excludes 0).
+labels (point estimates; $^{*}$: the paired session-clustered 95\% CI excludes 0; intervals in the repository).
 H2: V6 $-$ V6$-$prior; H2b: ctx-LR+F $-$ ctx-LR; H3: V6 $-$ ctx-LR; H4: V6
-$-$ SelfCheckGPT (SC) and semantic entropy (SE).
+$-$ SelfCheckGPT (SC) and semantic entropy (SE); H7: V7 $-$ V6; H8: V7 $-$ intake-LR+F.
 
 \begin{table*}[t]
 \centering
@@ -825,25 +864,25 @@ $-$ SelfCheckGPT (SC) and semantic entropy (SE).
 \label{tab:peragent}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{lcccccc}
+\begin{tabular}{lcccccccc}
 \toprule
-Agent & H2 & H2b & H3 & H4 (SC) & H4 (SE) & V6$-$ctx-LR+F \\
+Agent & H2 & H2b & H3 & H4 (SC) & H4 (SE) & V6$-$ctx-LR+F & H7 & H8 \\
 \midrule
-\multicolumn{7}{l}{\emph{User-specific label $\LU$ (primary)}} \\
-Llama-70B & \val{C/L_U/70B/V6 - V6-prior} & \val{C/L_U/70B/ctx_lr+fb - ctx_lr} & \val{C/L_U/70B/V6 - ctx_lr} & \val{C/L_U/70B/V6 - SelfCheckGPT} & \val{C/L_U/70B/V6 - semantic_entropy} & \val{C/L_U/70B/V6 - ctx_lr+fb} \\
-Llama-8B & \val{C/L_U/8B/V6 - V6-prior} & \val{C/L_U/8B/ctx_lr+fb - ctx_lr} & \val{C/L_U/8B/V6 - ctx_lr} & \val{C/L_U/8B/V6 - SelfCheckGPT} & \val{C/L_U/8B/V6 - semantic_entropy} & \val{C/L_U/8B/V6 - ctx_lr+fb} \\
-Qwen-72B & \val{C/L_U/qwen/V6 - V6-prior} & \val{C/L_U/qwen/ctx_lr+fb - ctx_lr} & \val{C/L_U/qwen/V6 - ctx_lr} & \val{C/L_U/qwen/V6 - SelfCheckGPT} & \val{C/L_U/qwen/V6 - semantic_entropy} & \val{C/L_U/qwen/V6 - ctx_lr+fb} \\
-GPT-4o-mini & \val{C/L_U/gpt/V6 - V6-prior} & \val{C/L_U/gpt/ctx_lr+fb - ctx_lr} & \val{C/L_U/gpt/V6 - ctx_lr} & \val{C/L_U/gpt/V6 - SelfCheckGPT} & \val{C/L_U/gpt/V6 - semantic_entropy} & \val{C/L_U/gpt/V6 - ctx_lr+fb} \\
-Mistral-24B & \val{C/L_U/mistral/V6 - V6-prior} & \val{C/L_U/mistral/ctx_lr+fb - ctx_lr} & \val{C/L_U/mistral/V6 - ctx_lr} & \val{C/L_U/mistral/V6 - SelfCheckGPT} & \val{C/L_U/mistral/V6 - semantic_entropy} & \val{C/L_U/mistral/V6 - ctx_lr+fb} \\
-Pooled & \val{C/L_U/pooled/H2: V6 - V6-prior} & \val{C/L_U/pooled/H2b: ctx_lr+fb - ctx_lr} & \val{C/L_U/pooled/H3: V6 - ctx_lr} & \val{C/L_U/pooled/H4: V6 - SelfCheckGPT} & \val{C/L_U/pooled/H4: V6 - semantic_entropy} & \val{C/L_U/pooled/sec.: V6 - ctx_lr+fb} \\
+\multicolumn{9}{l}{\emph{User-specific label $\LU$ (primary)}} \\
+Llama-70B & \val{s:C/L_U/70B/V6 - V6-prior} & \val{s:C/L_U/70B/ctx_lr+fb - ctx_lr} & \val{s:C/L_U/70B/V6 - ctx_lr} & \val{s:C/L_U/70B/V6 - SelfCheckGPT} & \val{s:C/L_U/70B/V6 - semantic_entropy} & \val{s:C/L_U/70B/V6 - ctx_lr+fb} & \val{s:V/hc/L_U/70B/V7 - V6} & \val{s:V/hc/L_U/70B/V7 - intake_lr+fb} \\
+Llama-8B & \val{s:C/L_U/8B/V6 - V6-prior} & \val{s:C/L_U/8B/ctx_lr+fb - ctx_lr} & \val{s:C/L_U/8B/V6 - ctx_lr} & \val{s:C/L_U/8B/V6 - SelfCheckGPT} & \val{s:C/L_U/8B/V6 - semantic_entropy} & \val{s:C/L_U/8B/V6 - ctx_lr+fb} & \val{s:V/hc/L_U/8B/V7 - V6} & \val{s:V/hc/L_U/8B/V7 - intake_lr+fb} \\
+Qwen-72B & \val{s:C/L_U/qwen/V6 - V6-prior} & \val{s:C/L_U/qwen/ctx_lr+fb - ctx_lr} & \val{s:C/L_U/qwen/V6 - ctx_lr} & \val{s:C/L_U/qwen/V6 - SelfCheckGPT} & \val{s:C/L_U/qwen/V6 - semantic_entropy} & \val{s:C/L_U/qwen/V6 - ctx_lr+fb} & \val{s:V/hc/L_U/qwen/V7 - V6} & \val{s:V/hc/L_U/qwen/V7 - intake_lr+fb} \\
+GPT-4o-mini & \val{s:C/L_U/gpt/V6 - V6-prior} & \val{s:C/L_U/gpt/ctx_lr+fb - ctx_lr} & \val{s:C/L_U/gpt/V6 - ctx_lr} & \val{s:C/L_U/gpt/V6 - SelfCheckGPT} & \val{s:C/L_U/gpt/V6 - semantic_entropy} & \val{s:C/L_U/gpt/V6 - ctx_lr+fb} & \val{s:V/hc/L_U/gpt/V7 - V6} & \val{s:V/hc/L_U/gpt/V7 - intake_lr+fb} \\
+Mistral-24B & \val{s:C/L_U/mistral/V6 - V6-prior} & \val{s:C/L_U/mistral/ctx_lr+fb - ctx_lr} & \val{s:C/L_U/mistral/V6 - ctx_lr} & \val{s:C/L_U/mistral/V6 - SelfCheckGPT} & \val{s:C/L_U/mistral/V6 - semantic_entropy} & \val{s:C/L_U/mistral/V6 - ctx_lr+fb} & \val{s:V/hc/L_U/mistral/V7 - V6} & \val{s:V/hc/L_U/mistral/V7 - intake_lr+fb} \\
+Pooled & \val{s:C/L_U/pooled/H2: V6 - V6-prior} & \val{s:C/L_U/pooled/H2b: ctx_lr+fb - ctx_lr} & \val{s:C/L_U/pooled/H3: V6 - ctx_lr} & \val{s:C/L_U/pooled/H4: V6 - SelfCheckGPT} & \val{s:C/L_U/pooled/H4: V6 - semantic_entropy} & \val{s:C/L_U/pooled/sec.: V6 - ctx_lr+fb} & \val{s:V/hc/L_U/pooled/H7: V7 - V6} & \val{s:V/hc/L_U/pooled/H8: V7 - intake_lr+fb} \\
 \midrule
-\multicolumn{7}{l}{\emph{Composite label $L$ (secondary)}} \\
-Llama-70B & \val{C/L/70B/V6 - V6-prior} & \val{C/L/70B/ctx_lr+fb - ctx_lr} & \val{C/L/70B/V6 - ctx_lr} & \val{C/L/70B/V6 - SelfCheckGPT} & \val{C/L/70B/V6 - semantic_entropy} & \val{C/L/70B/V6 - ctx_lr+fb} \\
-Llama-8B & \val{C/L/8B/V6 - V6-prior} & \val{C/L/8B/ctx_lr+fb - ctx_lr} & \val{C/L/8B/V6 - ctx_lr} & \val{C/L/8B/V6 - SelfCheckGPT} & \val{C/L/8B/V6 - semantic_entropy} & \val{C/L/8B/V6 - ctx_lr+fb} \\
-Qwen-72B & \val{C/L/qwen/V6 - V6-prior} & \val{C/L/qwen/ctx_lr+fb - ctx_lr} & \val{C/L/qwen/V6 - ctx_lr} & \val{C/L/qwen/V6 - SelfCheckGPT} & \val{C/L/qwen/V6 - semantic_entropy} & \val{C/L/qwen/V6 - ctx_lr+fb} \\
-GPT-4o-mini & \val{C/L/gpt/V6 - V6-prior} & \val{C/L/gpt/ctx_lr+fb - ctx_lr} & \val{C/L/gpt/V6 - ctx_lr} & \val{C/L/gpt/V6 - SelfCheckGPT} & \val{C/L/gpt/V6 - semantic_entropy} & \val{C/L/gpt/V6 - ctx_lr+fb} \\
-Mistral-24B & \val{C/L/mistral/V6 - V6-prior} & \val{C/L/mistral/ctx_lr+fb - ctx_lr} & \val{C/L/mistral/V6 - ctx_lr} & \val{C/L/mistral/V6 - SelfCheckGPT} & \val{C/L/mistral/V6 - semantic_entropy} & \val{C/L/mistral/V6 - ctx_lr+fb} \\
-Pooled & \val{C/L/pooled/H2: V6 - V6-prior} & \val{C/L/pooled/H2b: ctx_lr+fb - ctx_lr} & \val{C/L/pooled/H3: V6 - ctx_lr} & \val{C/L/pooled/H4: V6 - SelfCheckGPT} & \val{C/L/pooled/H4: V6 - semantic_entropy} & \val{C/L/pooled/sec.: V6 - ctx_lr+fb} \\
+\multicolumn{9}{l}{\emph{Composite label $L$ (secondary)}} \\
+Llama-70B & \val{s:C/L/70B/V6 - V6-prior} & \val{s:C/L/70B/ctx_lr+fb - ctx_lr} & \val{s:C/L/70B/V6 - ctx_lr} & \val{s:C/L/70B/V6 - SelfCheckGPT} & \val{s:C/L/70B/V6 - semantic_entropy} & \val{s:C/L/70B/V6 - ctx_lr+fb} & \val{s:V/hc/L/70B/V7 - V6} & \val{s:V/hc/L/70B/V7 - intake_lr+fb} \\
+Llama-8B & \val{s:C/L/8B/V6 - V6-prior} & \val{s:C/L/8B/ctx_lr+fb - ctx_lr} & \val{s:C/L/8B/V6 - ctx_lr} & \val{s:C/L/8B/V6 - SelfCheckGPT} & \val{s:C/L/8B/V6 - semantic_entropy} & \val{s:C/L/8B/V6 - ctx_lr+fb} & \val{s:V/hc/L/8B/V7 - V6} & \val{s:V/hc/L/8B/V7 - intake_lr+fb} \\
+Qwen-72B & \val{s:C/L/qwen/V6 - V6-prior} & \val{s:C/L/qwen/ctx_lr+fb - ctx_lr} & \val{s:C/L/qwen/V6 - ctx_lr} & \val{s:C/L/qwen/V6 - SelfCheckGPT} & \val{s:C/L/qwen/V6 - semantic_entropy} & \val{s:C/L/qwen/V6 - ctx_lr+fb} & \val{s:V/hc/L/qwen/V7 - V6} & \val{s:V/hc/L/qwen/V7 - intake_lr+fb} \\
+GPT-4o-mini & \val{s:C/L/gpt/V6 - V6-prior} & \val{s:C/L/gpt/ctx_lr+fb - ctx_lr} & \val{s:C/L/gpt/V6 - ctx_lr} & \val{s:C/L/gpt/V6 - SelfCheckGPT} & \val{s:C/L/gpt/V6 - semantic_entropy} & \val{s:C/L/gpt/V6 - ctx_lr+fb} & \val{s:V/hc/L/gpt/V7 - V6} & \val{s:V/hc/L/gpt/V7 - intake_lr+fb} \\
+Mistral-24B & \val{s:C/L/mistral/V6 - V6-prior} & \val{s:C/L/mistral/ctx_lr+fb - ctx_lr} & \val{s:C/L/mistral/V6 - ctx_lr} & \val{s:C/L/mistral/V6 - SelfCheckGPT} & \val{s:C/L/mistral/V6 - semantic_entropy} & \val{s:C/L/mistral/V6 - ctx_lr+fb} & \val{s:V/hc/L/mistral/V7 - V6} & \val{s:V/hc/L/mistral/V7 - intake_lr+fb} \\
+Pooled & \val{s:C/L/pooled/H2: V6 - V6-prior} & \val{s:C/L/pooled/H2b: ctx_lr+fb - ctx_lr} & \val{s:C/L/pooled/H3: V6 - ctx_lr} & \val{s:C/L/pooled/H4: V6 - SelfCheckGPT} & \val{s:C/L/pooled/H4: V6 - semantic_entropy} & \val{s:C/L/pooled/sec.: V6 - ctx_lr+fb} & \val{s:V/hc/L/pooled/H7: V7 - V6} & \val{s:V/hc/L/pooled/H8: V7 - intake_lr+fb} \\
 \bottomrule
 \end{tabular}
 \end{table*}

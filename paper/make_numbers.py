@@ -164,6 +164,46 @@ def main(repo):
             for k in d[ags[0]] if ags else []:
                 vals = [d[t][k][0] for t in ags]
                 put(f"PC/{which}/range/{k}", f"{min(vals):.3f}--{max(vals):.3f}")
+    cf2 = Path(repo) / "results" / "e11_confirmatory" / "numbers.json"
+    CLR = json.loads(cf2.read_text()).get("clarification", {}) if cf2.exists() else {}
+    if CLR:
+        put("CL/n", CLR.get("n_sessions"))
+        for c, d in CLR.items():
+            if isinstance(d, dict) and "questions" in d:
+                for k, v in d.items():
+                    put(f"CL/{c}/{k}", f"{v:.2f}" if k == "questions" else a3(v))
+        for q, c in CLR.get("diffs", {}).items():
+            put(f"CL/d/{q}", ci(c))
+    c7 = Path(repo) / "results" / "e21_clarification_v7" / "numbers.json"
+    if c7.exists():
+        C7 = json.loads(c7.read_text())
+        for c, d in C7["conditions"].items():
+            for k, v in d.items():
+                put(f"CL7/{c}/{k}", f"{v:.2f}" if k == "questions" else a3(v))
+        for q, d in C7["comparisons"].items():
+            for k, v in d.items():
+                put(f"CL7/d/{k}/{q}", ci(v))
+    jd = Path(repo) / "results" / "e20_judge" / "numbers.json"
+    if jd.exists():
+        JD = json.loads(jd.read_text())
+        for lab in ("L_U", "L"):
+            for tag, d in JD.get(lab, {}).items():
+                if tag == "pooled":
+                    for q, c in d.items():
+                        put(f"JD/{lab}/pooled/{q}", ci(c) if " - " in q else f"{a3(c[0])}\\,[{a3(c[1])}, {a3(c[2])}]")
+                    continue
+                for det, v in d["auroc"].items():
+                    put(f"JD/{lab}/{TAG.get(tag, tag)}/{det}", a3(v))
+                    put(f"t:JD/{lab}/{TAG.get(tag, tag)}/{det}", a3(v, lead=False))
+                for q, c in d["diffs"].items():
+                    put(f"JD/{lab}/{TAG.get(tag, tag)}/{q}", ci(c))
+            ags = [t for t in JD.get(lab, {}) if t != "pooled"]
+            if ags:
+                cis = [JD[lab][t]["diffs"]["V7 - llm_judge"] for t in ags]
+                put(f"JD/{lab}/npos/V7 - llm_judge", f"{sum(c[1] > 0 for c in cis)} of {len(cis)}")
+        pcj = JD.get("percommit", {})
+        if pcj:
+            put("JD/PC/range/judge", f"{min(d['judge'] for d in pcj.values()):.3f}--{max(d['judge'] for d in pcj.values()):.3f}")
     jf = Path(repo) / "results" / "e18_joint_bootstrap" / "numbers.json"
     if jf.exists():
         J = json.loads(jf.read_text())
@@ -171,6 +211,11 @@ def main(repo):
             for q, v in d.items():
                 jc = v["joint"]
                 put(f"J/{lab}/{q}", ci(jc) if " - " in q else f"{a3(jc[0])}\\,[{a3(jc[1])}, {a3(jc[2])}]")
+                if q.startswith("H1: AUROC(SelfCheckGPT)"):
+                    jse = d.get("H1: AUROC(semantic_entropy)", {}).get("joint")
+                    inb = all(0.40 <= x[1] and x[2] <= 0.60 for x in (jc, jse) if x)
+                    put(f"J/{lab}/H1band", "both still inside the band" if inb else
+                        "at least one end now outside the band, so the registered criterion holds under the registered bootstrap but not under this stricter one")
                 hp = v.get("p_holm")
                 if hp is not None and hp == hp:
                     put(f"J/{lab}/holm/{q}", "$<$.001" if hp < 0.001 else f"{hp:.3f}".replace("0.", ".", 1))
@@ -208,14 +253,28 @@ def main(repo):
                     put(f"S/budget/mean/{k}", f"{np.mean(vals):.3f}")
                 ks = [t for t in bud if t in vb and k in bud[t]]
                 put(f"S/budget/v7_lead/{size}", f"{sum(vb[t][f'V7@{size}'] > bud[t][k] for t in ks)} of {len(ks)}")
-    ef = Path(repo) / "results" / "e15_regimes_confirm" / "numbers.json"
+    ef5 = Path(repo) / "results" / "e15_regimes_confirm_draws5" / "numbers.json"
+    ef = ef5 if ef5.exists() else Path(repo) / "results" / "e15_regimes_confirm" / "numbers.json"
     if ef.exists():
         E = json.loads(ef.read_text())
         regimes = next(iter(E.values())).keys()
         for rg in regimes:
-            for det in next(iter(E.values()))[rg]:
-                v = [E[t][rg][det] for t in E if rg in E[t]]
-                put(f"E/mean/{rg}/{det}", f"{sum(v) / len(v):.3f}")
+            first = next(iter(E.values()))[rg]
+            dets = (first[0] if isinstance(first, list) else first).keys()
+            for det in dets:
+                # mean over agents of the per-agent mean over draws; sd over draws of the agent mean
+                per = []
+                for t in E:
+                    if rg not in E[t]:
+                        continue
+                    rows = E[t][rg] if isinstance(E[t][rg], list) else [E[t][rg]]
+                    per.append([r[det] for r in rows])
+                k = min(len(x) for x in per)
+                agent_mean_by_draw = np.mean([x[:k] for x in per], axis=0)
+                put(f"E/mean/{rg}/{det}", f"{np.mean(agent_mean_by_draw):.3f}")
+                if k > 1:
+                    put(f"E/sd/{rg}/{det}", f"{np.std(agent_mean_by_draw):.3f}")
+            put("E/draws", str(k))
     for pre, N in blocks:
         for tag, d in N.get("corpora", {}).items():
             t = TAG.get(tag, tag)
@@ -332,6 +391,8 @@ def main(repo):
         m = _re.match(r"\\setval\{([^}]*)\}\{(.*)\}$", line)
         if m and "\\,[" in m.group(2) and not m.group(1).startswith(("t:", "pt:")):
             pts.append(f"\\setval{{pt:{m.group(1)}}}{{{m.group(2).split(chr(92) + ',[')[0]}}}")
+            star = "$^{*}$" if m.group(2).endswith("$^{*}$") else ""
+            pts.append(f"\\setval{{s:{m.group(1)}}}{{{m.group(2).split(chr(92) + ',[')[0]}{star}}}")
     out += pts
     Path(__file__).with_name("numbers.tex").write_text("% generated by make_numbers.py; do not edit\n" + "\n".join(out) + "\n")
     print(f"wrote {len(out)} values")
