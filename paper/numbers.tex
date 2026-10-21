@@ -404,6 +404,25 @@
 \setval{V/hc/derived/mean_V6session}{0.876}
 \setval{V/hc/PCQ/range/auroc_q}{0.765--0.834}
 \setval{V/hc/PCQ/range/ece_q}{0.049--0.077}
+\setval{V/tr/L_U/gpt/V6}{0.682}
+\setval{t:V/tr/L_U/gpt/V6}{.682}
+\setval{V/tr/L_U/gpt/V7}{0.756}
+\setval{t:V/tr/L_U/gpt/V7}{.756}
+\setval{V/tr/L_U/gpt/ctx_lr}{0.607}
+\setval{t:V/tr/L_U/gpt/ctx_lr}{.607}
+\setval{V/tr/L_U/gpt/ctx_lr+fb}{0.658}
+\setval{t:V/tr/L_U/gpt/ctx_lr+fb}{.658}
+\setval{V/tr/L_U/gpt/intake_lr+fb}{0.684}
+\setval{t:V/tr/L_U/gpt/intake_lr+fb}{.684}
+\setval{V/tr/L_U/gpt/SelfCheckGPT}{0.535}
+\setval{t:V/tr/L_U/gpt/SelfCheckGPT}{.535}
+\setval{V/tr/L_U/gpt/semantic_entropy}{0.502}
+\setval{t:V/tr/L_U/gpt/semantic_entropy}{.502}
+\setval{V/tr/L_U/gpt/V7 - V6}{+.063\,[+.014, +.113]$^{*}$}
+\setval{V/tr/L_U/gpt/V7 - intake_lr+fb}{+.067\,[+.008, +.128]$^{*}$}
+\setval{V/tr/L_U/gpt/V7 - ctx_lr+fb}{+.091\,[+.026, +.159]$^{*}$}
+\setval{V/tr/L_U/gpt/V7 - SelfCheckGPT}{+.216\,[+.140, +.287]$^{*}$}
+\setval{V/tr/L_U/gpt/V7 - semantic_entropy}{+.245\,[+.190, +.295]$^{*}$}
 \setval{V/tr/L_U/8B/V6}{0.796}
 \setval{t:V/tr/L_U/8B/V6}{.796}
 \setval{V/tr/L_U/8B/V7}{0.904}
@@ -423,17 +442,43 @@
 \setval{V/tr/L_U/8B/V7 - ctx_lr+fb}{+.081\,[+.036, +.131]$^{*}$}
 \setval{V/tr/L_U/8B/V7 - SelfCheckGPT}{+.279\,[+.211, +.351]$^{*}$}
 \setval{V/tr/L_U/8B/V7 - semantic_entropy}{+.392\,[+.355, +.426]$^{*}$}
-\setval{V/tr/L_U/npos/V7 - V6}{1 of 1}
-\setval{V/tr/L_U/nneg/V7 - V6}{0 of 1}
-\setval{V/tr/L_U/npos/V7 - intake_lr+fb}{0 of 1}
-\setval{V/tr/L_U/nneg/V7 - intake_lr+fb}{0 of 1}
-\setval{V/tr/L_U/npos/V7 - ctx_lr+fb}{1 of 1}
-\setval{V/tr/L_U/nneg/V7 - ctx_lr+fb}{0 of 1}
-\setval{V/tr/L_U/npos/V7 - SelfCheckGPT}{1 of 1}
-\setval{V/tr/L_U/nneg/V7 - SelfCheckGPT}{0 of 1}
-\setval{V/tr/L_U/npos/V7 - semantic_entropy}{1 of 1}
-\setval{V/tr/L_U/nneg/V7 - semantic_entropy}{0 of 1}
-\setval{V/tr/L_U/range/V7}{0.904--0.904}
+\setval{V/tr/L_U/pooled/H7: V7 - V6}{+.091\,[+.054, +.117]$^{*}$}
+\setval{V/tr/L_U/pooled/H8: V7 - intake_lr+fb}{+.050\,[+.010, +.084]$^{*}$}
+\setval{V/tr/L_U/pooled/H8': V7 - ctx_lr+fb}{+.089\,[+.046, +.126]$^{*}$}
+\setval{V/tr/L_U/pooled/--: V7 - SelfCheckGPT}{+.249\,[+.197, +.297]$^{*}$}
+\setval{V/tr/L_U/pooled/--: V7 - semantic_entropy}{+.323\,[+.287, +.349]$^{*}$}
+\setval{V/tr/L_U/pooled/--: AUROC(V7)}{0.830\,[0.795, 0.855]}
+\setval{V/tr/L_U/pooled/--: AUROC(intake_lr+fb)}{0.781\,[0.742, 0.816]}
+\setval{V/tr/L_U/npos/V7 - V6}{2 of 2}
+\setval{V/tr/L_U/nneg/V7 - V6}{0 of 2}
+\setval{V/tr/L_U/npos/V7 - intake_lr+fb}{1 of 2}
+\setval{V/tr/L_U/nneg/V7 - intake_lr+fb}{0 of 2}
+\setval{V/tr/L_U/npos/V7 - ctx_lr+fb}{2 of 2}
+\setval{V/tr/L_U/nneg/V7 - ctx_lr+fb}{0 of 2}
+\setval{V/tr/L_U/npos/V7 - SelfCheckGPT}{2 of 2}
+\setval{V/tr/L_U/nneg/V7 - SelfCheckGPT}{0 of 2}
+\setval{V/tr/L_U/npos/V7 - semantic_entropy}{2 of 2}
+\setval{V/tr/L_U/nneg/V7 - semantic_entropy}{0 of 2}
+\setval{V/tr/L_U/range/V7}{0.756--0.904}
+\setval{V/tr/L/gpt/V6}{0.876}
+\setval{t:V/tr/L/gpt/V6}{.876}
+\setval{V/tr/L/gpt/V7}{0.949}
+\setval{t:V/tr/L/gpt/V7}{.949}
+\setval{V/tr/L/gpt/ctx_lr}{0.766}
+\setval{t:V/tr/L/gpt/ctx_lr}{.766}
+\setval{V/tr/L/gpt/ctx_lr+fb}{0.834}
+\setval{t:V/tr/L/gpt/ctx_lr+fb}{.834}
+\setval{V/tr/L/gpt/intake_lr+fb}{0.884}
+\setval{t:V/tr/L/gpt/intake_lr+fb}{.884}
+\setval{V/tr/L/gpt/SelfCheckGPT}{0.657}
+\setval{t:V/tr/L/gpt/SelfCheckGPT}{.657}
+\setval{V/tr/L/gpt/semantic_entropy}{0.483}
+\setval{t:V/tr/L/gpt/semantic_entropy}{.483}
+\setval{V/tr/L/gpt/V7 - V6}{+.078\,[+.047, +.111]$^{*}$}
+\setval{V/tr/L/gpt/V7 - intake_lr+fb}{+.073\,[+.025, +.126]$^{*}$}
+\setval{V/tr/L/gpt/V7 - ctx_lr+fb}{+.123\,[+.070, +.175]$^{*}$}
+\setval{V/tr/L/gpt/V7 - SelfCheckGPT}{+.294\,[+.219, +.374]$^{*}$}
+\setval{V/tr/L/gpt/V7 - semantic_entropy}{+.466\,[+.403, +.524]$^{*}$}
 \setval{V/tr/L/8B/V6}{0.793}
 \setval{t:V/tr/L/8B/V6}{.793}
 \setval{V/tr/L/8B/V7}{0.906}
@@ -453,38 +498,45 @@
 \setval{V/tr/L/8B/V7 - ctx_lr+fb}{+.131\,[+.083, +.177]$^{*}$}
 \setval{V/tr/L/8B/V7 - SelfCheckGPT}{+.206\,[+.143, +.273]$^{*}$}
 \setval{V/tr/L/8B/V7 - semantic_entropy}{+.285\,[+.213, +.356]$^{*}$}
-\setval{V/tr/L/npos/V7 - V6}{1 of 1}
-\setval{V/tr/L/nneg/V7 - V6}{0 of 1}
-\setval{V/tr/L/npos/V7 - intake_lr+fb}{0 of 1}
-\setval{V/tr/L/nneg/V7 - intake_lr+fb}{0 of 1}
-\setval{V/tr/L/npos/V7 - ctx_lr+fb}{1 of 1}
-\setval{V/tr/L/nneg/V7 - ctx_lr+fb}{0 of 1}
-\setval{V/tr/L/npos/V7 - SelfCheckGPT}{1 of 1}
-\setval{V/tr/L/nneg/V7 - SelfCheckGPT}{0 of 1}
-\setval{V/tr/L/npos/V7 - semantic_entropy}{1 of 1}
-\setval{V/tr/L/nneg/V7 - semantic_entropy}{0 of 1}
-\setval{V/tr/L/range/V7}{0.906--0.906}
-\setval{V/tr/budget/mean/V7@25}{0.745}
-\setval{V/tr/budget/mean/intake_lr+fb@25}{0.722}
-\setval{V/tr/budget/mean/ctx_lr+fb@25}{0.705}
-\setval{V/tr/budget/mean/V7@50}{0.767}
-\setval{V/tr/budget/mean/intake_lr+fb@50}{0.753}
-\setval{V/tr/budget/mean/ctx_lr+fb@50}{0.721}
-\setval{V/tr/budget/mean/V7@100}{0.809}
-\setval{V/tr/budget/mean/intake_lr+fb@100}{0.823}
-\setval{V/tr/budget/mean/ctx_lr+fb@100}{0.772}
-\setval{V/tr/budget/mean/V7@200}{0.840}
-\setval{V/tr/budget/mean/intake_lr+fb@200}{0.843}
-\setval{V/tr/budget/mean/ctx_lr+fb@200}{0.788}
-\setval{V/tr/budget/lead_vs_intake_lr+fb/25}{1 of 1}
-\setval{V/tr/budget/lead_vs_ctx_lr+fb/25}{1 of 1}
-\setval{V/tr/budget/lead_vs_intake_lr+fb/50}{1 of 1}
-\setval{V/tr/budget/lead_vs_ctx_lr+fb/50}{1 of 1}
-\setval{V/tr/budget/lead_vs_intake_lr+fb/100}{0 of 1}
-\setval{V/tr/budget/lead_vs_ctx_lr+fb/100}{1 of 1}
-\setval{V/tr/budget/lead_vs_intake_lr+fb/200}{0 of 1}
-\setval{V/tr/budget/lead_vs_ctx_lr+fb/200}{1 of 1}
-\setval{V/tr/PCQ/range/auroc_q}{0.787--0.787}
+\setval{V/tr/L/pooled/H7: V7 - V6}{+.092\,[+.068, +.119]$^{*}$}
+\setval{V/tr/L/pooled/H8: V7 - intake_lr+fb}{+.041\,[+.012, +.077]$^{*}$}
+\setval{V/tr/L/pooled/H8': V7 - ctx_lr+fb}{+.122\,[+.092, +.164]$^{*}$}
+\setval{V/tr/L/pooled/--: V7 - SelfCheckGPT}{+.252\,[+.202, +.297]$^{*}$}
+\setval{V/tr/L/pooled/--: V7 - semantic_entropy}{+.378\,[+.327, +.419]$^{*}$}
+\setval{V/tr/L/pooled/--: AUROC(V7)}{0.927\,[0.907, 0.946]}
+\setval{V/tr/L/pooled/--: AUROC(intake_lr+fb)}{0.886\,[0.851, 0.914]}
+\setval{V/tr/L/npos/V7 - V6}{2 of 2}
+\setval{V/tr/L/nneg/V7 - V6}{0 of 2}
+\setval{V/tr/L/npos/V7 - intake_lr+fb}{1 of 2}
+\setval{V/tr/L/nneg/V7 - intake_lr+fb}{0 of 2}
+\setval{V/tr/L/npos/V7 - ctx_lr+fb}{2 of 2}
+\setval{V/tr/L/nneg/V7 - ctx_lr+fb}{0 of 2}
+\setval{V/tr/L/npos/V7 - SelfCheckGPT}{2 of 2}
+\setval{V/tr/L/nneg/V7 - SelfCheckGPT}{0 of 2}
+\setval{V/tr/L/npos/V7 - semantic_entropy}{2 of 2}
+\setval{V/tr/L/nneg/V7 - semantic_entropy}{0 of 2}
+\setval{V/tr/L/range/V7}{0.906--0.949}
+\setval{V/tr/budget/mean/V7@25}{0.701}
+\setval{V/tr/budget/mean/intake_lr+fb@25}{0.654}
+\setval{V/tr/budget/mean/ctx_lr+fb@25}{0.645}
+\setval{V/tr/budget/mean/V7@50}{0.705}
+\setval{V/tr/budget/mean/intake_lr+fb@50}{0.668}
+\setval{V/tr/budget/mean/ctx_lr+fb@50}{0.642}
+\setval{V/tr/budget/mean/V7@100}{0.752}
+\setval{V/tr/budget/mean/intake_lr+fb@100}{0.718}
+\setval{V/tr/budget/mean/ctx_lr+fb@100}{0.684}
+\setval{V/tr/budget/mean/V7@200}{0.786}
+\setval{V/tr/budget/mean/intake_lr+fb@200}{0.737}
+\setval{V/tr/budget/mean/ctx_lr+fb@200}{0.707}
+\setval{V/tr/budget/lead_vs_intake_lr+fb/25}{2 of 2}
+\setval{V/tr/budget/lead_vs_ctx_lr+fb/25}{2 of 2}
+\setval{V/tr/budget/lead_vs_intake_lr+fb/50}{2 of 2}
+\setval{V/tr/budget/lead_vs_ctx_lr+fb/50}{2 of 2}
+\setval{V/tr/budget/lead_vs_intake_lr+fb/100}{1 of 2}
+\setval{V/tr/budget/lead_vs_ctx_lr+fb/100}{2 of 2}
+\setval{V/tr/budget/lead_vs_intake_lr+fb/200}{1 of 2}
+\setval{V/tr/budget/lead_vs_ctx_lr+fb/200}{2 of 2}
+\setval{V/tr/PCQ/range/auroc_q}{0.734--0.787}
 \setval{V/tr/PCQ/range/ece_q}{0.069--0.069}
 \setval{PC/user_dependent/70B/auroc_V7}{0.834\,[0.789, 0.876]}
 \setval{pt:PC/user_dependent/70B/auroc_V7}{0.834}
@@ -836,6 +888,18 @@
 \setval{PV/L/V7 - intake_lr+fb}{$-$.137\,[$-$.207, $-$.071]$^{*}$}
 \setval{PV/L/V7 - ctx_lr+fb}{$-$.001\,[$-$.058, +.057]}
 \setval{PV/percommit/auroc}{0.691}
+\setval{JD/L_U/70B/V7}{0.902}
+\setval{t:JD/L_U/70B/V7}{.902}
+\setval{JD/L_U/70B/intake_lr+fb}{0.743}
+\setval{t:JD/L_U/70B/intake_lr+fb}{.743}
+\setval{JD/L_U/70B/SelfCheckGPT}{0.492}
+\setval{t:JD/L_U/70B/SelfCheckGPT}{.492}
+\setval{JD/L_U/70B/llm_judge}{0.645}
+\setval{t:JD/L_U/70B/llm_judge}{.645}
+\setval{JD/L_U/70B/V7 - llm_judge}{+.257\,[+.199, +.318]$^{*}$}
+\setval{JD/L_U/70B/V7 - intake_lr+fb}{+.160\,[+.106, +.216]$^{*}$}
+\setval{JD/L_U/70B/V7 - SelfCheckGPT}{+.408\,[+.348, +.472]$^{*}$}
+\setval{JD/L_U/70B/llm_judge - SelfCheckGPT}{+.151\,[+.073, +.227]$^{*}$}
 \setval{JD/L_U/8B/V7}{0.889}
 \setval{t:JD/L_U/8B/V7}{.889}
 \setval{JD/L_U/8B/intake_lr+fb}{0.782}
@@ -884,10 +948,22 @@
 \setval{JD/L_U/mistral/V7 - intake_lr+fb}{+.007\,[$-$.057, +.067]}
 \setval{JD/L_U/mistral/V7 - SelfCheckGPT}{+.177\,[+.105, +.249]$^{*}$}
 \setval{JD/L_U/mistral/llm_judge - SelfCheckGPT}{+.108\,[+.032, +.184]$^{*}$}
-\setval{JD/L_U/pooled/V7 - llm_judge}{+.182\,[+.148, +.214]$^{*}$}
-\setval{JD/L_U/pooled/llm_judge - SelfCheckGPT}{+.058\,[+.020, +.098]$^{*}$}
-\setval{JD/L_U/pooled/AUROC(llm_judge)}{0.624\,[0.593, 0.656]}
-\setval{JD/L_U/npos/V7 - llm_judge}{4 of 4}
+\setval{JD/L_U/pooled/V7 - llm_judge}{+.197\,[+.169, +.224]$^{*}$}
+\setval{JD/L_U/pooled/llm_judge - SelfCheckGPT}{+.077\,[+.044, +.110]$^{*}$}
+\setval{JD/L_U/pooled/AUROC(llm_judge)}{0.628\,[0.601, 0.656]}
+\setval{JD/L_U/npos/V7 - llm_judge}{5 of 5}
+\setval{JD/L/70B/V7}{0.914}
+\setval{t:JD/L/70B/V7}{.914}
+\setval{JD/L/70B/intake_lr+fb}{0.871}
+\setval{t:JD/L/70B/intake_lr+fb}{.871}
+\setval{JD/L/70B/SelfCheckGPT}{0.520}
+\setval{t:JD/L/70B/SelfCheckGPT}{.520}
+\setval{JD/L/70B/llm_judge}{0.649}
+\setval{t:JD/L/70B/llm_judge}{.649}
+\setval{JD/L/70B/V7 - llm_judge}{+.267\,[+.209, +.326]$^{*}$}
+\setval{JD/L/70B/V7 - intake_lr+fb}{+.047\,[+.006, +.087]$^{*}$}
+\setval{JD/L/70B/V7 - SelfCheckGPT}{+.396\,[+.330, +.459]$^{*}$}
+\setval{JD/L/70B/llm_judge - SelfCheckGPT}{+.129\,[+.050, +.210]$^{*}$}
 \setval{JD/L/8B/V7}{0.918}
 \setval{t:JD/L/8B/V7}{.918}
 \setval{JD/L/8B/intake_lr+fb}{0.888}
@@ -936,10 +1012,10 @@
 \setval{JD/L/mistral/V7 - intake_lr+fb}{+.018\,[$-$.019, +.057]}
 \setval{JD/L/mistral/V7 - SelfCheckGPT}{+.221\,[+.155, +.285]$^{*}$}
 \setval{JD/L/mistral/llm_judge - SelfCheckGPT}{+.030\,[$-$.050, +.110]}
-\setval{JD/L/pooled/V7 - llm_judge}{+.243\,[+.208, +.271]$^{*}$}
-\setval{JD/L/pooled/llm_judge - SelfCheckGPT}{+.007\,[$-$.034, +.050]}
-\setval{JD/L/pooled/AUROC(llm_judge)}{0.683\,[0.653, 0.714]}
-\setval{JD/L/npos/V7 - llm_judge}{4 of 4}
+\setval{JD/L/pooled/V7 - llm_judge}{+.247\,[+.217, +.276]$^{*}$}
+\setval{JD/L/pooled/llm_judge - SelfCheckGPT}{+.031\,[$-$.005, +.070]}
+\setval{JD/L/pooled/AUROC(llm_judge)}{0.676\,[0.648, 0.704]}
+\setval{JD/L/npos/V7 - llm_judge}{5 of 5}
 \setval{JD/PC/range/judge}{0.730--0.759}
 \setval{J/L_U/H1: AUROC(SelfCheckGPT)}{0.551\,[0.520, 0.585]}
 \setval{J/L_U/H1band}{both still inside the band}
@@ -1227,6 +1303,8 @@
 \setval{t:C/L_U/70B/mean_confidence (oriented)}{.550}
 \setval{C/L_U/70B/best graphon}{0.483}
 \setval{t:C/L_U/70B/best graphon}{.483}
+\setval{C/L_U/70B/cove}{0.510}
+\setval{t:C/L_U/70B/cove}{.510}
 \setval{C/L_U/70B/V6 - V6-prior}{+.060\,[+.032, +.091]$^{*}$}
 \setval{C/L_U/70B/V6 - ctx_lr}{+.026\,[$-$.039, +.092]}
 \setval{C/L_U/70B/V6 - ctx_lr+fb}{$-$.043\,[$-$.097, +.012]}
@@ -1235,6 +1313,7 @@
 \setval{C/L_U/70B/V6 - highconf_contradicted}{+.082\,[+.023, +.142]$^{*}$}
 \setval{C/L_U/70B/V6 - V3}{+.008\,[+.001, +.015]$^{*}$}
 \setval{C/L_U/70B/ctx_lr+fb - ctx_lr}{+.070\,[+.024, +.114]$^{*}$}
+\setval{C/L_U/70B/V6 - cove}{+.183\,[+.112, +.253]$^{*}$}
 \setval{C/L_U/8B/V6}{0.672}
 \setval{t:C/L_U/8B/V6}{.672}
 \setval{C/L_U/8B/V3}{0.669}
@@ -1408,6 +1487,8 @@
 \setval{t:C/L/70B/mean_confidence (oriented)}{.700}
 \setval{C/L/70B/best graphon}{0.460}
 \setval{t:C/L/70B/best graphon}{.460}
+\setval{C/L/70B/cove}{0.603}
+\setval{t:C/L/70B/cove}{.603}
 \setval{C/L/70B/V6 - V6-prior}{+.042\,[+.016, +.070]$^{*}$}
 \setval{C/L/70B/V6 - ctx_lr}{+.044\,[+.012, +.076]$^{*}$}
 \setval{C/L/70B/V6 - ctx_lr+fb}{+.030\,[$-$.005, +.068]}
@@ -1416,6 +1497,7 @@
 \setval{C/L/70B/V6 - highconf_contradicted}{+.096\,[+.048, +.143]$^{*}$}
 \setval{C/L/70B/V6 - V3}{+.004\,[$-$.007, +.014]}
 \setval{C/L/70B/ctx_lr+fb - ctx_lr}{+.013\,[$-$.009, +.036]}
+\setval{C/L/70B/V6 - cove}{+.257\,[+.190, +.328]$^{*}$}
 \setval{C/L/8B/V6}{0.829}
 \setval{t:C/L/8B/V6}{.829}
 \setval{C/L/8B/V3}{0.828}
@@ -1895,6 +1977,9 @@
 \setval{C/derived/L_U/npos/ctx_lr+fb - ctx_lr}{3 of 5}
 \setval{C/derived/L_U/nneg/ctx_lr+fb - ctx_lr}{0 of 5}
 \setval{C/derived/L_U/ns_agents/ctx_lr+fb - ctx_lr}{Qwen-72B, GPT-4o-mini}
+\setval{C/derived/L_U/npos/V6 - cove}{1 of 1}
+\setval{C/derived/L_U/nneg/V6 - cove}{0 of 1}
+\setval{C/derived/L_U/ns_agents/V6 - cove}{none}
 \setval{C/derived/L/nagents}{five}
 \setval{C/derived/L/argmax/SelfCheckGPT}{GPT-4o-mini}
 \setval{C/derived/L/argmax/semantic_entropy}{Llama-8B}
@@ -1922,6 +2007,9 @@
 \setval{C/derived/L/npos/ctx_lr+fb - ctx_lr}{2 of 5}
 \setval{C/derived/L/nneg/ctx_lr+fb - ctx_lr}{0 of 5}
 \setval{C/derived/L/ns_agents/ctx_lr+fb - ctx_lr}{Llama-70B, GPT-4o-mini, Mistral-24B}
+\setval{C/derived/L/npos/V6 - cove}{1 of 1}
+\setval{C/derived/L/nneg/V6 - cove}{0 of 1}
+\setval{C/derived/L/ns_agents/V6 - cove}{none}
 \setval{C/derived/LC/L_U/lead/25}{5 of 5}
 \setval{C/derived/LC/L_U/lead/50}{3 of 5}
 \setval{C/derived/LC/L_U/lead/100}{1 of 5}
@@ -1992,9 +2080,46 @@
 \setval{C/CH/mistral/lift}{2.93}
 \setval{C/CH/mistral/n_wrong}{1556}
 \setval{C/CH/mistral/n_right}{3383}
+\setval{T/N/gpt/n}{600}
+\setval{T/N/gpt/L}{20.2}
+\setval{T/N/gpt/LU}{24.5}
 \setval{T/N/8B/n}{600}
 \setval{T/N/8B/L}{32.8}
 \setval{T/N/8B/LU}{22.3}
+\setval{T/L_U/gpt/V6}{0.682}
+\setval{t:T/L_U/gpt/V6}{.682}
+\setval{T/L_U/gpt/V3}{0.683}
+\setval{t:T/L_U/gpt/V3}{.683}
+\setval{T/L_U/gpt/V6-prior}{0.607}
+\setval{t:T/L_U/gpt/V6-prior}{.607}
+\setval{T/L_U/gpt/ctx_lr}{0.607}
+\setval{t:T/L_U/gpt/ctx_lr}{.607}
+\setval{T/L_U/gpt/ctx_lr+fb}{0.658}
+\setval{t:T/L_U/gpt/ctx_lr+fb}{.658}
+\setval{T/L_U/gpt/SelfCheckGPT}{0.535}
+\setval{t:T/L_U/gpt/SelfCheckGPT}{.535}
+\setval{T/L_U/gpt/semantic_entropy}{0.502}
+\setval{t:T/L_U/gpt/semantic_entropy}{.502}
+\setval{T/L_U/gpt/highconf_contradicted}{0.629}
+\setval{t:T/L_U/gpt/highconf_contradicted}{.629}
+\setval{T/L_U/gpt/neg_signal_fraction}{0.596}
+\setval{t:T/L_U/gpt/neg_signal_fraction}{.596}
+\setval{T/L_U/gpt/dag_logreg}{0.611}
+\setval{t:T/L_U/gpt/dag_logreg}{.611}
+\setval{T/L_U/gpt/gcn}{0.659}
+\setval{t:T/L_U/gpt/gcn}{.659}
+\setval{T/L_U/gpt/mean_confidence (oriented)}{0.537}
+\setval{t:T/L_U/gpt/mean_confidence (oriented)}{.537}
+\setval{T/L_U/gpt/best graphon}{0.476}
+\setval{t:T/L_U/gpt/best graphon}{.476}
+\setval{T/L_U/gpt/V6 - V6-prior}{+.082\,[+.026, +.138]$^{*}$}
+\setval{T/L_U/gpt/V6 - ctx_lr}{+.084\,[+.003, +.163]$^{*}$}
+\setval{T/L_U/gpt/V6 - ctx_lr+fb}{+.028\,[$-$.034, +.088]}
+\setval{T/L_U/gpt/V6 - SelfCheckGPT}{+.153\,[+.069, +.232]$^{*}$}
+\setval{T/L_U/gpt/V6 - semantic_entropy}{+.182\,[+.121, +.241]$^{*}$}
+\setval{T/L_U/gpt/V6 - highconf_contradicted}{+.056\,[$-$.012, +.129]}
+\setval{T/L_U/gpt/V6 - V3}{+.002\,[$-$.003, +.006]}
+\setval{T/L_U/gpt/ctx_lr+fb - ctx_lr}{+.056\,[$-$.006, +.120]}
 \setval{T/L_U/8B/V6}{0.796}
 \setval{t:T/L_U/8B/V6}{.796}
 \setval{T/L_U/8B/V3}{0.794}
@@ -2029,6 +2154,51 @@
 \setval{T/L_U/8B/V6 - highconf_contradicted}{+.177\,[+.096, +.257]$^{*}$}
 \setval{T/L_U/8B/V6 - V3}{+.003\,[$-$.005, +.011]}
 \setval{T/L_U/8B/ctx_lr+fb - ctx_lr}{+.039\,[$-$.002, +.078]}
+\setval{T/L_U/pooled/H1: AUROC(SelfCheckGPT)}{0.582\,[0.533, 0.626]}
+\setval{T/L_U/pooled/H1: AUROC(semantic_entropy)}{0.507\,[0.499, 0.520]}
+\setval{T/L_U/pooled/H2: V6 - V6-prior}{+.079\,[+.049, +.118]$^{*}$}
+\setval{T/L_U/pooled/H3: V6 - ctx_lr}{+.043\,[$-$.005, +.098]}
+\setval{T/L_U/pooled/H4: V6 - SelfCheckGPT}{+.157\,[+.102, +.221]$^{*}$}
+\setval{T/L_U/pooled/H4: V6 - semantic_entropy}{+.232\,[+.194, +.272]$^{*}$}
+\setval{T/L_U/pooled/H2b: ctx_lr+fb - ctx_lr}{+.045\,[+.010, +.083]$^{*}$}
+\setval{T/L_U/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{+.159\,[+.101, +.219]$^{*}$}
+\setval{T/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy}{+.234\,[+.186, +.276]$^{*}$}
+\setval{T/L_U/pooled/sec.: V6 - ctx_lr+fb}{$-$.002\,[$-$.041, +.042]}
+\setval{T/L_U/pooled/sec.: V6 - V3}{+.001\,[$-$.002, +.007]}
+\setval{T/L/gpt/V6}{0.876}
+\setval{t:T/L/gpt/V6}{.876}
+\setval{T/L/gpt/V3}{0.882}
+\setval{t:T/L/gpt/V3}{.882}
+\setval{T/L/gpt/V6-prior}{0.801}
+\setval{t:T/L/gpt/V6-prior}{.801}
+\setval{T/L/gpt/ctx_lr}{0.766}
+\setval{t:T/L/gpt/ctx_lr}{.766}
+\setval{T/L/gpt/ctx_lr+fb}{0.834}
+\setval{t:T/L/gpt/ctx_lr+fb}{.834}
+\setval{T/L/gpt/SelfCheckGPT}{0.657}
+\setval{t:T/L/gpt/SelfCheckGPT}{.657}
+\setval{T/L/gpt/semantic_entropy}{0.483}
+\setval{t:T/L/gpt/semantic_entropy}{.483}
+\setval{T/L/gpt/highconf_contradicted}{0.792}
+\setval{t:T/L/gpt/highconf_contradicted}{.792}
+\setval{T/L/gpt/neg_signal_fraction}{0.735}
+\setval{t:T/L/gpt/neg_signal_fraction}{.735}
+\setval{T/L/gpt/dag_logreg}{0.854}
+\setval{t:T/L/gpt/dag_logreg}{.854}
+\setval{T/L/gpt/gcn}{0.847}
+\setval{t:T/L/gpt/gcn}{.847}
+\setval{T/L/gpt/mean_confidence (oriented)}{0.741}
+\setval{t:T/L/gpt/mean_confidence (oriented)}{.741}
+\setval{T/L/gpt/best graphon}{0.491}
+\setval{t:T/L/gpt/best graphon}{.491}
+\setval{T/L/gpt/V6 - V6-prior}{+.074\,[+.034, +.119]$^{*}$}
+\setval{T/L/gpt/V6 - ctx_lr}{+.110\,[+.037, +.183]$^{*}$}
+\setval{T/L/gpt/V6 - ctx_lr+fb}{+.045\,[$-$.004, +.097]}
+\setval{T/L/gpt/V6 - SelfCheckGPT}{+.216\,[+.139, +.295]$^{*}$}
+\setval{T/L/gpt/V6 - semantic_entropy}{+.388\,[+.317, +.455]$^{*}$}
+\setval{T/L/gpt/V6 - highconf_contradicted}{+.085\,[+.031, +.140]$^{*}$}
+\setval{T/L/gpt/V6 - V3}{$-$.009\,[$-$.018, $-$.0005]$^{*}$}
+\setval{T/L/gpt/ctx_lr+fb - ctx_lr}{+.065\,[+.012, +.120]$^{*}$}
 \setval{T/L/8B/V6}{0.793}
 \setval{t:T/L/8B/V6}{.793}
 \setval{T/L/8B/V3}{0.794}
@@ -2063,6 +2233,34 @@
 \setval{T/L/8B/V6 - highconf_contradicted}{+.042\,[+.005, +.079]$^{*}$}
 \setval{T/L/8B/V6 - V3}{$-$.001\,[$-$.006, +.004]}
 \setval{T/L/8B/ctx_lr+fb - ctx_lr}{+.047\,[+.006, +.091]$^{*}$}
+\setval{T/L/pooled/H1: AUROC(SelfCheckGPT)}{0.676\,[0.632, 0.723]}
+\setval{T/L/pooled/H1: AUROC(semantic_entropy)}{0.549\,[0.513, 0.594]}
+\setval{T/L/pooled/H2: V6 - V6-prior}{+.078\,[+.048, +.108]$^{*}$}
+\setval{T/L/pooled/H3: V6 - ctx_lr}{+.085\,[+.043, +.135]$^{*}$}
+\setval{T/L/pooled/H4: V6 - SelfCheckGPT}{+.159\,[+.101, +.207]$^{*}$}
+\setval{T/L/pooled/H4: V6 - semantic_entropy}{+.285\,[+.227, +.331]$^{*}$}
+\setval{T/L/pooled/H2b: ctx_lr+fb - ctx_lr}{+.055\,[+.023, +.089]$^{*}$}
+\setval{T/L/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{+.129\,[+.066, +.177]$^{*}$}
+\setval{T/L/pooled/H4b: ctx_lr+fb - semantic_entropy}{+.255\,[+.189, +.302]$^{*}$}
+\setval{T/L/pooled/sec.: V6 - ctx_lr+fb}{+.030\,[$-$.0001, +.068]}
+\setval{T/L/pooled/sec.: V6 - V3}{$-$.003\,[$-$.010, $-$.0000]$^{*}$}
+\setval{T/RA/gpt/eta0 (Bayes, no feedback)}{0.786}
+\setval{t:T/RA/gpt/eta0 (Bayes, no feedback)}{.786}
+\setval{T/RA/gpt/etaF (Bayes, feedback)}{0.862}
+\setval{t:T/RA/gpt/etaF (Bayes, feedback)}{.862}
+\setval{T/RA/gpt/etaX (Bayes, shown reactions)}{0.859}
+\setval{t:T/RA/gpt/etaX (Bayes, shown reactions)}{.859}
+\setval{T/RA/gpt/V6-session}{0.797}
+\setval{t:T/RA/gpt/V6-session}{.797}
+\setval{T/RA/gpt/LR-session}{0.661}
+\setval{t:T/RA/gpt/LR-session}{.661}
+\setval{T/RA/gpt/LR-session+fb}{0.772}
+\setval{t:T/RA/gpt/LR-session+fb}{.772}
+\setval{T/RA/gpt/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.077\,[+.035, +.120]$^{*}$}
+\setval{T/RA/gpt/etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.003\,[$-$.002, +.007]}
+\setval{T/RA/gpt/V6-session - LR-session+fb}{+.028\,[$-$.014, +.075]}
+\setval{T/RA/gpt/V6-session - eta0 (Bayes, no feedback)}{+.017\,[$-$.044, +.080]}
+\setval{T/RA/gpt/LR-session+fb - LR-session}{+.115\,[+.065, +.170]$^{*}$}
 \setval{T/RA/8B/eta0 (Bayes, no feedback)}{0.944}
 \setval{t:T/RA/8B/eta0 (Bayes, no feedback)}{.944}
 \setval{T/RA/8B/etaF (Bayes, feedback)}{0.963}
@@ -2080,6 +2278,18 @@
 \setval{T/RA/8B/V6-session - LR-session+fb}{$-$.003\,[$-$.027, +.027]}
 \setval{T/RA/8B/V6-session - eta0 (Bayes, no feedback)}{$-$.016\,[$-$.043, +.009]}
 \setval{T/RA/8B/LR-session+fb - LR-session}{+.018\,[$-$.004, +.041]}
+\setval{T/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.048\,[+.025, +.073]$^{*}$}
+\setval{T/RA/pooled/H6: V6-session - LR-session+fb}{+.010\,[$-$.015, +.040]}
+\setval{T/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}{$-$.004\,[$-$.033, +.033]}
+\setval{T/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.001\,[$-$.001, +.003]}
+\setval{T/PC/gpt/n}{1659}
+\setval{T/PC/gpt/wrong}{30.6}
+\setval{T/PC/gpt/all_agree}{92.8}
+\setval{T/PC/gpt/e1}{0.171}
+\setval{T/PC/gpt/e0}{0.028}
+\setval{T/PC/gpt/cor1_bound}{0.597}
+\setval{T/PC/gpt/auroc_disagreement}{0.572}
+\setval{T/PC/gpt/auroc_feedback_bit}{0.745}
 \setval{T/PC/8B/n}{1659}
 \setval{T/PC/8B/wrong}{33.9}
 \setval{T/PC/8B/all_agree}{67.5}
@@ -2088,6 +2298,21 @@
 \setval{T/PC/8B/cor1_bound}{0.812}
 \setval{T/PC/8B/auroc_disagreement}{0.651}
 \setval{T/PC/8B/auroc_feedback_bit}{0.742}
+\setval{T/LC/L_U/gpt/V6@25}{0.632}
+\setval{T/LC/L_U/gpt/ctx_lr@25}{0.577}
+\setval{T/LC/L_U/gpt/ctx_lr+fb@25}{0.586}
+\setval{T/LC/L_U/gpt/V6@50}{0.647}
+\setval{T/LC/L_U/gpt/ctx_lr@50}{0.529}
+\setval{T/LC/L_U/gpt/ctx_lr+fb@50}{0.563}
+\setval{T/LC/L_U/gpt/V6@100}{0.662}
+\setval{T/LC/L_U/gpt/ctx_lr@100}{0.548}
+\setval{T/LC/L_U/gpt/ctx_lr+fb@100}{0.596}
+\setval{T/LC/L_U/gpt/V6@200}{0.673}
+\setval{T/LC/L_U/gpt/ctx_lr@200}{0.586}
+\setval{T/LC/L_U/gpt/ctx_lr+fb@200}{0.626}
+\setval{T/LC/L_U/gpt/V6@all}{0.682}
+\setval{T/LC/L_U/gpt/ctx_lr@all}{0.607}
+\setval{T/LC/L_U/gpt/ctx_lr+fb@all}{0.658}
 \setval{T/LC/L_U/8B/V6@25}{0.751}
 \setval{T/LC/L_U/8B/ctx_lr@25}{0.689}
 \setval{T/LC/L_U/8B/ctx_lr+fb@25}{0.705}
@@ -2103,6 +2328,21 @@
 \setval{T/LC/L_U/8B/V6@all}{0.796}
 \setval{T/LC/L_U/8B/ctx_lr@all}{0.786}
 \setval{T/LC/L_U/8B/ctx_lr+fb@all}{0.825}
+\setval{T/LC/L/gpt/V6@25}{0.798}
+\setval{T/LC/L/gpt/ctx_lr@25}{0.718}
+\setval{T/LC/L/gpt/ctx_lr+fb@25}{0.733}
+\setval{T/LC/L/gpt/V6@50}{0.837}
+\setval{T/LC/L/gpt/ctx_lr@50}{0.692}
+\setval{T/LC/L/gpt/ctx_lr+fb@50}{0.755}
+\setval{T/LC/L/gpt/V6@100}{0.848}
+\setval{T/LC/L/gpt/ctx_lr@100}{0.746}
+\setval{T/LC/L/gpt/ctx_lr+fb@100}{0.795}
+\setval{T/LC/L/gpt/V6@200}{0.873}
+\setval{T/LC/L/gpt/ctx_lr@200}{0.753}
+\setval{T/LC/L/gpt/ctx_lr+fb@200}{0.811}
+\setval{T/LC/L/gpt/V6@all}{0.876}
+\setval{T/LC/L/gpt/ctx_lr@all}{0.766}
+\setval{T/LC/L/gpt/ctx_lr+fb@all}{0.834}
 \setval{T/LC/L/8B/V6@25}{0.718}
 \setval{T/LC/L/8B/ctx_lr@25}{0.616}
 \setval{T/LC/L/8B/ctx_lr+fb@25}{0.661}
@@ -2118,111 +2358,120 @@
 \setval{T/LC/L/8B/V6@all}{0.793}
 \setval{T/LC/L/8B/ctx_lr@all}{0.733}
 \setval{T/LC/L/8B/ctx_lr+fb@all}{0.776}
-\setval{T/PC/range/auroc_disagreement}{0.651--0.651}
-\setval{T/PC/range/auroc_feedback_bit}{0.742--0.742}
-\setval{T/PC/range/e1}{0.512--0.512}
-\setval{T/PC/range/e0}{0.230--0.230}
-\setval{T/PC/range/cor1_bound}{0.812--0.812}
-\setval{T/PC/range/all_agree}{67--67}
+\setval{T/PC/range/auroc_disagreement}{0.572--0.651}
+\setval{T/PC/range/auroc_feedback_bit}{0.742--0.745}
+\setval{T/PC/range/e1}{0.171--0.512}
+\setval{T/PC/range/e0}{0.028--0.230}
+\setval{T/PC/range/cor1_bound}{0.597--0.812}
+\setval{T/PC/range/all_agree}{67--93}
 \setval{T/PC/maxdiff_e}{0.28}
-\setval{T/L_U/range/structure}{0.50--0.64}
-\setval{T/derived/V6session_gap/range}{0.129--0.129}
-\setval{T/RA/range/eta0 (Bayes, no feedback)}{0.944--0.944}
-\setval{T/RA/range/etaF (Bayes, feedback)}{0.963--0.963}
-\setval{T/RA/range/etaF - eta0}{0.021--0.021}
-\setval{T/RA/range/LR-session+fb - LR-session}{+.018 to +.018}
-\setval{T/RA/range/etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{$-$.001 to $-$.001}
-\setval{T/L_U/range/SelfCheckGPT}{0.628--0.628}
-\setval{T/L_U/range/semantic_entropy}{0.513--0.513}
-\setval{T/L_U/range/V6}{0.796--0.796}
-\setval{T/L_U/range/ctx_lr}{0.786--0.786}
-\setval{T/L_U/range/ctx_lr+fb}{0.825--0.825}
-\setval{T/L_U/range/V6-prior}{0.713--0.713}
-\setval{T/L/range/SelfCheckGPT}{0.695--0.695}
-\setval{T/L/range/semantic_entropy}{0.616--0.616}
-\setval{T/L/range/V6}{0.793--0.793}
-\setval{T/L/range/ctx_lr}{0.733--0.733}
-\setval{T/L/range/ctx_lr+fb}{0.776--0.776}
-\setval{T/L/range/V6-prior}{0.713--0.713}
-\setval{T/derived/L_U/nagents}{one}
+\setval{T/L_U/range/structure}{0.48--0.66}
+\setval{T/derived/V6session_gap/range}{0.115--0.129}
+\setval{T/RA/range/eta0 (Bayes, no feedback)}{0.786--0.944}
+\setval{T/RA/range/etaF (Bayes, feedback)}{0.862--0.963}
+\setval{T/RA/range/etaF - eta0}{0.021--0.077}
+\setval{T/RA/range/LR-session+fb - LR-session}{+.018 to +.115}
+\setval{T/RA/range/etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{$-$.001 to +.003}
+\setval{T/L_U/range/SelfCheckGPT}{0.535--0.628}
+\setval{T/L_U/range/semantic_entropy}{0.502--0.513}
+\setval{T/L_U/range/V6}{0.682--0.796}
+\setval{T/L_U/range/ctx_lr}{0.607--0.786}
+\setval{T/L_U/range/ctx_lr+fb}{0.658--0.825}
+\setval{T/L_U/range/V6-prior}{0.607--0.713}
+\setval{T/L/range/SelfCheckGPT}{0.657--0.695}
+\setval{T/L/range/semantic_entropy}{0.483--0.616}
+\setval{T/L/range/V6}{0.793--0.876}
+\setval{T/L/range/ctx_lr}{0.733--0.766}
+\setval{T/L/range/ctx_lr+fb}{0.776--0.834}
+\setval{T/L/range/V6-prior}{0.713--0.801}
+\setval{T/derived/L_U/nagents}{two}
 \setval{T/derived/L_U/argmax/SelfCheckGPT}{Llama-8B}
 \setval{T/derived/L_U/argmax/semantic_entropy}{Llama-8B}
-\setval{T/derived/L_U/npos/V6 - V6-prior}{1 of 1}
-\setval{T/derived/L_U/nneg/V6 - V6-prior}{0 of 1}
+\setval{T/derived/L_U/npos/V6 - V6-prior}{2 of 2}
+\setval{T/derived/L_U/nneg/V6 - V6-prior}{0 of 2}
 \setval{T/derived/L_U/ns_agents/V6 - V6-prior}{none}
-\setval{T/derived/L_U/npos/V6 - ctx_lr}{0 of 1}
-\setval{T/derived/L_U/nneg/V6 - ctx_lr}{0 of 1}
+\setval{T/derived/L_U/npos/V6 - ctx_lr}{1 of 2}
+\setval{T/derived/L_U/nneg/V6 - ctx_lr}{0 of 2}
 \setval{T/derived/L_U/ns_agents/V6 - ctx_lr}{Llama-8B}
-\setval{T/derived/L_U/npos/V6 - ctx_lr+fb}{0 of 1}
-\setval{T/derived/L_U/nneg/V6 - ctx_lr+fb}{0 of 1}
-\setval{T/derived/L_U/ns_agents/V6 - ctx_lr+fb}{Llama-8B}
-\setval{T/derived/L_U/npos/V6 - SelfCheckGPT}{1 of 1}
-\setval{T/derived/L_U/nneg/V6 - SelfCheckGPT}{0 of 1}
+\setval{T/derived/L_U/npos/V6 - ctx_lr+fb}{0 of 2}
+\setval{T/derived/L_U/nneg/V6 - ctx_lr+fb}{0 of 2}
+\setval{T/derived/L_U/ns_agents/V6 - ctx_lr+fb}{GPT-4o-mini, Llama-8B}
+\setval{T/derived/L_U/npos/V6 - SelfCheckGPT}{2 of 2}
+\setval{T/derived/L_U/nneg/V6 - SelfCheckGPT}{0 of 2}
 \setval{T/derived/L_U/ns_agents/V6 - SelfCheckGPT}{none}
-\setval{T/derived/L_U/npos/V6 - semantic_entropy}{1 of 1}
-\setval{T/derived/L_U/nneg/V6 - semantic_entropy}{0 of 1}
+\setval{T/derived/L_U/npos/V6 - semantic_entropy}{2 of 2}
+\setval{T/derived/L_U/nneg/V6 - semantic_entropy}{0 of 2}
 \setval{T/derived/L_U/ns_agents/V6 - semantic_entropy}{none}
-\setval{T/derived/L_U/npos/V6 - highconf_contradicted}{1 of 1}
-\setval{T/derived/L_U/nneg/V6 - highconf_contradicted}{0 of 1}
-\setval{T/derived/L_U/ns_agents/V6 - highconf_contradicted}{none}
-\setval{T/derived/L_U/npos/V6 - V3}{0 of 1}
-\setval{T/derived/L_U/nneg/V6 - V3}{0 of 1}
-\setval{T/derived/L_U/ns_agents/V6 - V3}{Llama-8B}
-\setval{T/derived/L_U/npos/ctx_lr+fb - ctx_lr}{0 of 1}
-\setval{T/derived/L_U/nneg/ctx_lr+fb - ctx_lr}{0 of 1}
-\setval{T/derived/L_U/ns_agents/ctx_lr+fb - ctx_lr}{Llama-8B}
-\setval{T/derived/L/nagents}{one}
+\setval{T/derived/L_U/npos/V6 - highconf_contradicted}{1 of 2}
+\setval{T/derived/L_U/nneg/V6 - highconf_contradicted}{0 of 2}
+\setval{T/derived/L_U/ns_agents/V6 - highconf_contradicted}{GPT-4o-mini}
+\setval{T/derived/L_U/npos/V6 - V3}{0 of 2}
+\setval{T/derived/L_U/nneg/V6 - V3}{0 of 2}
+\setval{T/derived/L_U/ns_agents/V6 - V3}{GPT-4o-mini, Llama-8B}
+\setval{T/derived/L_U/npos/ctx_lr+fb - ctx_lr}{0 of 2}
+\setval{T/derived/L_U/nneg/ctx_lr+fb - ctx_lr}{0 of 2}
+\setval{T/derived/L_U/ns_agents/ctx_lr+fb - ctx_lr}{GPT-4o-mini, Llama-8B}
+\setval{T/derived/L/nagents}{two}
 \setval{T/derived/L/argmax/SelfCheckGPT}{Llama-8B}
 \setval{T/derived/L/argmax/semantic_entropy}{Llama-8B}
-\setval{T/derived/L/npos/V6 - V6-prior}{1 of 1}
-\setval{T/derived/L/nneg/V6 - V6-prior}{0 of 1}
+\setval{T/derived/L/npos/V6 - V6-prior}{2 of 2}
+\setval{T/derived/L/nneg/V6 - V6-prior}{0 of 2}
 \setval{T/derived/L/ns_agents/V6 - V6-prior}{none}
-\setval{T/derived/L/npos/V6 - ctx_lr}{1 of 1}
-\setval{T/derived/L/nneg/V6 - ctx_lr}{0 of 1}
+\setval{T/derived/L/npos/V6 - ctx_lr}{2 of 2}
+\setval{T/derived/L/nneg/V6 - ctx_lr}{0 of 2}
 \setval{T/derived/L/ns_agents/V6 - ctx_lr}{none}
-\setval{T/derived/L/npos/V6 - ctx_lr+fb}{0 of 1}
-\setval{T/derived/L/nneg/V6 - ctx_lr+fb}{0 of 1}
-\setval{T/derived/L/ns_agents/V6 - ctx_lr+fb}{Llama-8B}
-\setval{T/derived/L/npos/V6 - SelfCheckGPT}{1 of 1}
-\setval{T/derived/L/nneg/V6 - SelfCheckGPT}{0 of 1}
+\setval{T/derived/L/npos/V6 - ctx_lr+fb}{0 of 2}
+\setval{T/derived/L/nneg/V6 - ctx_lr+fb}{0 of 2}
+\setval{T/derived/L/ns_agents/V6 - ctx_lr+fb}{GPT-4o-mini, Llama-8B}
+\setval{T/derived/L/npos/V6 - SelfCheckGPT}{2 of 2}
+\setval{T/derived/L/nneg/V6 - SelfCheckGPT}{0 of 2}
 \setval{T/derived/L/ns_agents/V6 - SelfCheckGPT}{none}
-\setval{T/derived/L/npos/V6 - semantic_entropy}{1 of 1}
-\setval{T/derived/L/nneg/V6 - semantic_entropy}{0 of 1}
+\setval{T/derived/L/npos/V6 - semantic_entropy}{2 of 2}
+\setval{T/derived/L/nneg/V6 - semantic_entropy}{0 of 2}
 \setval{T/derived/L/ns_agents/V6 - semantic_entropy}{none}
-\setval{T/derived/L/npos/V6 - highconf_contradicted}{1 of 1}
-\setval{T/derived/L/nneg/V6 - highconf_contradicted}{0 of 1}
+\setval{T/derived/L/npos/V6 - highconf_contradicted}{2 of 2}
+\setval{T/derived/L/nneg/V6 - highconf_contradicted}{0 of 2}
 \setval{T/derived/L/ns_agents/V6 - highconf_contradicted}{none}
-\setval{T/derived/L/npos/V6 - V3}{0 of 1}
-\setval{T/derived/L/nneg/V6 - V3}{0 of 1}
+\setval{T/derived/L/npos/V6 - V3}{0 of 2}
+\setval{T/derived/L/nneg/V6 - V3}{1 of 2}
 \setval{T/derived/L/ns_agents/V6 - V3}{Llama-8B}
-\setval{T/derived/L/npos/ctx_lr+fb - ctx_lr}{1 of 1}
-\setval{T/derived/L/nneg/ctx_lr+fb - ctx_lr}{0 of 1}
+\setval{T/derived/L/npos/ctx_lr+fb - ctx_lr}{2 of 2}
+\setval{T/derived/L/nneg/ctx_lr+fb - ctx_lr}{0 of 2}
 \setval{T/derived/L/ns_agents/ctx_lr+fb - ctx_lr}{none}
-\setval{T/derived/LC/L_U/lead/25}{1 of 1}
-\setval{T/derived/LC/L_U/lead/50}{1 of 1}
-\setval{T/derived/LC/L_U/lead/100}{0 of 1}
-\setval{T/derived/LC/L_U/lead/200}{0 of 1}
-\setval{T/derived/LC/L_U/lead/all}{0 of 1}
-\setval{T/derived/LC/L/lead/25}{1 of 1}
-\setval{T/derived/LC/L/lead/50}{1 of 1}
-\setval{T/derived/LC/L/lead/100}{1 of 1}
-\setval{T/derived/LC/L/lead/200}{1 of 1}
-\setval{T/derived/LC/L/lead/all}{1 of 1}
-\setval{T/LC/L_U/mean/V6@25}{0.751}
-\setval{T/LC/L_U/mean/ctx_lr@25}{0.689}
-\setval{T/LC/L_U/mean/ctx_lr+fb@25}{0.705}
-\setval{T/LC/L_U/mean/V6@50}{0.754}
-\setval{T/LC/L_U/mean/ctx_lr@50}{0.717}
-\setval{T/LC/L_U/mean/ctx_lr+fb@50}{0.721}
-\setval{T/LC/L_U/mean/V6@100}{0.767}
-\setval{T/LC/L_U/mean/ctx_lr@100}{0.745}
-\setval{T/LC/L_U/mean/ctx_lr+fb@100}{0.772}
-\setval{T/LC/L_U/mean/V6@200}{0.782}
-\setval{T/LC/L_U/mean/ctx_lr@200}{0.769}
-\setval{T/LC/L_U/mean/ctx_lr+fb@200}{0.788}
-\setval{T/LC/L_U/mean/V6@all}{0.796}
-\setval{T/LC/L_U/mean/ctx_lr@all}{0.786}
-\setval{T/LC/L_U/mean/ctx_lr+fb@all}{0.825}
+\setval{T/derived/LC/L_U/lead/25}{2 of 2}
+\setval{T/derived/LC/L_U/lead/50}{2 of 2}
+\setval{T/derived/LC/L_U/lead/100}{1 of 2}
+\setval{T/derived/LC/L_U/lead/200}{1 of 2}
+\setval{T/derived/LC/L_U/lead/all}{1 of 2}
+\setval{T/derived/LC/L/lead/25}{2 of 2}
+\setval{T/derived/LC/L/lead/50}{2 of 2}
+\setval{T/derived/LC/L/lead/100}{2 of 2}
+\setval{T/derived/LC/L/lead/200}{2 of 2}
+\setval{T/derived/LC/L/lead/all}{2 of 2}
+\setval{T/LC/L_U/mean/V6@25}{0.691}
+\setval{T/LC/L_U/mean/ctx_lr@25}{0.633}
+\setval{T/LC/L_U/mean/ctx_lr+fb@25}{0.645}
+\setval{T/LC/L_U/mean/V6@50}{0.700}
+\setval{T/LC/L_U/mean/ctx_lr@50}{0.623}
+\setval{T/LC/L_U/mean/ctx_lr+fb@50}{0.642}
+\setval{T/LC/L_U/mean/V6@100}{0.714}
+\setval{T/LC/L_U/mean/ctx_lr@100}{0.646}
+\setval{T/LC/L_U/mean/ctx_lr+fb@100}{0.684}
+\setval{T/LC/L_U/mean/V6@200}{0.727}
+\setval{T/LC/L_U/mean/ctx_lr@200}{0.677}
+\setval{T/LC/L_U/mean/ctx_lr+fb@200}{0.707}
+\setval{T/LC/L_U/mean/V6@all}{0.739}
+\setval{T/LC/L_U/mean/ctx_lr@all}{0.697}
+\setval{T/LC/L_U/mean/ctx_lr+fb@all}{0.741}
+\setval{T/CH/gpt/P(-1|r)}{0.26}
+\setval{T/CH/gpt/P(0|r)}{0.00}
+\setval{T/CH/gpt/P(1|r)}{0.74}
+\setval{T/CH/gpt/P(-1|w)}{0.73}
+\setval{T/CH/gpt/P(0|w)}{0.00}
+\setval{T/CH/gpt/P(1|w)}{0.27}
+\setval{T/CH/gpt/lift}{2.85}
+\setval{T/CH/gpt/n_wrong}{1576}
+\setval{T/CH/gpt/n_right}{3567}
 \setval{T/CH/8B/P(-1|r)}{0.26}
 \setval{T/CH/8B/P(0|r)}{0.00}
 \setval{T/CH/8B/P(1|r)}{0.74}
@@ -2238,6 +2487,12 @@
 \setval{P/N/patv1inf/n}{100}
 \setval{P/N/patv1inf/L}{24.0}
 \setval{P/N/patv1inf/LU}{30.0}
+\setval{P/N/patv2/n}{600}
+\setval{P/N/patv2/L}{24.2}
+\setval{P/N/patv2/LU}{31.0}
+\setval{P/N/patv2pilot/n}{100}
+\setval{P/N/patv2pilot/L}{20.0}
+\setval{P/N/patv2pilot/LU}{28.0}
 \setval{P/L_U/patv1/V6}{0.756}
 \setval{t:P/L_U/patv1/V6}{.756}
 \setval{P/L_U/patv1/V3}{0.675}
@@ -2286,6 +2541,54 @@
 \setval{P/L_U/patv1inf/V6 - highconf_contradicted}{+.299\,[+.186, +.407]$^{*}$}
 \setval{P/L_U/patv1inf/V6 - V3}{$-$.015\,[$-$.071, +.043]}
 \setval{P/L_U/patv1inf/ctx_lr+fb - ctx_lr}{+.032\,[$-$.035, +.104]}
+\setval{P/L_U/patv2/V6}{0.644}
+\setval{t:P/L_U/patv2/V6}{.644}
+\setval{P/L_U/patv2/V3}{0.664}
+\setval{t:P/L_U/patv2/V3}{.664}
+\setval{P/L_U/patv2/V6-prior}{0.601}
+\setval{t:P/L_U/patv2/V6-prior}{.601}
+\setval{P/L_U/patv2/ctx_lr}{0.729}
+\setval{t:P/L_U/patv2/ctx_lr}{.729}
+\setval{P/L_U/patv2/ctx_lr+fb}{0.733}
+\setval{t:P/L_U/patv2/ctx_lr+fb}{.733}
+\setval{P/L_U/patv2/highconf_contradicted}{0.581}
+\setval{t:P/L_U/patv2/highconf_contradicted}{.581}
+\setval{P/L_U/patv2/neg_signal_fraction}{0.551}
+\setval{t:P/L_U/patv2/neg_signal_fraction}{.551}
+\setval{P/L_U/patv2/dag_logreg}{0.653}
+\setval{t:P/L_U/patv2/dag_logreg}{.653}
+\setval{P/L_U/patv2/mean_confidence (oriented)}{0.601}
+\setval{t:P/L_U/patv2/mean_confidence (oriented)}{.601}
+\setval{P/L_U/patv2/V6 - V6-prior}{+.051\,[+.023, +.076]$^{*}$}
+\setval{P/L_U/patv2/V6 - ctx_lr}{$-$.081\,[$-$.141, $-$.026]$^{*}$}
+\setval{P/L_U/patv2/V6 - ctx_lr+fb}{$-$.086\,[$-$.147, $-$.025]$^{*}$}
+\setval{P/L_U/patv2/V6 - highconf_contradicted}{+.067\,[+.008, +.130]$^{*}$}
+\setval{P/L_U/patv2/V6 - V3}{$-$.020\,[$-$.051, +.010]}
+\setval{P/L_U/patv2/ctx_lr+fb - ctx_lr}{+.005\,[$-$.034, +.043]}
+\setval{P/L_U/patv2pilot/V6}{0.582}
+\setval{t:P/L_U/patv2pilot/V6}{.582}
+\setval{P/L_U/patv2pilot/V3}{0.594}
+\setval{t:P/L_U/patv2pilot/V3}{.594}
+\setval{P/L_U/patv2pilot/V6-prior}{0.525}
+\setval{t:P/L_U/patv2pilot/V6-prior}{.525}
+\setval{P/L_U/patv2pilot/ctx_lr}{0.706}
+\setval{t:P/L_U/patv2pilot/ctx_lr}{.706}
+\setval{P/L_U/patv2pilot/ctx_lr+fb}{0.725}
+\setval{t:P/L_U/patv2pilot/ctx_lr+fb}{.725}
+\setval{P/L_U/patv2pilot/highconf_contradicted}{0.579}
+\setval{t:P/L_U/patv2pilot/highconf_contradicted}{.579}
+\setval{P/L_U/patv2pilot/neg_signal_fraction}{0.544}
+\setval{t:P/L_U/patv2pilot/neg_signal_fraction}{.544}
+\setval{P/L_U/patv2pilot/dag_logreg}{0.512}
+\setval{t:P/L_U/patv2pilot/dag_logreg}{.512}
+\setval{P/L_U/patv2pilot/mean_confidence (oriented)}{0.668}
+\setval{t:P/L_U/patv2pilot/mean_confidence (oriented)}{.668}
+\setval{P/L_U/patv2pilot/V6 - V6-prior}{+.066\,[$-$.034, +.170]}
+\setval{P/L_U/patv2pilot/V6 - ctx_lr}{$-$.090\,[$-$.258, +.079]}
+\setval{P/L_U/patv2pilot/V6 - ctx_lr+fb}{$-$.102\,[$-$.262, +.070]}
+\setval{P/L_U/patv2pilot/V6 - highconf_contradicted}{$-$.006\,[$-$.130, +.122]}
+\setval{P/L_U/patv2pilot/V6 - V3}{$-$.003\,[$-$.077, +.076]}
+\setval{P/L_U/patv2pilot/ctx_lr+fb - ctx_lr}{+.012\,[$-$.082, +.101]}
 \setval{P/L/patv1/V6}{0.826}
 \setval{t:P/L/patv1/V6}{.826}
 \setval{P/L/patv1/V3}{0.708}
@@ -2334,6 +2637,54 @@
 \setval{P/L/patv1inf/V6 - highconf_contradicted}{+.238\,[+.106, +.351]$^{*}$}
 \setval{P/L/patv1inf/V6 - V3}{+.148\,[$-$.0000, +.292]}
 \setval{P/L/patv1inf/ctx_lr+fb - ctx_lr}{+.016\,[$-$.028, +.060]}
+\setval{P/L/patv2/V6}{0.743}
+\setval{t:P/L/patv2/V6}{.743}
+\setval{P/L/patv2/V3}{0.764}
+\setval{t:P/L/patv2/V3}{.764}
+\setval{P/L/patv2/V6-prior}{0.754}
+\setval{t:P/L/patv2/V6-prior}{.754}
+\setval{P/L/patv2/ctx_lr}{0.769}
+\setval{t:P/L/patv2/ctx_lr}{.769}
+\setval{P/L/patv2/ctx_lr+fb}{0.731}
+\setval{t:P/L/patv2/ctx_lr+fb}{.731}
+\setval{P/L/patv2/highconf_contradicted}{0.623}
+\setval{t:P/L/patv2/highconf_contradicted}{.623}
+\setval{P/L/patv2/neg_signal_fraction}{0.586}
+\setval{t:P/L/patv2/neg_signal_fraction}{.586}
+\setval{P/L/patv2/dag_logreg}{0.673}
+\setval{t:P/L/patv2/dag_logreg}{.673}
+\setval{P/L/patv2/mean_confidence (oriented)}{0.630}
+\setval{t:P/L/patv2/mean_confidence (oriented)}{.630}
+\setval{P/L/patv2/V6 - V6-prior}{$-$.013\,[$-$.045, +.017]}
+\setval{P/L/patv2/V6 - ctx_lr}{$-$.028\,[$-$.075, +.019]}
+\setval{P/L/patv2/V6 - ctx_lr+fb}{+.011\,[$-$.045, +.065]}
+\setval{P/L/patv2/V6 - highconf_contradicted}{+.118\,[+.051, +.182]$^{*}$}
+\setval{P/L/patv2/V6 - V3}{$-$.021\,[$-$.044, $-$.002]$^{*}$}
+\setval{P/L/patv2/ctx_lr+fb - ctx_lr}{$-$.038\,[$-$.067, $-$.011]$^{*}$}
+\setval{P/L/patv2pilot/V6}{0.760}
+\setval{t:P/L/patv2pilot/V6}{.760}
+\setval{P/L/patv2pilot/V3}{0.739}
+\setval{t:P/L/patv2pilot/V3}{.739}
+\setval{P/L/patv2pilot/V6-prior}{0.729}
+\setval{t:P/L/patv2pilot/V6-prior}{.729}
+\setval{P/L/patv2pilot/ctx_lr}{0.717}
+\setval{t:P/L/patv2pilot/ctx_lr}{.717}
+\setval{P/L/patv2pilot/ctx_lr+fb}{0.688}
+\setval{t:P/L/patv2pilot/ctx_lr+fb}{.688}
+\setval{P/L/patv2pilot/highconf_contradicted}{0.685}
+\setval{t:P/L/patv2pilot/highconf_contradicted}{.685}
+\setval{P/L/patv2pilot/neg_signal_fraction}{0.603}
+\setval{t:P/L/patv2pilot/neg_signal_fraction}{.603}
+\setval{P/L/patv2pilot/dag_logreg}{0.535}
+\setval{t:P/L/patv2pilot/dag_logreg}{.535}
+\setval{P/L/patv2pilot/mean_confidence (oriented)}{0.560}
+\setval{t:P/L/patv2pilot/mean_confidence (oriented)}{.560}
+\setval{P/L/patv2pilot/V6 - V6-prior}{+.077\,[$-$.013, +.182]}
+\setval{P/L/patv2pilot/V6 - ctx_lr}{+.060\,[$-$.051, +.172]}
+\setval{P/L/patv2pilot/V6 - ctx_lr+fb}{+.091\,[$-$.034, +.210]}
+\setval{P/L/patv2pilot/V6 - highconf_contradicted}{+.090\,[$-$.043, +.228]}
+\setval{P/L/patv2pilot/V6 - V3}{$-$.002\,[$-$.058, +.053]}
+\setval{P/L/patv2pilot/ctx_lr+fb - ctx_lr}{$-$.031\,[$-$.097, +.035]}
 \setval{P/RA/patv1/eta0 (Bayes, no feedback)}{0.935}
 \setval{t:P/RA/patv1/eta0 (Bayes, no feedback)}{.935}
 \setval{P/RA/patv1/V6-session}{0.937}
@@ -2356,56 +2707,78 @@
 \setval{P/RA/patv1inf/V6-session - LR-session+fb}{+.077\,[+.016, +.151]$^{*}$}
 \setval{P/RA/patv1inf/V6-session - eta0 (Bayes, no feedback)}{+.024\,[$-$.007, +.063]}
 \setval{P/RA/patv1inf/LR-session+fb - LR-session}{+.002\,[$-$.011, +.017]}
-\setval{P/L_U/range/structure}{0.59--0.67}
+\setval{P/RA/patv2/eta0 (Bayes, no feedback)}{0.854}
+\setval{t:P/RA/patv2/eta0 (Bayes, no feedback)}{.854}
+\setval{P/RA/patv2/V6-session}{0.793}
+\setval{t:P/RA/patv2/V6-session}{.793}
+\setval{P/RA/patv2/LR-session}{0.818}
+\setval{t:P/RA/patv2/LR-session}{.818}
+\setval{P/RA/patv2/LR-session+fb}{0.826}
+\setval{t:P/RA/patv2/LR-session+fb}{.826}
+\setval{P/RA/patv2/V6-session - LR-session+fb}{$-$.036\,[$-$.086, +.016]}
+\setval{P/RA/patv2/V6-session - eta0 (Bayes, no feedback)}{$-$.065\,[$-$.105, $-$.025]$^{*}$}
+\setval{P/RA/patv2/LR-session+fb - LR-session}{+.008\,[$-$.022, +.041]}
+\setval{P/RA/patv2pilot/eta0 (Bayes, no feedback)}{0.868}
+\setval{t:P/RA/patv2pilot/eta0 (Bayes, no feedback)}{.868}
+\setval{P/RA/patv2pilot/V6-session}{0.726}
+\setval{t:P/RA/patv2pilot/V6-session}{.726}
+\setval{P/RA/patv2pilot/LR-session}{0.853}
+\setval{t:P/RA/patv2pilot/LR-session}{.853}
+\setval{P/RA/patv2pilot/LR-session+fb}{0.851}
+\setval{t:P/RA/patv2pilot/LR-session+fb}{.851}
+\setval{P/RA/patv2pilot/V6-session - LR-session+fb}{$-$.082\,[$-$.214, +.049]}
+\setval{P/RA/patv2pilot/V6-session - eta0 (Bayes, no feedback)}{$-$.134\,[$-$.233, $-$.051]$^{*}$}
+\setval{P/RA/patv2pilot/LR-session+fb - LR-session}{+.000\,[$-$.051, +.052]}
+\setval{P/L_U/range/structure}{0.51--0.67}
 \setval{P/derived/V6session_gap/range}{0.090--0.181}
-\setval{P/RA/range/eta0 (Bayes, no feedback)}{0.935--0.936}
-\setval{P/RA/range/LR-session+fb - LR-session}{+.002 to +.006}
-\setval{P/L_U/range/V6}{0.756--0.864}
+\setval{P/RA/range/eta0 (Bayes, no feedback)}{0.854--0.936}
+\setval{P/RA/range/LR-session+fb - LR-session}{$-$.0003 to +.008}
+\setval{P/L_U/range/V6}{0.582--0.864}
 \setval{P/L_U/range/ctx_lr}{0.693--0.773}
-\setval{P/L_U/range/ctx_lr+fb}{0.739--0.743}
-\setval{P/L_U/range/V6-prior}{0.749--0.840}
-\setval{P/L/range/V6}{0.785--0.826}
-\setval{P/L/range/ctx_lr}{0.760--0.816}
-\setval{P/L/range/ctx_lr+fb}{0.773--0.781}
-\setval{P/L/range/V6-prior}{0.750--0.882}
-\setval{P/derived/L_U/nagents}{two}
-\setval{P/derived/L_U/npos/V6 - V6-prior}{0 of 2}
-\setval{P/derived/L_U/nneg/V6 - V6-prior}{0 of 2}
-\setval{P/derived/L_U/ns_agents/V6 - V6-prior}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed)}
-\setval{P/derived/L_U/npos/V6 - ctx_lr}{1 of 2}
-\setval{P/derived/L_U/nneg/V6 - ctx_lr}{0 of 2}
-\setval{P/derived/L_U/ns_agents/V6 - ctx_lr}{70B LLM-patient v1 pilot (profile)}
-\setval{P/derived/L_U/npos/V6 - ctx_lr+fb}{1 of 2}
-\setval{P/derived/L_U/nneg/V6 - ctx_lr+fb}{0 of 2}
-\setval{P/derived/L_U/ns_agents/V6 - ctx_lr+fb}{70B LLM-patient v1 pilot (profile)}
-\setval{P/derived/L_U/npos/V6 - highconf_contradicted}{2 of 2}
-\setval{P/derived/L_U/nneg/V6 - highconf_contradicted}{0 of 2}
-\setval{P/derived/L_U/ns_agents/V6 - highconf_contradicted}{none}
-\setval{P/derived/L_U/npos/V6 - V3}{0 of 2}
-\setval{P/derived/L_U/nneg/V6 - V3}{0 of 2}
-\setval{P/derived/L_U/ns_agents/V6 - V3}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed)}
-\setval{P/derived/L_U/npos/ctx_lr+fb - ctx_lr}{0 of 2}
-\setval{P/derived/L_U/nneg/ctx_lr+fb - ctx_lr}{0 of 2}
-\setval{P/derived/L_U/ns_agents/ctx_lr+fb - ctx_lr}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed)}
-\setval{P/derived/L/nagents}{two}
-\setval{P/derived/L/npos/V6 - V6-prior}{0 of 2}
-\setval{P/derived/L/nneg/V6 - V6-prior}{0 of 2}
-\setval{P/derived/L/ns_agents/V6 - V6-prior}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed)}
-\setval{P/derived/L/npos/V6 - ctx_lr}{0 of 2}
-\setval{P/derived/L/nneg/V6 - ctx_lr}{0 of 2}
-\setval{P/derived/L/ns_agents/V6 - ctx_lr}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed)}
-\setval{P/derived/L/npos/V6 - ctx_lr+fb}{0 of 2}
-\setval{P/derived/L/nneg/V6 - ctx_lr+fb}{0 of 2}
-\setval{P/derived/L/ns_agents/V6 - ctx_lr+fb}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed)}
-\setval{P/derived/L/npos/V6 - highconf_contradicted}{2 of 2}
-\setval{P/derived/L/nneg/V6 - highconf_contradicted}{0 of 2}
-\setval{P/derived/L/ns_agents/V6 - highconf_contradicted}{none}
-\setval{P/derived/L/npos/V6 - V3}{1 of 2}
-\setval{P/derived/L/nneg/V6 - V3}{0 of 2}
-\setval{P/derived/L/ns_agents/V6 - V3}{70B LLM-patient v1 pilot (informed)}
-\setval{P/derived/L/npos/ctx_lr+fb - ctx_lr}{0 of 2}
-\setval{P/derived/L/nneg/ctx_lr+fb - ctx_lr}{0 of 2}
-\setval{P/derived/L/ns_agents/ctx_lr+fb - ctx_lr}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed)}
+\setval{P/L_U/range/ctx_lr+fb}{0.725--0.743}
+\setval{P/L_U/range/V6-prior}{0.525--0.840}
+\setval{P/L/range/V6}{0.743--0.826}
+\setval{P/L/range/ctx_lr}{0.717--0.816}
+\setval{P/L/range/ctx_lr+fb}{0.688--0.781}
+\setval{P/L/range/V6-prior}{0.729--0.882}
+\setval{P/derived/L_U/nagents}{four}
+\setval{P/derived/L_U/npos/V6 - V6-prior}{1 of 4}
+\setval{P/derived/L_U/nneg/V6 - V6-prior}{0 of 4}
+\setval{P/derived/L_U/ns_agents/V6 - V6-prior}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L_U/npos/V6 - ctx_lr}{1 of 4}
+\setval{P/derived/L_U/nneg/V6 - ctx_lr}{1 of 4}
+\setval{P/derived/L_U/ns_agents/V6 - ctx_lr}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L_U/npos/V6 - ctx_lr+fb}{1 of 4}
+\setval{P/derived/L_U/nneg/V6 - ctx_lr+fb}{1 of 4}
+\setval{P/derived/L_U/ns_agents/V6 - ctx_lr+fb}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L_U/npos/V6 - highconf_contradicted}{3 of 4}
+\setval{P/derived/L_U/nneg/V6 - highconf_contradicted}{0 of 4}
+\setval{P/derived/L_U/ns_agents/V6 - highconf_contradicted}{70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L_U/npos/V6 - V3}{0 of 4}
+\setval{P/derived/L_U/nneg/V6 - V3}{0 of 4}
+\setval{P/derived/L_U/ns_agents/V6 - V3}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 (profile), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L_U/npos/ctx_lr+fb - ctx_lr}{0 of 4}
+\setval{P/derived/L_U/nneg/ctx_lr+fb - ctx_lr}{0 of 4}
+\setval{P/derived/L_U/ns_agents/ctx_lr+fb - ctx_lr}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 (profile), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L/nagents}{four}
+\setval{P/derived/L/npos/V6 - V6-prior}{0 of 4}
+\setval{P/derived/L/nneg/V6 - V6-prior}{0 of 4}
+\setval{P/derived/L/ns_agents/V6 - V6-prior}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 (profile), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L/npos/V6 - ctx_lr}{0 of 4}
+\setval{P/derived/L/nneg/V6 - ctx_lr}{0 of 4}
+\setval{P/derived/L/ns_agents/V6 - ctx_lr}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 (profile), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L/npos/V6 - ctx_lr+fb}{0 of 4}
+\setval{P/derived/L/nneg/V6 - ctx_lr+fb}{0 of 4}
+\setval{P/derived/L/ns_agents/V6 - ctx_lr+fb}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 (profile), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L/npos/V6 - highconf_contradicted}{3 of 4}
+\setval{P/derived/L/nneg/V6 - highconf_contradicted}{0 of 4}
+\setval{P/derived/L/ns_agents/V6 - highconf_contradicted}{70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L/npos/V6 - V3}{1 of 4}
+\setval{P/derived/L/nneg/V6 - V3}{1 of 4}
+\setval{P/derived/L/ns_agents/V6 - V3}{70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 pilot (profile)}
+\setval{P/derived/L/npos/ctx_lr+fb - ctx_lr}{0 of 4}
+\setval{P/derived/L/nneg/ctx_lr+fb - ctx_lr}{1 of 4}
+\setval{P/derived/L/ns_agents/ctx_lr+fb - ctx_lr}{70B LLM-patient v1 pilot (profile), 70B LLM-patient v1 pilot (informed), 70B LLM-patient v2 pilot (profile)}
 \setval{P/CH/patv1/P(-1|r)}{0.79}
 \setval{P/CH/patv1/P(0|r)}{0.16}
 \setval{P/CH/patv1/P(1|r)}{0.05}
@@ -2424,6 +2797,24 @@
 \setval{P/CH/patv1inf/lift}{1.21}
 \setval{P/CH/patv1inf/n_wrong}{318}
 \setval{P/CH/patv1inf/n_right}{499}
+\setval{P/CH/patv2/P(-1|r)}{0.04}
+\setval{P/CH/patv2/P(0|r)}{0.42}
+\setval{P/CH/patv2/P(1|r)}{0.54}
+\setval{P/CH/patv2/P(-1|w)}{0.15}
+\setval{P/CH/patv2/P(0|w)}{0.63}
+\setval{P/CH/patv2/P(1|w)}{0.22}
+\setval{P/CH/patv2/lift}{3.53}
+\setval{P/CH/patv2/n_wrong}{1766}
+\setval{P/CH/patv2/n_right}{3173}
+\setval{P/CH/patv2pilot/P(-1|r)}{0.06}
+\setval{P/CH/patv2pilot/P(0|r)}{0.40}
+\setval{P/CH/patv2pilot/P(1|r)}{0.54}
+\setval{P/CH/patv2pilot/P(-1|w)}{0.15}
+\setval{P/CH/patv2pilot/P(0|w)}{0.59}
+\setval{P/CH/patv2pilot/P(1|w)}{0.26}
+\setval{P/CH/patv2pilot/lift}{2.69}
+\setval{P/CH/patv2pilot/n_wrong}{275}
+\setval{P/CH/patv2pilot/n_right}{542}
 \setval{D/N/70B/n}{600}
 \setval{D/N/70B/L}{25.0}
 \setval{D/N/70B/LU}{41.3}
@@ -2989,6 +3380,21 @@
 \setval{s:V/hc/L/pooled/--: AUROC(V7)}{0.924}
 \setval{pt:V/hc/L/pooled/--: AUROC(intake_lr+fb)}{0.896}
 \setval{s:V/hc/L/pooled/--: AUROC(intake_lr+fb)}{0.896}
+\setval{pt:V/tr/L_U/gpt/V7 - V6}{+.063}
+\setval{s:V/tr/L_U/gpt/V7 - V6}{+.063$^{*}$}
+\setval{pa:V/tr/L_U/gpt/V7 - V6}{0.063}
+\setval{pt:V/tr/L_U/gpt/V7 - intake_lr+fb}{+.067}
+\setval{s:V/tr/L_U/gpt/V7 - intake_lr+fb}{+.067$^{*}$}
+\setval{pa:V/tr/L_U/gpt/V7 - intake_lr+fb}{0.067}
+\setval{pt:V/tr/L_U/gpt/V7 - ctx_lr+fb}{+.091}
+\setval{s:V/tr/L_U/gpt/V7 - ctx_lr+fb}{+.091$^{*}$}
+\setval{pa:V/tr/L_U/gpt/V7 - ctx_lr+fb}{0.091}
+\setval{pt:V/tr/L_U/gpt/V7 - SelfCheckGPT}{+.216}
+\setval{s:V/tr/L_U/gpt/V7 - SelfCheckGPT}{+.216$^{*}$}
+\setval{pa:V/tr/L_U/gpt/V7 - SelfCheckGPT}{0.216}
+\setval{pt:V/tr/L_U/gpt/V7 - semantic_entropy}{+.245}
+\setval{s:V/tr/L_U/gpt/V7 - semantic_entropy}{+.245$^{*}$}
+\setval{pa:V/tr/L_U/gpt/V7 - semantic_entropy}{0.245}
 \setval{pt:V/tr/L_U/8B/V7 - V6}{+.108}
 \setval{s:V/tr/L_U/8B/V7 - V6}{+.108$^{*}$}
 \setval{pa:V/tr/L_U/8B/V7 - V6}{0.108}
@@ -3004,6 +3410,40 @@
 \setval{pt:V/tr/L_U/8B/V7 - semantic_entropy}{+.392}
 \setval{s:V/tr/L_U/8B/V7 - semantic_entropy}{+.392$^{*}$}
 \setval{pa:V/tr/L_U/8B/V7 - semantic_entropy}{0.392}
+\setval{pt:V/tr/L_U/pooled/H7: V7 - V6}{+.091}
+\setval{s:V/tr/L_U/pooled/H7: V7 - V6}{+.091$^{*}$}
+\setval{pa:V/tr/L_U/pooled/H7: V7 - V6}{0.091}
+\setval{pt:V/tr/L_U/pooled/H8: V7 - intake_lr+fb}{+.050}
+\setval{s:V/tr/L_U/pooled/H8: V7 - intake_lr+fb}{+.050$^{*}$}
+\setval{pa:V/tr/L_U/pooled/H8: V7 - intake_lr+fb}{0.050}
+\setval{pt:V/tr/L_U/pooled/H8': V7 - ctx_lr+fb}{+.089}
+\setval{s:V/tr/L_U/pooled/H8': V7 - ctx_lr+fb}{+.089$^{*}$}
+\setval{pa:V/tr/L_U/pooled/H8': V7 - ctx_lr+fb}{0.089}
+\setval{pt:V/tr/L_U/pooled/--: V7 - SelfCheckGPT}{+.249}
+\setval{s:V/tr/L_U/pooled/--: V7 - SelfCheckGPT}{+.249$^{*}$}
+\setval{pa:V/tr/L_U/pooled/--: V7 - SelfCheckGPT}{0.249}
+\setval{pt:V/tr/L_U/pooled/--: V7 - semantic_entropy}{+.323}
+\setval{s:V/tr/L_U/pooled/--: V7 - semantic_entropy}{+.323$^{*}$}
+\setval{pa:V/tr/L_U/pooled/--: V7 - semantic_entropy}{0.323}
+\setval{pt:V/tr/L_U/pooled/--: AUROC(V7)}{0.830}
+\setval{s:V/tr/L_U/pooled/--: AUROC(V7)}{0.830}
+\setval{pt:V/tr/L_U/pooled/--: AUROC(intake_lr+fb)}{0.781}
+\setval{s:V/tr/L_U/pooled/--: AUROC(intake_lr+fb)}{0.781}
+\setval{pt:V/tr/L/gpt/V7 - V6}{+.078}
+\setval{s:V/tr/L/gpt/V7 - V6}{+.078$^{*}$}
+\setval{pa:V/tr/L/gpt/V7 - V6}{0.078}
+\setval{pt:V/tr/L/gpt/V7 - intake_lr+fb}{+.073}
+\setval{s:V/tr/L/gpt/V7 - intake_lr+fb}{+.073$^{*}$}
+\setval{pa:V/tr/L/gpt/V7 - intake_lr+fb}{0.073}
+\setval{pt:V/tr/L/gpt/V7 - ctx_lr+fb}{+.123}
+\setval{s:V/tr/L/gpt/V7 - ctx_lr+fb}{+.123$^{*}$}
+\setval{pa:V/tr/L/gpt/V7 - ctx_lr+fb}{0.123}
+\setval{pt:V/tr/L/gpt/V7 - SelfCheckGPT}{+.294}
+\setval{s:V/tr/L/gpt/V7 - SelfCheckGPT}{+.294$^{*}$}
+\setval{pa:V/tr/L/gpt/V7 - SelfCheckGPT}{0.294}
+\setval{pt:V/tr/L/gpt/V7 - semantic_entropy}{+.466}
+\setval{s:V/tr/L/gpt/V7 - semantic_entropy}{+.466$^{*}$}
+\setval{pa:V/tr/L/gpt/V7 - semantic_entropy}{0.466}
 \setval{pt:V/tr/L/8B/V7 - V6}{+.110}
 \setval{s:V/tr/L/8B/V7 - V6}{+.110$^{*}$}
 \setval{pa:V/tr/L/8B/V7 - V6}{0.110}
@@ -3019,6 +3459,25 @@
 \setval{pt:V/tr/L/8B/V7 - semantic_entropy}{+.285}
 \setval{s:V/tr/L/8B/V7 - semantic_entropy}{+.285$^{*}$}
 \setval{pa:V/tr/L/8B/V7 - semantic_entropy}{0.285}
+\setval{pt:V/tr/L/pooled/H7: V7 - V6}{+.092}
+\setval{s:V/tr/L/pooled/H7: V7 - V6}{+.092$^{*}$}
+\setval{pa:V/tr/L/pooled/H7: V7 - V6}{0.092}
+\setval{pt:V/tr/L/pooled/H8: V7 - intake_lr+fb}{+.041}
+\setval{s:V/tr/L/pooled/H8: V7 - intake_lr+fb}{+.041$^{*}$}
+\setval{pa:V/tr/L/pooled/H8: V7 - intake_lr+fb}{0.041}
+\setval{pt:V/tr/L/pooled/H8': V7 - ctx_lr+fb}{+.122}
+\setval{s:V/tr/L/pooled/H8': V7 - ctx_lr+fb}{+.122$^{*}$}
+\setval{pa:V/tr/L/pooled/H8': V7 - ctx_lr+fb}{0.122}
+\setval{pt:V/tr/L/pooled/--: V7 - SelfCheckGPT}{+.252}
+\setval{s:V/tr/L/pooled/--: V7 - SelfCheckGPT}{+.252$^{*}$}
+\setval{pa:V/tr/L/pooled/--: V7 - SelfCheckGPT}{0.252}
+\setval{pt:V/tr/L/pooled/--: V7 - semantic_entropy}{+.378}
+\setval{s:V/tr/L/pooled/--: V7 - semantic_entropy}{+.378$^{*}$}
+\setval{pa:V/tr/L/pooled/--: V7 - semantic_entropy}{0.378}
+\setval{pt:V/tr/L/pooled/--: AUROC(V7)}{0.927}
+\setval{s:V/tr/L/pooled/--: AUROC(V7)}{0.927}
+\setval{pt:V/tr/L/pooled/--: AUROC(intake_lr+fb)}{0.886}
+\setval{s:V/tr/L/pooled/--: AUROC(intake_lr+fb)}{0.886}
 \setval{pt:PC/user_dependent/70B/auroc_V7}{0.834}
 \setval{s:PC/user_dependent/70B/auroc_V7}{0.834}
 \setval{pt:PC/user_dependent/70B/auroc_V6}{0.827}
@@ -3349,6 +3808,18 @@
 \setval{pt:PV/L/V7 - ctx_lr+fb}{$-$.001}
 \setval{s:PV/L/V7 - ctx_lr+fb}{$-$.001}
 \setval{pa:PV/L/V7 - ctx_lr+fb}{0.001}
+\setval{pt:JD/L_U/70B/V7 - llm_judge}{+.257}
+\setval{s:JD/L_U/70B/V7 - llm_judge}{+.257$^{*}$}
+\setval{pa:JD/L_U/70B/V7 - llm_judge}{0.257}
+\setval{pt:JD/L_U/70B/V7 - intake_lr+fb}{+.160}
+\setval{s:JD/L_U/70B/V7 - intake_lr+fb}{+.160$^{*}$}
+\setval{pa:JD/L_U/70B/V7 - intake_lr+fb}{0.160}
+\setval{pt:JD/L_U/70B/V7 - SelfCheckGPT}{+.408}
+\setval{s:JD/L_U/70B/V7 - SelfCheckGPT}{+.408$^{*}$}
+\setval{pa:JD/L_U/70B/V7 - SelfCheckGPT}{0.408}
+\setval{pt:JD/L_U/70B/llm_judge - SelfCheckGPT}{+.151}
+\setval{s:JD/L_U/70B/llm_judge - SelfCheckGPT}{+.151$^{*}$}
+\setval{pa:JD/L_U/70B/llm_judge - SelfCheckGPT}{0.151}
 \setval{pt:JD/L_U/8B/V7 - llm_judge}{+.275}
 \setval{s:JD/L_U/8B/V7 - llm_judge}{+.275$^{*}$}
 \setval{pa:JD/L_U/8B/V7 - llm_judge}{0.275}
@@ -3397,14 +3868,26 @@
 \setval{pt:JD/L_U/mistral/llm_judge - SelfCheckGPT}{+.108}
 \setval{s:JD/L_U/mistral/llm_judge - SelfCheckGPT}{+.108$^{*}$}
 \setval{pa:JD/L_U/mistral/llm_judge - SelfCheckGPT}{0.108}
-\setval{pt:JD/L_U/pooled/V7 - llm_judge}{+.182}
-\setval{s:JD/L_U/pooled/V7 - llm_judge}{+.182$^{*}$}
-\setval{pa:JD/L_U/pooled/V7 - llm_judge}{0.182}
-\setval{pt:JD/L_U/pooled/llm_judge - SelfCheckGPT}{+.058}
-\setval{s:JD/L_U/pooled/llm_judge - SelfCheckGPT}{+.058$^{*}$}
-\setval{pa:JD/L_U/pooled/llm_judge - SelfCheckGPT}{0.058}
-\setval{pt:JD/L_U/pooled/AUROC(llm_judge)}{0.624}
-\setval{s:JD/L_U/pooled/AUROC(llm_judge)}{0.624}
+\setval{pt:JD/L_U/pooled/V7 - llm_judge}{+.197}
+\setval{s:JD/L_U/pooled/V7 - llm_judge}{+.197$^{*}$}
+\setval{pa:JD/L_U/pooled/V7 - llm_judge}{0.197}
+\setval{pt:JD/L_U/pooled/llm_judge - SelfCheckGPT}{+.077}
+\setval{s:JD/L_U/pooled/llm_judge - SelfCheckGPT}{+.077$^{*}$}
+\setval{pa:JD/L_U/pooled/llm_judge - SelfCheckGPT}{0.077}
+\setval{pt:JD/L_U/pooled/AUROC(llm_judge)}{0.628}
+\setval{s:JD/L_U/pooled/AUROC(llm_judge)}{0.628}
+\setval{pt:JD/L/70B/V7 - llm_judge}{+.267}
+\setval{s:JD/L/70B/V7 - llm_judge}{+.267$^{*}$}
+\setval{pa:JD/L/70B/V7 - llm_judge}{0.267}
+\setval{pt:JD/L/70B/V7 - intake_lr+fb}{+.047}
+\setval{s:JD/L/70B/V7 - intake_lr+fb}{+.047$^{*}$}
+\setval{pa:JD/L/70B/V7 - intake_lr+fb}{0.047}
+\setval{pt:JD/L/70B/V7 - SelfCheckGPT}{+.396}
+\setval{s:JD/L/70B/V7 - SelfCheckGPT}{+.396$^{*}$}
+\setval{pa:JD/L/70B/V7 - SelfCheckGPT}{0.396}
+\setval{pt:JD/L/70B/llm_judge - SelfCheckGPT}{+.129}
+\setval{s:JD/L/70B/llm_judge - SelfCheckGPT}{+.129$^{*}$}
+\setval{pa:JD/L/70B/llm_judge - SelfCheckGPT}{0.129}
 \setval{pt:JD/L/8B/V7 - llm_judge}{+.286}
 \setval{s:JD/L/8B/V7 - llm_judge}{+.286$^{*}$}
 \setval{pa:JD/L/8B/V7 - llm_judge}{0.286}
@@ -3453,14 +3936,14 @@
 \setval{pt:JD/L/mistral/llm_judge - SelfCheckGPT}{+.030}
 \setval{s:JD/L/mistral/llm_judge - SelfCheckGPT}{+.030}
 \setval{pa:JD/L/mistral/llm_judge - SelfCheckGPT}{0.030}
-\setval{pt:JD/L/pooled/V7 - llm_judge}{+.243}
-\setval{s:JD/L/pooled/V7 - llm_judge}{+.243$^{*}$}
-\setval{pa:JD/L/pooled/V7 - llm_judge}{0.243}
-\setval{pt:JD/L/pooled/llm_judge - SelfCheckGPT}{+.007}
-\setval{s:JD/L/pooled/llm_judge - SelfCheckGPT}{+.007}
-\setval{pa:JD/L/pooled/llm_judge - SelfCheckGPT}{0.007}
-\setval{pt:JD/L/pooled/AUROC(llm_judge)}{0.683}
-\setval{s:JD/L/pooled/AUROC(llm_judge)}{0.683}
+\setval{pt:JD/L/pooled/V7 - llm_judge}{+.247}
+\setval{s:JD/L/pooled/V7 - llm_judge}{+.247$^{*}$}
+\setval{pa:JD/L/pooled/V7 - llm_judge}{0.247}
+\setval{pt:JD/L/pooled/llm_judge - SelfCheckGPT}{+.031}
+\setval{s:JD/L/pooled/llm_judge - SelfCheckGPT}{+.031}
+\setval{pa:JD/L/pooled/llm_judge - SelfCheckGPT}{0.031}
+\setval{pt:JD/L/pooled/AUROC(llm_judge)}{0.676}
+\setval{s:JD/L/pooled/AUROC(llm_judge)}{0.676}
 \setval{pt:J/L_U/H1: AUROC(SelfCheckGPT)}{0.551}
 \setval{s:J/L_U/H1: AUROC(SelfCheckGPT)}{0.551}
 \setval{pt:J/L_U/H1: AUROC(semantic_entropy)}{0.495}
@@ -3633,6 +4116,9 @@
 \setval{pt:C/L_U/70B/ctx_lr+fb - ctx_lr}{+.070}
 \setval{s:C/L_U/70B/ctx_lr+fb - ctx_lr}{+.070$^{*}$}
 \setval{pa:C/L_U/70B/ctx_lr+fb - ctx_lr}{0.070}
+\setval{pt:C/L_U/70B/V6 - cove}{+.183}
+\setval{s:C/L_U/70B/V6 - cove}{+.183$^{*}$}
+\setval{pa:C/L_U/70B/V6 - cove}{0.183}
 \setval{pt:C/L_U/8B/V6 - V6-prior}{+.079}
 \setval{s:C/L_U/8B/V6 - V6-prior}{+.079$^{*}$}
 \setval{pa:C/L_U/8B/V6 - V6-prior}{0.079}
@@ -3784,6 +4270,9 @@
 \setval{pt:C/L/70B/ctx_lr+fb - ctx_lr}{+.013}
 \setval{s:C/L/70B/ctx_lr+fb - ctx_lr}{+.013}
 \setval{pa:C/L/70B/ctx_lr+fb - ctx_lr}{0.013}
+\setval{pt:C/L/70B/V6 - cove}{+.257}
+\setval{s:C/L/70B/V6 - cove}{+.257$^{*}$}
+\setval{pa:C/L/70B/V6 - cove}{0.257}
 \setval{pt:C/L/8B/V6 - V6-prior}{+.113}
 \setval{s:C/L/8B/V6 - V6-prior}{+.113$^{*}$}
 \setval{pa:C/L/8B/V6 - V6-prior}{0.113}
@@ -3998,6 +4487,30 @@
 \setval{pt:C/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.001}
 \setval{s:C/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.001}
 \setval{pa:C/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{0.001}
+\setval{pt:T/L_U/gpt/V6 - V6-prior}{+.082}
+\setval{s:T/L_U/gpt/V6 - V6-prior}{+.082$^{*}$}
+\setval{pa:T/L_U/gpt/V6 - V6-prior}{0.082}
+\setval{pt:T/L_U/gpt/V6 - ctx_lr}{+.084}
+\setval{s:T/L_U/gpt/V6 - ctx_lr}{+.084$^{*}$}
+\setval{pa:T/L_U/gpt/V6 - ctx_lr}{0.084}
+\setval{pt:T/L_U/gpt/V6 - ctx_lr+fb}{+.028}
+\setval{s:T/L_U/gpt/V6 - ctx_lr+fb}{+.028}
+\setval{pa:T/L_U/gpt/V6 - ctx_lr+fb}{0.028}
+\setval{pt:T/L_U/gpt/V6 - SelfCheckGPT}{+.153}
+\setval{s:T/L_U/gpt/V6 - SelfCheckGPT}{+.153$^{*}$}
+\setval{pa:T/L_U/gpt/V6 - SelfCheckGPT}{0.153}
+\setval{pt:T/L_U/gpt/V6 - semantic_entropy}{+.182}
+\setval{s:T/L_U/gpt/V6 - semantic_entropy}{+.182$^{*}$}
+\setval{pa:T/L_U/gpt/V6 - semantic_entropy}{0.182}
+\setval{pt:T/L_U/gpt/V6 - highconf_contradicted}{+.056}
+\setval{s:T/L_U/gpt/V6 - highconf_contradicted}{+.056}
+\setval{pa:T/L_U/gpt/V6 - highconf_contradicted}{0.056}
+\setval{pt:T/L_U/gpt/V6 - V3}{+.002}
+\setval{s:T/L_U/gpt/V6 - V3}{+.002}
+\setval{pa:T/L_U/gpt/V6 - V3}{0.002}
+\setval{pt:T/L_U/gpt/ctx_lr+fb - ctx_lr}{+.056}
+\setval{s:T/L_U/gpt/ctx_lr+fb - ctx_lr}{+.056}
+\setval{pa:T/L_U/gpt/ctx_lr+fb - ctx_lr}{0.056}
 \setval{pt:T/L_U/8B/V6 - V6-prior}{+.084}
 \setval{s:T/L_U/8B/V6 - V6-prior}{+.084$^{*}$}
 \setval{pa:T/L_U/8B/V6 - V6-prior}{0.084}
@@ -4022,6 +4535,61 @@
 \setval{pt:T/L_U/8B/ctx_lr+fb - ctx_lr}{+.039}
 \setval{s:T/L_U/8B/ctx_lr+fb - ctx_lr}{+.039}
 \setval{pa:T/L_U/8B/ctx_lr+fb - ctx_lr}{0.039}
+\setval{pt:T/L_U/pooled/H1: AUROC(SelfCheckGPT)}{0.582}
+\setval{s:T/L_U/pooled/H1: AUROC(SelfCheckGPT)}{0.582}
+\setval{pt:T/L_U/pooled/H1: AUROC(semantic_entropy)}{0.507}
+\setval{s:T/L_U/pooled/H1: AUROC(semantic_entropy)}{0.507}
+\setval{pt:T/L_U/pooled/H2: V6 - V6-prior}{+.079}
+\setval{s:T/L_U/pooled/H2: V6 - V6-prior}{+.079$^{*}$}
+\setval{pa:T/L_U/pooled/H2: V6 - V6-prior}{0.079}
+\setval{pt:T/L_U/pooled/H3: V6 - ctx_lr}{+.043}
+\setval{s:T/L_U/pooled/H3: V6 - ctx_lr}{+.043}
+\setval{pa:T/L_U/pooled/H3: V6 - ctx_lr}{0.043}
+\setval{pt:T/L_U/pooled/H4: V6 - SelfCheckGPT}{+.157}
+\setval{s:T/L_U/pooled/H4: V6 - SelfCheckGPT}{+.157$^{*}$}
+\setval{pa:T/L_U/pooled/H4: V6 - SelfCheckGPT}{0.157}
+\setval{pt:T/L_U/pooled/H4: V6 - semantic_entropy}{+.232}
+\setval{s:T/L_U/pooled/H4: V6 - semantic_entropy}{+.232$^{*}$}
+\setval{pa:T/L_U/pooled/H4: V6 - semantic_entropy}{0.232}
+\setval{pt:T/L_U/pooled/H2b: ctx_lr+fb - ctx_lr}{+.045}
+\setval{s:T/L_U/pooled/H2b: ctx_lr+fb - ctx_lr}{+.045$^{*}$}
+\setval{pa:T/L_U/pooled/H2b: ctx_lr+fb - ctx_lr}{0.045}
+\setval{pt:T/L_U/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{+.159}
+\setval{s:T/L_U/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{+.159$^{*}$}
+\setval{pa:T/L_U/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{0.159}
+\setval{pt:T/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy}{+.234}
+\setval{s:T/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy}{+.234$^{*}$}
+\setval{pa:T/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy}{0.234}
+\setval{pt:T/L_U/pooled/sec.: V6 - ctx_lr+fb}{$-$.002}
+\setval{s:T/L_U/pooled/sec.: V6 - ctx_lr+fb}{$-$.002}
+\setval{pa:T/L_U/pooled/sec.: V6 - ctx_lr+fb}{0.002}
+\setval{pt:T/L_U/pooled/sec.: V6 - V3}{+.001}
+\setval{s:T/L_U/pooled/sec.: V6 - V3}{+.001}
+\setval{pa:T/L_U/pooled/sec.: V6 - V3}{0.001}
+\setval{pt:T/L/gpt/V6 - V6-prior}{+.074}
+\setval{s:T/L/gpt/V6 - V6-prior}{+.074$^{*}$}
+\setval{pa:T/L/gpt/V6 - V6-prior}{0.074}
+\setval{pt:T/L/gpt/V6 - ctx_lr}{+.110}
+\setval{s:T/L/gpt/V6 - ctx_lr}{+.110$^{*}$}
+\setval{pa:T/L/gpt/V6 - ctx_lr}{0.110}
+\setval{pt:T/L/gpt/V6 - ctx_lr+fb}{+.045}
+\setval{s:T/L/gpt/V6 - ctx_lr+fb}{+.045}
+\setval{pa:T/L/gpt/V6 - ctx_lr+fb}{0.045}
+\setval{pt:T/L/gpt/V6 - SelfCheckGPT}{+.216}
+\setval{s:T/L/gpt/V6 - SelfCheckGPT}{+.216$^{*}$}
+\setval{pa:T/L/gpt/V6 - SelfCheckGPT}{0.216}
+\setval{pt:T/L/gpt/V6 - semantic_entropy}{+.388}
+\setval{s:T/L/gpt/V6 - semantic_entropy}{+.388$^{*}$}
+\setval{pa:T/L/gpt/V6 - semantic_entropy}{0.388}
+\setval{pt:T/L/gpt/V6 - highconf_contradicted}{+.085}
+\setval{s:T/L/gpt/V6 - highconf_contradicted}{+.085$^{*}$}
+\setval{pa:T/L/gpt/V6 - highconf_contradicted}{0.085}
+\setval{pt:T/L/gpt/V6 - V3}{$-$.009}
+\setval{s:T/L/gpt/V6 - V3}{$-$.009$^{*}$}
+\setval{pa:T/L/gpt/V6 - V3}{0.009}
+\setval{pt:T/L/gpt/ctx_lr+fb - ctx_lr}{+.065}
+\setval{s:T/L/gpt/ctx_lr+fb - ctx_lr}{+.065$^{*}$}
+\setval{pa:T/L/gpt/ctx_lr+fb - ctx_lr}{0.065}
 \setval{pt:T/L/8B/V6 - V6-prior}{+.083}
 \setval{s:T/L/8B/V6 - V6-prior}{+.083$^{*}$}
 \setval{pa:T/L/8B/V6 - V6-prior}{0.083}
@@ -4046,6 +4614,52 @@
 \setval{pt:T/L/8B/ctx_lr+fb - ctx_lr}{+.047}
 \setval{s:T/L/8B/ctx_lr+fb - ctx_lr}{+.047$^{*}$}
 \setval{pa:T/L/8B/ctx_lr+fb - ctx_lr}{0.047}
+\setval{pt:T/L/pooled/H1: AUROC(SelfCheckGPT)}{0.676}
+\setval{s:T/L/pooled/H1: AUROC(SelfCheckGPT)}{0.676}
+\setval{pt:T/L/pooled/H1: AUROC(semantic_entropy)}{0.549}
+\setval{s:T/L/pooled/H1: AUROC(semantic_entropy)}{0.549}
+\setval{pt:T/L/pooled/H2: V6 - V6-prior}{+.078}
+\setval{s:T/L/pooled/H2: V6 - V6-prior}{+.078$^{*}$}
+\setval{pa:T/L/pooled/H2: V6 - V6-prior}{0.078}
+\setval{pt:T/L/pooled/H3: V6 - ctx_lr}{+.085}
+\setval{s:T/L/pooled/H3: V6 - ctx_lr}{+.085$^{*}$}
+\setval{pa:T/L/pooled/H3: V6 - ctx_lr}{0.085}
+\setval{pt:T/L/pooled/H4: V6 - SelfCheckGPT}{+.159}
+\setval{s:T/L/pooled/H4: V6 - SelfCheckGPT}{+.159$^{*}$}
+\setval{pa:T/L/pooled/H4: V6 - SelfCheckGPT}{0.159}
+\setval{pt:T/L/pooled/H4: V6 - semantic_entropy}{+.285}
+\setval{s:T/L/pooled/H4: V6 - semantic_entropy}{+.285$^{*}$}
+\setval{pa:T/L/pooled/H4: V6 - semantic_entropy}{0.285}
+\setval{pt:T/L/pooled/H2b: ctx_lr+fb - ctx_lr}{+.055}
+\setval{s:T/L/pooled/H2b: ctx_lr+fb - ctx_lr}{+.055$^{*}$}
+\setval{pa:T/L/pooled/H2b: ctx_lr+fb - ctx_lr}{0.055}
+\setval{pt:T/L/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{+.129}
+\setval{s:T/L/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{+.129$^{*}$}
+\setval{pa:T/L/pooled/H4b: ctx_lr+fb - SelfCheckGPT}{0.129}
+\setval{pt:T/L/pooled/H4b: ctx_lr+fb - semantic_entropy}{+.255}
+\setval{s:T/L/pooled/H4b: ctx_lr+fb - semantic_entropy}{+.255$^{*}$}
+\setval{pa:T/L/pooled/H4b: ctx_lr+fb - semantic_entropy}{0.255}
+\setval{pt:T/L/pooled/sec.: V6 - ctx_lr+fb}{+.030}
+\setval{s:T/L/pooled/sec.: V6 - ctx_lr+fb}{+.030}
+\setval{pa:T/L/pooled/sec.: V6 - ctx_lr+fb}{0.030}
+\setval{pt:T/L/pooled/sec.: V6 - V3}{$-$.003}
+\setval{s:T/L/pooled/sec.: V6 - V3}{$-$.003$^{*}$}
+\setval{pa:T/L/pooled/sec.: V6 - V3}{0.003}
+\setval{pt:T/RA/gpt/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.077}
+\setval{s:T/RA/gpt/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.077$^{*}$}
+\setval{pa:T/RA/gpt/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{0.077}
+\setval{pt:T/RA/gpt/etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.003}
+\setval{s:T/RA/gpt/etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.003}
+\setval{pa:T/RA/gpt/etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{0.003}
+\setval{pt:T/RA/gpt/V6-session - LR-session+fb}{+.028}
+\setval{s:T/RA/gpt/V6-session - LR-session+fb}{+.028}
+\setval{pa:T/RA/gpt/V6-session - LR-session+fb}{0.028}
+\setval{pt:T/RA/gpt/V6-session - eta0 (Bayes, no feedback)}{+.017}
+\setval{s:T/RA/gpt/V6-session - eta0 (Bayes, no feedback)}{+.017}
+\setval{pa:T/RA/gpt/V6-session - eta0 (Bayes, no feedback)}{0.017}
+\setval{pt:T/RA/gpt/LR-session+fb - LR-session}{+.115}
+\setval{s:T/RA/gpt/LR-session+fb - LR-session}{+.115$^{*}$}
+\setval{pa:T/RA/gpt/LR-session+fb - LR-session}{0.115}
 \setval{pt:T/RA/8B/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.021}
 \setval{s:T/RA/8B/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.021$^{*}$}
 \setval{pa:T/RA/8B/etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{0.021}
@@ -4061,6 +4675,18 @@
 \setval{pt:T/RA/8B/LR-session+fb - LR-session}{+.018}
 \setval{s:T/RA/8B/LR-session+fb - LR-session}{+.018}
 \setval{pa:T/RA/8B/LR-session+fb - LR-session}{0.018}
+\setval{pt:T/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.048}
+\setval{s:T/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{+.048$^{*}$}
+\setval{pa:T/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}{0.048}
+\setval{pt:T/RA/pooled/H6: V6-session - LR-session+fb}{+.010}
+\setval{s:T/RA/pooled/H6: V6-session - LR-session+fb}{+.010}
+\setval{pa:T/RA/pooled/H6: V6-session - LR-session+fb}{0.010}
+\setval{pt:T/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}{$-$.004}
+\setval{s:T/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}{$-$.004}
+\setval{pa:T/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}{0.004}
+\setval{pt:T/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.001}
+\setval{s:T/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{+.001}
+\setval{pa:T/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}{0.001}
 \setval{pt:P/L_U/patv1/V6 - V6-prior}{+.017}
 \setval{s:P/L_U/patv1/V6 - V6-prior}{+.017}
 \setval{pa:P/L_U/patv1/V6 - V6-prior}{0.017}
@@ -4097,6 +4723,42 @@
 \setval{pt:P/L_U/patv1inf/ctx_lr+fb - ctx_lr}{+.032}
 \setval{s:P/L_U/patv1inf/ctx_lr+fb - ctx_lr}{+.032}
 \setval{pa:P/L_U/patv1inf/ctx_lr+fb - ctx_lr}{0.032}
+\setval{pt:P/L_U/patv2/V6 - V6-prior}{+.051}
+\setval{s:P/L_U/patv2/V6 - V6-prior}{+.051$^{*}$}
+\setval{pa:P/L_U/patv2/V6 - V6-prior}{0.051}
+\setval{pt:P/L_U/patv2/V6 - ctx_lr}{$-$.081}
+\setval{s:P/L_U/patv2/V6 - ctx_lr}{$-$.081$^{*}$}
+\setval{pa:P/L_U/patv2/V6 - ctx_lr}{0.081}
+\setval{pt:P/L_U/patv2/V6 - ctx_lr+fb}{$-$.086}
+\setval{s:P/L_U/patv2/V6 - ctx_lr+fb}{$-$.086$^{*}$}
+\setval{pa:P/L_U/patv2/V6 - ctx_lr+fb}{0.086}
+\setval{pt:P/L_U/patv2/V6 - highconf_contradicted}{+.067}
+\setval{s:P/L_U/patv2/V6 - highconf_contradicted}{+.067$^{*}$}
+\setval{pa:P/L_U/patv2/V6 - highconf_contradicted}{0.067}
+\setval{pt:P/L_U/patv2/V6 - V3}{$-$.020}
+\setval{s:P/L_U/patv2/V6 - V3}{$-$.020}
+\setval{pa:P/L_U/patv2/V6 - V3}{0.020}
+\setval{pt:P/L_U/patv2/ctx_lr+fb - ctx_lr}{+.005}
+\setval{s:P/L_U/patv2/ctx_lr+fb - ctx_lr}{+.005}
+\setval{pa:P/L_U/patv2/ctx_lr+fb - ctx_lr}{0.005}
+\setval{pt:P/L_U/patv2pilot/V6 - V6-prior}{+.066}
+\setval{s:P/L_U/patv2pilot/V6 - V6-prior}{+.066}
+\setval{pa:P/L_U/patv2pilot/V6 - V6-prior}{0.066}
+\setval{pt:P/L_U/patv2pilot/V6 - ctx_lr}{$-$.090}
+\setval{s:P/L_U/patv2pilot/V6 - ctx_lr}{$-$.090}
+\setval{pa:P/L_U/patv2pilot/V6 - ctx_lr}{0.090}
+\setval{pt:P/L_U/patv2pilot/V6 - ctx_lr+fb}{$-$.102}
+\setval{s:P/L_U/patv2pilot/V6 - ctx_lr+fb}{$-$.102}
+\setval{pa:P/L_U/patv2pilot/V6 - ctx_lr+fb}{0.102}
+\setval{pt:P/L_U/patv2pilot/V6 - highconf_contradicted}{$-$.006}
+\setval{s:P/L_U/patv2pilot/V6 - highconf_contradicted}{$-$.006}
+\setval{pa:P/L_U/patv2pilot/V6 - highconf_contradicted}{0.006}
+\setval{pt:P/L_U/patv2pilot/V6 - V3}{$-$.003}
+\setval{s:P/L_U/patv2pilot/V6 - V3}{$-$.003}
+\setval{pa:P/L_U/patv2pilot/V6 - V3}{0.003}
+\setval{pt:P/L_U/patv2pilot/ctx_lr+fb - ctx_lr}{+.012}
+\setval{s:P/L_U/patv2pilot/ctx_lr+fb - ctx_lr}{+.012}
+\setval{pa:P/L_U/patv2pilot/ctx_lr+fb - ctx_lr}{0.012}
 \setval{pt:P/L/patv1/V6 - V6-prior}{$-$.049}
 \setval{s:P/L/patv1/V6 - V6-prior}{$-$.049}
 \setval{pa:P/L/patv1/V6 - V6-prior}{0.049}
@@ -4133,6 +4795,42 @@
 \setval{pt:P/L/patv1inf/ctx_lr+fb - ctx_lr}{+.016}
 \setval{s:P/L/patv1inf/ctx_lr+fb - ctx_lr}{+.016}
 \setval{pa:P/L/patv1inf/ctx_lr+fb - ctx_lr}{0.016}
+\setval{pt:P/L/patv2/V6 - V6-prior}{$-$.013}
+\setval{s:P/L/patv2/V6 - V6-prior}{$-$.013}
+\setval{pa:P/L/patv2/V6 - V6-prior}{0.013}
+\setval{pt:P/L/patv2/V6 - ctx_lr}{$-$.028}
+\setval{s:P/L/patv2/V6 - ctx_lr}{$-$.028}
+\setval{pa:P/L/patv2/V6 - ctx_lr}{0.028}
+\setval{pt:P/L/patv2/V6 - ctx_lr+fb}{+.011}
+\setval{s:P/L/patv2/V6 - ctx_lr+fb}{+.011}
+\setval{pa:P/L/patv2/V6 - ctx_lr+fb}{0.011}
+\setval{pt:P/L/patv2/V6 - highconf_contradicted}{+.118}
+\setval{s:P/L/patv2/V6 - highconf_contradicted}{+.118$^{*}$}
+\setval{pa:P/L/patv2/V6 - highconf_contradicted}{0.118}
+\setval{pt:P/L/patv2/V6 - V3}{$-$.021}
+\setval{s:P/L/patv2/V6 - V3}{$-$.021$^{*}$}
+\setval{pa:P/L/patv2/V6 - V3}{0.021}
+\setval{pt:P/L/patv2/ctx_lr+fb - ctx_lr}{$-$.038}
+\setval{s:P/L/patv2/ctx_lr+fb - ctx_lr}{$-$.038$^{*}$}
+\setval{pa:P/L/patv2/ctx_lr+fb - ctx_lr}{0.038}
+\setval{pt:P/L/patv2pilot/V6 - V6-prior}{+.077}
+\setval{s:P/L/patv2pilot/V6 - V6-prior}{+.077}
+\setval{pa:P/L/patv2pilot/V6 - V6-prior}{0.077}
+\setval{pt:P/L/patv2pilot/V6 - ctx_lr}{+.060}
+\setval{s:P/L/patv2pilot/V6 - ctx_lr}{+.060}
+\setval{pa:P/L/patv2pilot/V6 - ctx_lr}{0.060}
+\setval{pt:P/L/patv2pilot/V6 - ctx_lr+fb}{+.091}
+\setval{s:P/L/patv2pilot/V6 - ctx_lr+fb}{+.091}
+\setval{pa:P/L/patv2pilot/V6 - ctx_lr+fb}{0.091}
+\setval{pt:P/L/patv2pilot/V6 - highconf_contradicted}{+.090}
+\setval{s:P/L/patv2pilot/V6 - highconf_contradicted}{+.090}
+\setval{pa:P/L/patv2pilot/V6 - highconf_contradicted}{0.090}
+\setval{pt:P/L/patv2pilot/V6 - V3}{$-$.002}
+\setval{s:P/L/patv2pilot/V6 - V3}{$-$.002}
+\setval{pa:P/L/patv2pilot/V6 - V3}{0.002}
+\setval{pt:P/L/patv2pilot/ctx_lr+fb - ctx_lr}{$-$.031}
+\setval{s:P/L/patv2pilot/ctx_lr+fb - ctx_lr}{$-$.031}
+\setval{pa:P/L/patv2pilot/ctx_lr+fb - ctx_lr}{0.031}
 \setval{pt:P/RA/patv1/V6-session - LR-session+fb}{$-$.025}
 \setval{s:P/RA/patv1/V6-session - LR-session+fb}{$-$.025}
 \setval{pa:P/RA/patv1/V6-session - LR-session+fb}{0.025}
@@ -4151,6 +4849,24 @@
 \setval{pt:P/RA/patv1inf/LR-session+fb - LR-session}{+.002}
 \setval{s:P/RA/patv1inf/LR-session+fb - LR-session}{+.002}
 \setval{pa:P/RA/patv1inf/LR-session+fb - LR-session}{0.002}
+\setval{pt:P/RA/patv2/V6-session - LR-session+fb}{$-$.036}
+\setval{s:P/RA/patv2/V6-session - LR-session+fb}{$-$.036}
+\setval{pa:P/RA/patv2/V6-session - LR-session+fb}{0.036}
+\setval{pt:P/RA/patv2/V6-session - eta0 (Bayes, no feedback)}{$-$.065}
+\setval{s:P/RA/patv2/V6-session - eta0 (Bayes, no feedback)}{$-$.065$^{*}$}
+\setval{pa:P/RA/patv2/V6-session - eta0 (Bayes, no feedback)}{0.065}
+\setval{pt:P/RA/patv2/LR-session+fb - LR-session}{+.008}
+\setval{s:P/RA/patv2/LR-session+fb - LR-session}{+.008}
+\setval{pa:P/RA/patv2/LR-session+fb - LR-session}{0.008}
+\setval{pt:P/RA/patv2pilot/V6-session - LR-session+fb}{$-$.082}
+\setval{s:P/RA/patv2pilot/V6-session - LR-session+fb}{$-$.082}
+\setval{pa:P/RA/patv2pilot/V6-session - LR-session+fb}{0.082}
+\setval{pt:P/RA/patv2pilot/V6-session - eta0 (Bayes, no feedback)}{$-$.134}
+\setval{s:P/RA/patv2pilot/V6-session - eta0 (Bayes, no feedback)}{$-$.134$^{*}$}
+\setval{pa:P/RA/patv2pilot/V6-session - eta0 (Bayes, no feedback)}{0.134}
+\setval{pt:P/RA/patv2pilot/LR-session+fb - LR-session}{+.000}
+\setval{s:P/RA/patv2pilot/LR-session+fb - LR-session}{+.000}
+\setval{pa:P/RA/patv2pilot/LR-session+fb - LR-session}{0.000}
 \setval{pt:D/L_U/70B/V6 - V6-prior}{+.023}
 \setval{s:D/L_U/70B/V6 - V6-prior}{+.023}
 \setval{pa:D/L_U/70B/V6 - V6-prior}{0.023}
