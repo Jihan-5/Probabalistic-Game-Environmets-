@@ -2,7 +2,7 @@
 
 Dot plot, one row per agent, on a single AUROC axis. Series (fixed order and
 colours, never cycled): SelfCheckGPT (model only), ctx-LR+F and V6 (practical
-detectors on PGE observables), eta0 and etaF (exact Bayes references; oracle
+detectors on USHER observables), eta0 and etaF (exact Bayes references; oracle
 information). Reads results/e11_confirmatory/numbers.json (or dev_numbers.json
 with --dev). Writes figures/fig_ladder.pdf/.png.
 """
@@ -29,8 +29,8 @@ INK, MUTED, GRID = "#1f2328", "#59636e", "#d8dee4"
 SERIES = [  # (label, getter, colour, marker, filled)
     ("SelfCheckGPT", lambda t: N["L_U"][t]["auroc"].get("SelfCheckGPT"), "#6e7781", "o", True),
     ("ctx-LR+F", lambda t: N["L_U"][t]["auroc"].get("ctx_lr+fb"), "#eb6834", "s", True),
-    ("PGE posterior (V6)", lambda t: N["L_U"][t]["auroc"].get("V6"), "#a9b4c0", "D", True),
-    ("PGE posterior, intake-aware (V7)", lambda t: V7.get(t), "#2a78d6", "D", True),
+    ("USHER posterior (V6)", lambda t: N["L_U"][t]["auroc"].get("V6"), "#a9b4c0", "D", True),
+    ("USHER posterior, intake-aware (V7)", lambda t: V7.get(t), "#2a78d6", "D", True),
     ("V6-session (oracle event)", lambda t: N["rules_aware"][t].get("V6-session"), "#2a78d6", "D", False),
     (r"Population risk ($\bar\eta$)", lambda t: N["rules_aware"][t].get("eta0 (Bayes, no feedback)"), INK, "o", False),
     (r"Bayes, with reactions ($\eta_F$)", lambda t: N["rules_aware"][t].get("etaF (Bayes, feedback)"), INK, "o", True),

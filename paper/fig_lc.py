@@ -39,10 +39,10 @@ def curve(det, a):
 
 
 INK, MUTED, GRID = "#1f2328", "#59636e", "#d8dee4"
-SERIES = [("V7", "PGE posterior, intake-aware (V7)", "#2a78d6", "D", "-", 2.4),
+SERIES = [("V7", "USHER posterior, intake-aware (V7)", "#2a78d6", "D", "-", 2.4),
           ("intake_lr+fb", "intake-LR+F", "#1baf7a", "^", "--", 1.6),
           ("ctx_lr+fb", "ctx-LR+F", "#eb6834", "s", "-", 1.6),
-          ("V6", "PGE posterior (V6)", "#6e7781", "o", "-", 1.6)]
+          ("V6", "USHER posterior (V6)", "#6e7781", "o", "-", 1.6)]
 fig, ax = plt.subplots(figsize=(3.4, 2.6), dpi=200)
 for det, label, col, mk, ls, lw in SERIES:
     per = np.array([curve(det, a) for a in agents])
