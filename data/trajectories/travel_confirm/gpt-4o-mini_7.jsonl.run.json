@@ -1,0 +1,72 @@
+{
+  "script": "generate_healthcare_multimodel",
+  "domain": "travel_v1",
+  "args": {
+    "model": "gpt-4o-mini",
+    "provider": null,
+    "price_in": null,
+    "price_out": null,
+    "domain": "travel_v1",
+    "short_name": null,
+    "n": 600,
+    "protocol": "v2fb",
+    "seed": 7,
+    "resample_k": 3,
+    "resample_temperature": 0.9,
+    "epsilon": 0.25,
+    "max_parse_fail": 0.25,
+    "max_cost": 2.55,
+    "concurrency": 8,
+    "out": null,
+    "estimate_only": false,
+    "resume": true,
+    "mock": false,
+    "mock_malformed": 0.15,
+    "mock_seed": 0
+  },
+  "model": {
+    "short_name": "gpt-4o-mini",
+    "model_id": "openai/gpt-4o-mini",
+    "provider": "openrouter",
+    "price_in": 0.15,
+    "price_out": 0.6,
+    "price_status": "verify on provider site"
+  },
+  "complete": false,
+  "n_written": 599,
+  "parse_status_counts": {
+    "strict": 6006,
+    "retry1_strict": 1
+  },
+  "hall_rate": 0.2020033388981636,
+  "meter": {
+    "cost": 1.865035,
+    "max_cost": 2.55,
+    "tokens_in": 11220114,
+    "tokens_out": 283099,
+    "calls": 24094,
+    "usage_missing_calls": 56,
+    "tripped": false,
+    "stop_reason": "",
+    "by_role": {
+      "agent": {
+        "model": "openai/gpt-4o-mini",
+        "calls": 24094,
+        "tokens_in": 11220114,
+        "tokens_out": 283099,
+        "cost": 1.865035
+      }
+    }
+  },
+  "runner": {
+    "done": 599,
+    "failed": 1,
+    "budget_stopped": 0,
+    "cancelled": 0,
+    "errors": {
+      "ConnectionError": 1
+    },
+    "seconds": 10800.8
+  },
+  "hall_rate_user": 0.24540901502504173
+}

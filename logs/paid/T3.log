@@ -1,0 +1,127 @@
+[estimate] closed-loop clarification on 120 test sessions (split seed 42, protocol v2fb, picker v6) -> results/e8_closed_loop/70B_7  [anchor: e5_intervention $0.34/54 reruns]
+  detailed_questions (turns)   meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 1198 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.77
+  rerun_full (turns)           meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 1198 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.77
+  posterior@1 (turns)          meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 777 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.50
+  no_question@1 (turns)        meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 777 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.50
+  posterior@2 (turns)          meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 933 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.60
+  no_question@2 (turns)        meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 933 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.60
+  random@1 (turns)             meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 760 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.49
+  lowconf@1 (turns)            meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 1125 calls x (~700 in + ~26 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.72
+  TOTAL ~$4.92   hard cap --max-cost $5.20
+[preflight] ok: meta-llama/Llama-3.3-70B-Instruct-Turbo via together
+  progress 20/960 done=20 failed=0 cost=$0.078 (270s)
+  progress 40/960 done=40 failed=0 cost=$0.164 (2304s)
+  progress 60/960 done=60 failed=0 cost=$0.247 (2324s)
+  progress 80/960 done=80 failed=0 cost=$0.337 (2347s)
+  progress 100/960 done=100 failed=0 cost=$0.406 (2364s)
+  progress 120/960 done=120 failed=0 cost=$0.474 (2382s)
+  progress 140/960 done=140 failed=0 cost=$0.557 (2403s)
+  progress 160/960 done=160 failed=0 cost=$0.628 (2420s)
+  progress 180/960 done=180 failed=0 cost=$0.708 (2440s)
+  progress 200/960 done=200 failed=0 cost=$0.778 (2458s)
+  progress 220/960 done=220 failed=0 cost=$0.852 (2476s)
+  progress 240/960 done=240 failed=0 cost=$0.941 (2494s)
+  progress 260/960 done=260 failed=0 cost=$0.997 (2507s)
+  progress 280/960 done=280 failed=0 cost=$1.053 (2519s)
+  progress 300/960 done=300 failed=0 cost=$1.146 (2541s)
+  progress 320/960 done=320 failed=0 cost=$1.223 (2568s)
+  progress 340/960 done=340 failed=0 cost=$1.292 (2624s)
+  progress 360/960 done=360 failed=0 cost=$1.397 (2646s)
+  progress 380/960 done=380 failed=0 cost=$1.488 (2659s)
+  progress 400/960 done=400 failed=0 cost=$1.546 (2667s)
+  progress 420/960 done=420 failed=0 cost=$1.634 (2679s)
+  progress 440/960 done=440 failed=0 cost=$1.698 (2687s)
+  progress 460/960 done=460 failed=0 cost=$1.775 (2698s)
+  progress 480/960 done=480 failed=0 cost=$1.864 (2710s)
+  progress 500/960 done=500 failed=0 cost=$1.943 (2721s)
+  progress 520/960 done=520 failed=0 cost=$1.986 (2728s)
+  progress 540/960 done=540 failed=0 cost=$2.047 (2736s)
+  progress 560/960 done=560 failed=0 cost=$2.124 (2747s)
+  progress 580/960 done=580 failed=0 cost=$2.207 (2758s)
+  progress 600/960 done=600 failed=0 cost=$2.298 (2770s)
+  progress 620/960 done=620 failed=0 cost=$2.381 (2781s)
+  progress 640/960 done=640 failed=0 cost=$2.452 (2791s)
+  progress 660/960 done=660 failed=0 cost=$2.524 (2802s)
+  progress 680/960 done=680 failed=0 cost=$2.614 (2814s)
+  progress 700/960 done=700 failed=0 cost=$2.706 (2828s)
+  progress 720/960 done=720 failed=0 cost=$2.794 (2841s)
+  progress 740/960 done=740 failed=0 cost=$2.866 (2853s)
+  progress 760/960 done=760 failed=0 cost=$2.926 (2863s)
+  progress 780/960 done=780 failed=0 cost=$3.005 (2877s)
+  progress 800/960 done=800 failed=0 cost=$3.096 (2893s)
+  progress 820/960 done=820 failed=0 cost=$3.167 (2905s)
+  progress 840/960 done=840 failed=0 cost=$3.237 (2917s)
+  progress 860/960 done=860 failed=0 cost=$3.347 (2942s)
+  progress 880/960 done=880 failed=0 cost=$3.419 (2954s)
+  progress 900/960 done=900 failed=0 cost=$3.489 (2966s)
+  progress 920/960 done=920 failed=0 cost=$3.581 (2981s)
+  progress 940/960 done=940 failed=0 cost=$3.655 (2995s)
+  progress 960/960 done=960 failed=0 cost=$3.741 (3012s)
+# closed-loop clarification (paid, measured) — meta-llama/Llama-3.3-70B-Instruct-Turbo, cache data/trajectories/healthcare_confirm/70B_7.jsonl, test split seed 42 (120 sessions), protocol v2fb, picker v6, noise stream (seed, 7919, i), cost $3.741
+## outcome: composite label (eval_label_v2)
+paired sessions with every condition complete: 120
+
+condition            questions/sess hall. rate wrong conf/sess rerun turns     cost
+cached                         0.00      0.350           1.850           0    0.000
+detailed_questions             4.29      0.042           1.625        1198    0.653
+rerun_full                     0.00      0.275           1.883        1198    0.532
+posterior@1                    1.00      0.142           1.683         777    0.385
+no_question@1                  0.00      0.300           1.975         777    0.359
+posterior@2                    2.00      0.025           1.417         933    0.464
+no_question@2                  0.00      0.275           1.917         933    0.425
+random@1                       1.00      0.167           1.692         760    0.376
+lowconf@1                      1.00      0.150           1.833        1125    0.541
+
+## paired bootstrap over sessions (2000): A - B, negative = A better
+A                    B                                    d hall. rate            d wrong conf/sess
+posterior@1          no_question@1        -0.158 [-0.242, -0.083]     -0.292 [-0.467, -0.117]
+posterior@1          detailed_questions   +0.100 [+0.042, +0.158]     +0.058 [-0.158, +0.267]
+posterior@1          cached               -0.208 [-0.292, -0.125]     -0.167 [-0.358, +0.017]
+posterior@2          no_question@2        -0.250 [-0.333, -0.175]     -0.500 [-0.700, -0.300]
+posterior@2          detailed_questions   -0.017 [-0.050, +0.017]     -0.208 [-0.408, -0.017]
+posterior@2          cached               -0.325 [-0.408, -0.242]     -0.433 [-0.625, -0.233]
+detailed_questions   cached               -0.308 [-0.400, -0.225]     -0.225 [-0.433, -0.017]
+no_question@1        cached               -0.050 [-0.125, +0.025]     +0.125 [-0.042, +0.283]
+no_question@2        cached               -0.075 [-0.158, +0.000]     +0.067 [-0.100, +0.242]
+detailed_questions   rerun_full           -0.233 [-0.317, -0.158]     -0.258 [-0.483, -0.033]
+rerun_full           cached               -0.075 [-0.158, +0.008]     +0.033 [-0.167, +0.225]
+posterior@1          random@1             -0.025 [-0.083, +0.033]     -0.008 [-0.192, +0.167]
+random@1             cached               -0.183 [-0.258, -0.108]     -0.158 [-0.333, +0.017]
+posterior@1          lowconf@1            -0.008 [-0.075, +0.058]     -0.150 [-0.367, +0.050]
+lowconf@1            cached               -0.200 [-0.292, -0.108]     -0.017 [-0.217, +0.183]
+
+## outcome: user-specific label L_U (eval_label_user)
+paired sessions with every condition complete: 120
+
+condition            questions/sess hall. rate wrong conf/sess rerun turns     cost
+cached                         0.00      0.467           0.642           0    0.000
+detailed_questions             4.29      0.042           0.108        1198    0.653
+rerun_full                     0.00      0.483           0.617        1198    0.532
+posterior@1                    1.00      0.383           0.575         777    0.385
+no_question@1                  0.00      0.492           0.700         777    0.359
+posterior@2                    2.00      0.358           0.542         933    0.464
+no_question@2                  0.00      0.475           0.667         933    0.425
+random@1                       1.00      0.392           0.583         760    0.376
+lowconf@1                      1.00      0.458           0.650        1125    0.541
+
+## paired bootstrap over sessions (2000): A - B, negative = A better
+A                    B                                    d hall. rate            d wrong conf/sess
+posterior@1          no_question@1        -0.108 [-0.200, -0.016]     -0.125 [-0.242, +0.000]
+posterior@1          detailed_questions   +0.342 [+0.258, +0.425]     +0.467 [+0.358, +0.584]
+posterior@1          cached               -0.083 [-0.183, +0.025]     -0.067 [-0.200, +0.058]
+posterior@2          no_question@2        -0.117 [-0.217, -0.017]     -0.125 [-0.267, +0.025]
+posterior@2          detailed_questions   +0.317 [+0.233, +0.400]     +0.433 [+0.325, +0.550]
+posterior@2          cached               -0.108 [-0.209, +0.008]     -0.100 [-0.258, +0.058]
+detailed_questions   cached               -0.425 [-0.517, -0.333]     -0.533 [-0.675, -0.392]
+no_question@1        cached               +0.025 [-0.042, +0.092]     +0.058 [-0.033, +0.150]
+no_question@2        cached               +0.008 [-0.067, +0.075]     +0.025 [-0.075, +0.117]
+detailed_questions   rerun_full           -0.442 [-0.533, -0.350]     -0.508 [-0.650, -0.375]
+rerun_full           cached               +0.017 [-0.058, +0.092]     -0.025 [-0.142, +0.083]
+posterior@1          random@1             -0.008 [-0.100, +0.083]     -0.008 [-0.133, +0.117]
+random@1             cached               -0.075 [-0.150, +0.008]     -0.058 [-0.167, +0.050]
+posterior@1          lowconf@1            -0.075 [-0.150, +0.000]     -0.075 [-0.183, +0.025]
+lowconf@1            cached               -0.008 [-0.117, +0.092]     +0.008 [-0.125, +0.158]
+
+[parse] failed agent turns across reruns: 0
+[cost] $3.741 in=4140888 out=103447 calls=7710 (estimate $4.92); runner {'done': 960, 'failed': 0, 'budget_stopped': 0, 'cancelled': 0, 'errors': {}, 'seconds': 3012.2}
+[ledger] | 2026-10-20 | e8 closed-loop clarification (measured, 70B) | 120 test sessions (split seed 42); conditions cached, detailed_questions, rerun_full, posterior@1, no_question@1, posterior@2, no_question@2, random@1, lowconf@1 | hall. rate cached 0.350, detailed_questions 0.042, rerun_full 0.275, posterior@1 0.142, no_question@1 0.300, posterior@2 0.025, no_question@2 0.275, random@1 0.167, lowconf@1 0.150 | $3.74 | `results/e8_closed_loop/70B_7` |
