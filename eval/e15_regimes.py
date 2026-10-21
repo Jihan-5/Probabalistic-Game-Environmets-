@@ -9,7 +9,7 @@ rate rho (each commitment on a reactable attribute gets a reaction with
 probability rho, independently of its truth). This is Theorem 2's setting:
 the agent's trajectories are fixed. Sampling detectors read only resamples
 and are unaffected. Reported on L_U: the exact Bayes posterior with
-the regenerated reactions (oracle), V6, V7m, ctx_lr+fb, intake_lr+fb and
+the regenerated reactions (oracle), V6, V7 (frozen, Amendment 6), ctx_lr+fb, intake_lr+fb and
 SelfCheckGPT, one regenerated draw per (eps, rho), splits 42/123/456.
 """
 
@@ -29,7 +29,7 @@ from eval.e11_confirmatory import (
 from eval.e12_exploratory import IntakeLR
 from eval.e7_common import run_protocol
 from pge.baselines.context_lr import ContextLR
-from pge.baselines.intake_posterior import IntakePosterior
+from pge.baselines.intake_posterior import IntakePosterior, v7
 from pge.baselines.posterior import ChannelPosterior
 from pge.baselines.selfcheckgpt import SelfCheckGPT
 
@@ -77,7 +77,7 @@ def main(argv=None):
                 eF = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers, eps) for t in tr2}
                 F = [("etaF (oracle)", lambda: Fixed("etaF", eF)),
                      ("V6", lambda: ChannelPosterior(event_attrs=S)),
-                     ("V7m", lambda: IntakePosterior(dom, event_attrs=S, event="learned")),
+                     ("V7", lambda: v7(dom, "L_U")),
                      ("ctx_lr+fb", lambda: ContextLR(with_feedback=True)),
                      ("intake_lr+fb", lambda: IntakeLR(True))]
                 if sc is None:
