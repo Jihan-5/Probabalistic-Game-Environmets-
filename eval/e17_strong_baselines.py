@@ -35,6 +35,7 @@ from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 
 from eval.e11_confirmatory import CONFIRM, MIN_SESSIONS, REPO, build_dag, load, mean_auc, pooled_rows, strat_boot
 from eval.e12_exploratory import IntakeLR
+from eval.e13_v7_dev_sweep import budget
 from eval.e7_common import cluster_boot_diff, run_protocol
 from pge.baselines.intake_posterior import IntakePosterior, intake_keys, v7
 from pge.baselines.posterior import poisson_binomial_tail, label_threshold, turn_signal
@@ -108,8 +109,11 @@ class DepLRCV:
         self.vocab = {k: i for i, k in enumerate(sorted({k for t in trajectories for k in self._keys(t)}, key=str))}
         X = np.stack([self._x(t) for t in trajectories])
         self.mu, self.sd = X.mean(0), X.std(0) + 1e-9
-        self.model = LogisticRegressionCV(Cs=list(CS), cv=5, scoring="roc_auc", max_iter=5000).fit(
-            (X - self.mu) / self.sd, y)
+        if min(np.bincount(y, minlength=2)) >= 5:
+            self.model = LogisticRegressionCV(Cs=list(CS), cv=5, scoring="roc_auc", max_iter=5000).fit(
+                (X - self.mu) / self.sd, y)
+        else:  # too few of one class for 5-fold CV (small label budgets): the fixed default
+            self.model = LogisticRegression(C=0.1, max_iter=5000).fit((X - self.mu) / self.sd, y)
         return self
 
     def score(self, trajectory, dag=None):
@@ -172,6 +176,17 @@ def main():
             ci = strat_boot(pool, "V7", b)
             numbers["pooled"][f"V7 - {b}"] = ci
             lines.append(f"- V7 - {b}: {ci[0]:+.3f} [{ci[1]:+.3f}, {ci[2]:+.3f}]")
+    # label budget of the structured LR (same subsets as e11/e16's curves)
+    numbers["budget"] = {}
+    for tag, path, seed, n in CONFIRM:
+        if not path.exists():
+            continue
+        trajs, L, LU = load(path, seed, n)
+        sessions, dom = load.sessions, load.domain
+        DepLRCV.SETUP = {t.task_id: sessions[t.task_id].setup_answers for t in trajs}
+        b = budget(trajs, LU, {"dep_lr+fb (cv)": lambda: DepLRCV(dom)})
+        numbers["budget"][tag] = {f"{k[0]}@{k[1]}": v for k, v in b.items()}
+        lines.append(f"- budget {tag}: " + ", ".join(f"{k} {v:.3f}" for k, v in sorted(numbers['budget'][tag].items())))
     lines.append(f"\nruntime {time.time() - t0:.0f}s")
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "summary.md").write_text("\n".join(lines) + "\n")
