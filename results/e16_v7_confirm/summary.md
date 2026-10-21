@@ -68,29 +68,54 @@ Pooled over 5 corpora (stratified cluster bootstrap):
 - gpt-4o-mini: AUROC 0.765, ECE 0.077 (n per split 246)
 - mistral-small-24b: AUROC 0.803, ECE 0.049 (n per split 319)
 
-> gpt-4o-mini (travel): not found; skipped.
 ## travel: L_U
 
 | corpus | V6 | V7 | ctx_lr | ctx_lr+fb | intake_lr+fb | SelfCheckGPT | semantic_entropy |
 |---|---|---|---|---|---|---|---|
+| gpt-4o-mini (travel) | 0.682 | 0.756 | 0.607 | 0.658 | 0.684 | 0.535 | 0.502 |
 | 8B (travel) | 0.796 | 0.904 | 0.786 | 0.825 | 0.877 | 0.628 | 0.513 |
 
+- gpt-4o-mini (travel): V7 - V6 +0.063 [+0.014, +0.113]; V7 - intake_lr+fb +0.067 [+0.008, +0.128]; V7 - ctx_lr+fb +0.091 [+0.026, +0.159]; V7 - SelfCheckGPT +0.216 [+0.140, +0.287]; V7 - semantic_entropy +0.245 [+0.190, +0.295]
 - 8B (travel): V7 - V6 +0.108 [+0.068, +0.147]; V7 - intake_lr+fb +0.028 [-0.014, +0.073]; V7 - ctx_lr+fb +0.081 [+0.036, +0.131]; V7 - SelfCheckGPT +0.279 [+0.211, +0.351]; V7 - semantic_entropy +0.392 [+0.355, +0.426]
+
+Pooled over 2 corpora (stratified cluster bootstrap):
+
+- H7 V7 - V6: +0.091 [+0.054, +0.117]
+- H8 V7 - intake_lr+fb: +0.050 [+0.010, +0.084]
+- H8' V7 - ctx_lr+fb: +0.089 [+0.046, +0.126]
+- -- V7 - SelfCheckGPT: +0.249 [+0.197, +0.297]
+- -- V7 - semantic_entropy: +0.323 [+0.287, +0.349]
+- -- AUROC(V7): +0.830 [+0.795, +0.855]
+- -- AUROC(intake_lr+fb): +0.781 [+0.742, +0.816]
 
 ## travel: L
 
 | corpus | V6 | V7 | ctx_lr | ctx_lr+fb | intake_lr+fb | SelfCheckGPT | semantic_entropy |
 |---|---|---|---|---|---|---|---|
+| gpt-4o-mini (travel) | 0.876 | 0.949 | 0.766 | 0.834 | 0.884 | 0.657 | 0.483 |
 | 8B (travel) | 0.793 | 0.906 | 0.733 | 0.776 | 0.889 | 0.695 | 0.616 |
 
+- gpt-4o-mini (travel): V7 - V6 +0.078 [+0.047, +0.111]; V7 - intake_lr+fb +0.073 [+0.025, +0.126]; V7 - ctx_lr+fb +0.123 [+0.070, +0.175]; V7 - SelfCheckGPT +0.294 [+0.219, +0.374]; V7 - semantic_entropy +0.466 [+0.403, +0.524]
 - 8B (travel): V7 - V6 +0.110 [+0.069, +0.151]; V7 - intake_lr+fb +0.013 [-0.027, +0.052]; V7 - ctx_lr+fb +0.131 [+0.083, +0.177]; V7 - SelfCheckGPT +0.206 [+0.143, +0.273]; V7 - semantic_entropy +0.285 [+0.213, +0.356]
+
+Pooled over 2 corpora (stratified cluster bootstrap):
+
+- H7 V7 - V6: +0.092 [+0.068, +0.119]
+- H8 V7 - intake_lr+fb: +0.041 [+0.012, +0.077]
+- H8' V7 - ctx_lr+fb: +0.122 [+0.092, +0.164]
+- -- V7 - SelfCheckGPT: +0.252 [+0.202, +0.297]
+- -- V7 - semantic_entropy: +0.378 [+0.327, +0.419]
+- -- AUROC(V7): +0.927 [+0.907, +0.946]
+- -- AUROC(intake_lr+fb): +0.886 [+0.851, +0.914]
 
 ## travel: L_U label budget (descriptive)
 
+- gpt-4o-mini (travel): V7@100 0.695, V7@200 0.733, V7@25 0.657, V7@50 0.643, ctx_lr+fb@100 0.596, ctx_lr+fb@200 0.626, ctx_lr+fb@25 0.586, ctx_lr+fb@50 0.563, intake_lr+fb@100 0.613, intake_lr+fb@200 0.631, intake_lr+fb@25 0.585, intake_lr+fb@50 0.582
 - 8B (travel): V7@100 0.809, V7@200 0.840, V7@25 0.745, V7@50 0.767, ctx_lr+fb@100 0.772, ctx_lr+fb@200 0.788, ctx_lr+fb@25 0.705, ctx_lr+fb@50 0.721, intake_lr+fb@100 0.823, intake_lr+fb@200 0.843, intake_lr+fb@25 0.722, intake_lr+fb@50 0.753
 
 ## travel: per-commitment q_t of V7
 
+- gpt-4o-mini (travel): AUROC 0.734, ECE 0.069 (n per split 201)
 - 8B (travel): AUROC 0.787, ECE 0.069 (n per split 114)
 
-runtime 1061s
+runtime 1517s
