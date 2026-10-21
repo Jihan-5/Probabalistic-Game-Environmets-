@@ -263,9 +263,14 @@ def main(argv=None) -> None:
                     help="budgets for the random@b / lowconf@b selection controls")
     ap.add_argument("--limit", type=int, default=None, help="only the first N test sessions (pilot)")
     ap.add_argument("--cache", default=None)
-    ap.add_argument("--picker", choices=["v6", "v3"], default="v6",
+    ap.add_argument("--picker", choices=["v6", "v3", "v7"], default="v6",
                     help="posterior that ranks commitments: v6 = ChannelPosterior (pre-registered), "
-                         "v3 = IndependentPosterior(by_value=True) as in offline e8")
+                         "v3 = IndependentPosterior(by_value=True) as in offline e8, "
+                         "v7 = the frozen intake-aware posterior fit on L_U (Amendment 7): ranks by q_t, "
+                         "commitments outside its learned user-specific event last")
+    ap.add_argument("--conditions", nargs="*", default=None,
+                    help="run only these conditions (e.g. posterior@1 posterior@2); others are reused "
+                         "from another run in the analysis (same sessions and noise streams)")
     add_run_args(ap, max_cost=5.0)
     args = ap.parse_args(argv)
     check_mock_out(args)
@@ -288,13 +293,34 @@ def main(argv=None) -> None:
     protocol = protocol_of(trajs)
     tr_ids, te_ids = split_task_ids(list(by_id), 0.7, args.split_seed)
     tr = sorted(tr_ids)
-    det = (ChannelPosterior() if args.picker == "v6" else IndependentPosterior(by_value=True)).fit(
-        [by_id[t] for t in tr], None, np.array([by_id[t].eval_label for t in tr]))
+    if args.picker == "v7":
+        from pge.baselines.intake_posterior import IntakePosterior, v7
+        from pge.benchmarks import healthcare_v2 as _hc
+        IntakePosterior.INTAKE = {tid: sessions[tid].setup_answers for tid in by_id}
+
+        def _lu(tid):
+            t = by_id[tid]
+            g = {x.attribute: _hc.AgentGuess(x.attribute, x.guess_value, x.probability) for x in t.turns}
+            return _hc.eval_label_user(g, sessions[tid])
+        det = v7(_hc, "L_U").fit([by_id[t] for t in tr], None, np.array([_lu(t) for t in tr]))
+
+        def pick_q(traj):
+            q = det.turn_q(traj)  # sets det._setup for this session
+            return [qi if det._in_event_ctx(turn) else 1e-3 * qi for qi, turn in zip(q, traj.turns)]
+    else:
+        det = (ChannelPosterior() if args.picker == "v6" else IndependentPosterior(by_value=True)).fit(
+            [by_id[t] for t in tr], None, np.array([by_id[t].eval_label for t in tr]))
+
+        def pick_q(traj):
+            return det.turn_q(traj)
     test = sorted(te_ids, key=lambda s: int(s.split("_")[1]))
     if args.limit:
         test = test[: args.limit]
-    plans = {tid: plans_for(by_id[tid], det.turn_q(by_id[tid]), args.budgets,
+    plans = {tid: plans_for(by_id[tid], pick_q(by_id[tid]), args.budgets,
                             args.selection_budgets, args.split_seed) for tid in test}
+    if args.conditions:
+        keep = set(args.conditions) | {"cached"}
+        plans = {tid: [p for p in ps if p.condition in keep] for tid, ps in plans.items()}
     conditions = [p.condition for p in plans[test[0]]]
 
     units = [(tid, p) for tid in test for p in plans[tid]]

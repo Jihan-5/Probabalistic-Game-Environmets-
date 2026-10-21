@@ -312,3 +312,30 @@ agents, exactly as above. Llama-70B healthcare and both travel corpora are
 the corpora on which no detector's confirmatory result had been seen when
 this amendment was committed; the paper reports H7 and H8 on them
 separately as well as pooled.
+
+## Amendment 7 (committed 2026-10-21 04:38 UTC; after the registered clarification run and its results were known, before any run with the V7 picker)
+
+Motivation. The registered clarification run (results/e8_closed_loop/70B_7)
+ranked commitments with V6 fit on the COMPOSITE label L over all confident
+commitments, while its primary outcome counts wrong confident USER-DEPENDENT
+commitments. Its registered test failed: posterior@1 - random@1 on the
+primary outcome = -0.008 [-0.133, +0.117]. That result stands and is reported.
+
+Added test. The same closed loop (same 120 split-seed-42 test sessions of the
+70B corpus, same patient and noise streams, same agent and protocol), with
+commitments ranked by the frozen V7 (Amendment 6) fit on L_U on the training
+split: q_t, with commitments outside V7's learned user-specific event ranked
+last (`--picker v7` in eval/paid/run_clarification_closed_loop.py at this
+commit). Only the picker-dependent conditions posterior@1 and posterior@2 are
+run (results/e8_closed_loop/70B_7_v7picker); every other condition is taken
+from the registered run, since it does not depend on the picker. Analysis:
+eval/e21_clarification_v7.py at this commit (paired bootstrap over sessions).
+
+| id | comparison (primary outcome) | claim if CI excludes 0 (negative) | claim otherwise |
+|---|---|---|---|
+| H9 | V7 posterior@1 - random@1 < 0 | "choosing the question by V7's per-commitment risk beats choosing at random" | "no detectable advantage of V7's risk over a random choice of question" |
+
+Reported without claims: V7 posterior@1 vs no_question@1, lowconf@1 and the
+registered V6 posterior@1; V7 posterior@2 vs no_question@2,
+detailed_questions and the registered V6 posterior@2; on the L_U and L rates
+as well.
