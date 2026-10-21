@@ -16,7 +16,7 @@ import json
 import time
 
 from eval import e16_v7_confirm as e16
-from eval.e11_confirmatory import CONFIRM, REPO
+from eval.e11_confirmatory import PATIENT, REPO
 from eval.e12_exploratory import IntakeLR
 from pge.baselines.context_lr import ContextLR
 from pge.baselines.intake_posterior import v7
@@ -37,8 +37,8 @@ def main():
     t0 = time.time()
     e16.factories = factories  # block() looks these up at call time
     e16.COMPS = [("H7", "V7", "V6"), ("H8", "V7", "intake_lr+fb"), ("H8'", "V7", "ctx_lr+fb")]
-    corpora = [c for c in CONFIRM if c[0] == TAG]
-    assert corpora, f"{TAG} not in CONFIRM"
+    corpora = [c for c in PATIENT if c[0] == TAG]
+    assert corpora, f"{TAG} not in PATIENT"
     lines = ["# e22: frozen V7 on the LLM-patient v2 corpus (exploratory; V7 is not registered here)", ""]
     numbers = {}
     e16.block(corpora, "patient_v2", lines, numbers)
