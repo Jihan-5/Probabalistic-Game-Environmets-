@@ -404,8 +404,8 @@ interval excludes zero; we do not correct for multiplicity, and intervals
 are conditional on the fitted detectors. Because the agents share sessions,
 we also resample sessions jointly across agents and report Holm-adjusted
 $p$-values (Table~\ref{tab:hyp}). The primary
-hypotheses are in Table~\ref{tab:hyp}, the per-agent comparisons on both
-labels in Appendix~\ref{app:peragent}, and every other registered comparison
+hypotheses are in Table~\ref{tab:hyp}, the per-agent comparisons in
+Appendix~\ref{app:peragent}, and every other registered comparison
 in the repository's analysis output.
 
 \paragraph{Oracle-information analyses.} Because the simulator's rules and hidden-field prior are known, we can compute three exact quantities. The \emph{population risk} $\bar\eta=\sum_h P(h)\,\LU(C,h)$ is the probability that the session's commitments would be wrong for a random user with the same intake. $\eta_X=P(\LU=1\mid X,C)$ adds the reactions the agent was shown (all but the last); by Theorem~\ref{thm:bound} it bounds every detector computed from the agent's context and its resamples. $\eta_F$ adds the last reaction and bounds every detector of commitments and reactions. The agent's policy does not involve the hidden facts, so its factors cancel and no agent model is needed. These are not
@@ -460,10 +460,9 @@ does.} At the session level
 intervals inside the registered band of $[0.40, 0.60]$ (H1): sampling
 detectors are near chance on user-specific hallucination. Resampling sessions jointly across agents, which share them, gives
 \val{J/L_U/H1: AUROC(SelfCheckGPT)} and
-\val{J/L_U/H1: AUROC(semantic_entropy)}, \val{J/L_U/H1band}. H1 is a pooled
-claim: per agent SelfCheckGPT ranges over \val{C/L_U/range/SelfCheckGPT};
+\val{J/L_U/H1: AUROC(semantic_entropy)}, \val{J/L_U/H1band}. Per agent, SelfCheckGPT ranges over \val{C/L_U/range/SelfCheckGPT};
 \chk{the top value (\val{C/derived/L_U/argmax/SelfCheckGPT}) lies just
-outside the band.} They are not near chance everywhere. On the composite label,
+outside the band.} Sampling is not blind everywhere: on the composite label,
 where many errors are guesses about clinic rules that do vary across
 resamples, SelfCheckGPT reaches \val{C/L/pooled/H1: AUROC(SelfCheckGPT)}. The failure is specific to facts the user never disclosed.
 
@@ -869,8 +868,8 @@ policy, without names.}
 \section{Per-agent registered comparisons}
 \label{app:peragent}
 
-Table~\ref{tab:peragent} gives every registered difference per agent on both
-labels (point estimates; $^{*}$: the paired session-clustered 95\% CI excludes 0; intervals in the repository).
+Table~\ref{tab:peragent} gives every registered difference per agent on
+$\LU$, and pooled on $L$ (point estimates; $^{*}$: the paired session-clustered 95\% CI excludes 0; intervals in the repository).
 H2: V6 $-$ V6$-$prior; H2b: ctx-LR+F $-$ ctx-LR; H3: V6 $-$ ctx-LR; H4: V6
 $-$ SelfCheckGPT (SC) and semantic entropy (SE); H7: V7 $-$ V6; H8: V7 $-$ intake-LR+F.
 
@@ -892,12 +891,7 @@ GPT-4o-mini & \val{s:C/L_U/gpt/V6 - V6-prior} & \val{s:C/L_U/gpt/ctx_lr+fb - ctx
 Mistral-24B & \val{s:C/L_U/mistral/V6 - V6-prior} & \val{s:C/L_U/mistral/ctx_lr+fb - ctx_lr} & \val{s:C/L_U/mistral/V6 - ctx_lr} & \val{s:C/L_U/mistral/V6 - SelfCheckGPT} & \val{s:C/L_U/mistral/V6 - semantic_entropy} & \val{s:C/L_U/mistral/V6 - ctx_lr+fb} & \val{s:V/hc/L_U/mistral/V7 - V6} & \val{s:V/hc/L_U/mistral/V7 - intake_lr+fb} \\
 Pooled & \val{s:C/L_U/pooled/H2: V6 - V6-prior} & \val{s:C/L_U/pooled/H2b: ctx_lr+fb - ctx_lr} & \val{s:C/L_U/pooled/H3: V6 - ctx_lr} & \val{s:C/L_U/pooled/H4: V6 - SelfCheckGPT} & \val{s:C/L_U/pooled/H4: V6 - semantic_entropy} & \val{s:C/L_U/pooled/sec.: V6 - ctx_lr+fb} & \val{s:V/hc/L_U/pooled/H7: V7 - V6} & \val{s:V/hc/L_U/pooled/H8: V7 - intake_lr+fb} \\
 \midrule
-\multicolumn{9}{l}{\emph{Composite label $L$ (secondary)}} \\
-Llama-70B & \val{s:C/L/70B/V6 - V6-prior} & \val{s:C/L/70B/ctx_lr+fb - ctx_lr} & \val{s:C/L/70B/V6 - ctx_lr} & \val{s:C/L/70B/V6 - SelfCheckGPT} & \val{s:C/L/70B/V6 - semantic_entropy} & \val{s:C/L/70B/V6 - ctx_lr+fb} & \val{s:V/hc/L/70B/V7 - V6} & \val{s:V/hc/L/70B/V7 - intake_lr+fb} \\
-Llama-8B & \val{s:C/L/8B/V6 - V6-prior} & \val{s:C/L/8B/ctx_lr+fb - ctx_lr} & \val{s:C/L/8B/V6 - ctx_lr} & \val{s:C/L/8B/V6 - SelfCheckGPT} & \val{s:C/L/8B/V6 - semantic_entropy} & \val{s:C/L/8B/V6 - ctx_lr+fb} & \val{s:V/hc/L/8B/V7 - V6} & \val{s:V/hc/L/8B/V7 - intake_lr+fb} \\
-Qwen-72B & \val{s:C/L/qwen/V6 - V6-prior} & \val{s:C/L/qwen/ctx_lr+fb - ctx_lr} & \val{s:C/L/qwen/V6 - ctx_lr} & \val{s:C/L/qwen/V6 - SelfCheckGPT} & \val{s:C/L/qwen/V6 - semantic_entropy} & \val{s:C/L/qwen/V6 - ctx_lr+fb} & \val{s:V/hc/L/qwen/V7 - V6} & \val{s:V/hc/L/qwen/V7 - intake_lr+fb} \\
-GPT-4o-mini & \val{s:C/L/gpt/V6 - V6-prior} & \val{s:C/L/gpt/ctx_lr+fb - ctx_lr} & \val{s:C/L/gpt/V6 - ctx_lr} & \val{s:C/L/gpt/V6 - SelfCheckGPT} & \val{s:C/L/gpt/V6 - semantic_entropy} & \val{s:C/L/gpt/V6 - ctx_lr+fb} & \val{s:V/hc/L/gpt/V7 - V6} & \val{s:V/hc/L/gpt/V7 - intake_lr+fb} \\
-Mistral-24B & \val{s:C/L/mistral/V6 - V6-prior} & \val{s:C/L/mistral/ctx_lr+fb - ctx_lr} & \val{s:C/L/mistral/V6 - ctx_lr} & \val{s:C/L/mistral/V6 - SelfCheckGPT} & \val{s:C/L/mistral/V6 - semantic_entropy} & \val{s:C/L/mistral/V6 - ctx_lr+fb} & \val{s:V/hc/L/mistral/V7 - V6} & \val{s:V/hc/L/mistral/V7 - intake_lr+fb} \\
+\multicolumn{9}{l}{\emph{Composite label $L$ (secondary; per agent in the repository)}} \\
 Pooled & \val{s:C/L/pooled/H2: V6 - V6-prior} & \val{s:C/L/pooled/H2b: ctx_lr+fb - ctx_lr} & \val{s:C/L/pooled/H3: V6 - ctx_lr} & \val{s:C/L/pooled/H4: V6 - SelfCheckGPT} & \val{s:C/L/pooled/H4: V6 - semantic_entropy} & \val{s:C/L/pooled/sec.: V6 - ctx_lr+fb} & \val{s:V/hc/L/pooled/H7: V7 - V6} & \val{s:V/hc/L/pooled/H8: V7 - intake_lr+fb} \\
 \bottomrule
 \end{tabular}
