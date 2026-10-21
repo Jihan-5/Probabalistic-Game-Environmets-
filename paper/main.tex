@@ -23,7 +23,7 @@
 \InputIfFileExists{numbers}{}{}
 % Sentences whose direction depends on a confirmatory outcome: blue until
 % checked against the pre-registered wording rules (results/PREREG_confirmatory.md).
-\newif\iffinal \finalfalse
+\newif\iffinal \finaltrue
 \newcommand{\chk}[1]{\iffinal#1\else\textcolor{blue}{#1}\fi}
 \newcommand{\pending}[1]{\textcolor{red}{[PENDING: #1]}}
 \newcommand{\LU}{L_{U}}
