@@ -32,41 +32,39 @@
     "price_out": 0.6,
     "price_status": "verify on provider site"
   },
-  "complete": false,
-  "n_written": 599,
+  "complete": true,
+  "n_written": 600,
   "parse_status_counts": {
-    "strict": 6006,
+    "strict": 6017,
     "retry1_strict": 1
   },
-  "hall_rate": 0.2020033388981636,
+  "hall_rate": 0.20166666666666666,
   "meter": {
-    "cost": 1.865035,
+    "cost": 0.003418,
     "max_cost": 2.55,
-    "tokens_in": 11220114,
-    "tokens_out": 283099,
-    "calls": 24094,
-    "usage_missing_calls": 56,
+    "tokens_in": 20718,
+    "tokens_out": 517,
+    "calls": 45,
+    "usage_missing_calls": 0,
     "tripped": false,
     "stop_reason": "",
     "by_role": {
       "agent": {
         "model": "openai/gpt-4o-mini",
-        "calls": 24094,
-        "tokens_in": 11220114,
-        "tokens_out": 283099,
-        "cost": 1.865035
+        "calls": 45,
+        "tokens_in": 20718,
+        "tokens_out": 517,
+        "cost": 0.003418
       }
     }
   },
   "runner": {
-    "done": 599,
-    "failed": 1,
+    "done": 1,
+    "failed": 0,
     "budget_stopped": 0,
     "cancelled": 0,
-    "errors": {
-      "ConnectionError": 1
-    },
-    "seconds": 10800.8
+    "errors": {},
+    "seconds": 52.1
   },
-  "hall_rate_user": 0.24540901502504173
+  "hall_rate_user": 0.245
 }

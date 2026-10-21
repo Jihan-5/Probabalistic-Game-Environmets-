@@ -1,0 +1,76 @@
+{
+  "script": "run_clarification_closed_loop",
+  "args": {
+    "model": "70B",
+    "provider": null,
+    "price_in": null,
+    "price_out": null,
+    "seed": 7,
+    "split_seed": 42,
+    "n": 600,
+    "epsilon": 0.25,
+    "budgets": [
+      1,
+      2
+    ],
+    "selection_budgets": [
+      1
+    ],
+    "limit": 120,
+    "cache": "data/trajectories/healthcare_confirm/70B_7.jsonl",
+    "picker": "v7",
+    "conditions": [
+      "posterior@1",
+      "posterior@2"
+    ],
+    "max_cost": 1.5,
+    "concurrency": 8,
+    "out": "results/e8_closed_loop/70B_7_v7picker",
+    "estimate_only": false,
+    "resume": false,
+    "mock": false,
+    "mock_malformed": 0.15,
+    "mock_seed": 0
+  },
+  "model": {
+    "short_name": "70B",
+    "model_id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "provider": "together",
+    "price_in": 0.88,
+    "price_out": 0.88,
+    "price_status": "ledger (2026-09 runs)"
+  },
+  "complete": true,
+  "conditions": [
+    "cached",
+    "posterior@1",
+    "posterior@2"
+  ],
+  "meter": {
+    "cost": 0.865051,
+    "max_cost": 1.5,
+    "tokens_in": 959496,
+    "tokens_out": 23517,
+    "calls": 1751,
+    "usage_missing_calls": 0,
+    "tripped": false,
+    "stop_reason": "",
+    "by_role": {
+      "agent": {
+        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "calls": 1751,
+        "tokens_in": 959496,
+        "tokens_out": 23517,
+        "cost": 0.865051
+      }
+    }
+  },
+  "runner": {
+    "done": 240,
+    "failed": 0,
+    "budget_stopped": 0,
+    "cancelled": 0,
+    "errors": {},
+    "seconds": 246.8
+  }
+}

@@ -1,0 +1,40 @@
+[estimate] healthcare LLM-patient n=600 (5826 turns, 4939 patient replies) -> data/trajectories/healthcare_llmpatient_v2/70B_7.jsonl
+  agent turns                  meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 6408 calls x (~650 in + ~30 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $3.83
+  patient replies              openai/gpt-4o-mini via openrouter: 4939 calls x (~480 in + ~40 out) @ $0.15/$0.6 per M [verify on provider site] = $0.47
+  extractor labels             openai/gpt-4o-mini via openrouter: 5185 calls x (~190 in + ~3 out) @ $0.15/$0.6 per M [verify on provider site] = $0.16
+  TOTAL ~$4.47   hard cap --max-cost $3.80   (estimate EXCEEDS cap: run will stop at the cap)
+[preflight] ok: meta-llama/Llama-3.3-70B-Instruct-Turbo via together
+[preflight] ok: openai/gpt-4o-mini via openrouter
+[resume] 100 sessions already in data/trajectories/healthcare_llmpatient_v2/70B_7.jsonl.partial.jsonl
+  progress 20/500 done=20 failed=0 cost=$0.133 (81s)
+  progress 40/500 done=40 failed=0 cost=$0.252 (147s)
+  progress 60/500 done=60 failed=0 cost=$0.369 (210s)
+  progress 80/500 done=80 failed=0 cost=$0.496 (278s)
+  progress 100/500 done=100 failed=0 cost=$0.616 (340s)
+  progress 120/500 done=120 failed=0 cost=$0.734 (399s)
+  progress 140/500 done=140 failed=0 cost=$0.859 (467s)
+  progress 160/500 done=160 failed=0 cost=$0.975 (530s)
+  progress 180/500 done=180 failed=0 cost=$1.094 (599s)
+  progress 200/500 done=200 failed=0 cost=$1.222 (668s)
+  progress 220/500 done=220 failed=0 cost=$1.340 (730s)
+  progress 240/500 done=240 failed=0 cost=$1.472 (809s)
+  progress 260/500 done=260 failed=0 cost=$1.581 (870s)
+  progress 280/500 done=280 failed=0 cost=$1.705 (944s)
+  progress 300/500 done=300 failed=0 cost=$1.823 (1017s)
+  progress 320/500 done=320 failed=0 cost=$1.951 (1102s)
+  progress 340/500 done=340 failed=0 cost=$2.077 (1198s)
+  progress 360/500 done=360 failed=0 cost=$2.186 (1264s)
+  progress 380/500 done=380 failed=0 cost=$2.328 (1347s)
+  progress 400/500 done=400 failed=0 cost=$2.430 (1413s)
+  progress 420/500 done=420 failed=0 cost=$2.547 (1490s)
+  progress 440/500 done=440 failed=0 cost=$2.672 (1568s)
+  progress 460/500 done=460 failed=0 cost=$2.784 (1636s)
+  progress 480/500 done=480 failed=0 cost=$2.913 (1719s)
+  progress 500/500 done=500 failed=0 cost=$3.014 (1795s)
+
+[done] 600 trajectories -> data/trajectories/healthcare_llmpatient_v2/70B_7.jsonl  (1795s)
+[labels] hallucinating 145/600 = 24.2%
+[signal] patient_feedback counts {+1: 2099, -1: 391, 0: 3336}
+[parse] agent {'strict': 5826} (failed 0/5826); extractor {'strict': 4939, 'no_feedback_attr': 887}; patient replies with verdict words: 2
+[cost] $3.014 in=5268551 out=183355 calls=13120 (estimate $4.47); by role: agent $2.584, patient $0.314, extractor $0.117
+[ledger] | 2026-10-21 | healthcare LLM-patient corpus (70B, seed 7, patient v2, knows profile, n=600) | behavioral feedback: patient openai/gpt-4o-mini, extractor openai/gpt-4o-mini; signal +1/-1/0 = 2099/391/3336; agent parse-failed 0/5826, extractor failed 0 | 600 trajectories, 24.2% hallucinating | $3.01 | `data/trajectories/healthcare_llmpatient_v2/70B_7.jsonl` |

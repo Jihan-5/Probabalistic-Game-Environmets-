@@ -1,0 +1,112 @@
+{
+  "script": "generate_healthcare_llmpatient",
+  "args": {
+    "model": "70B",
+    "provider": null,
+    "price_in": null,
+    "price_out": null,
+    "patient_model": "gpt-4o-mini",
+    "patient_provider": null,
+    "patient_price_in": null,
+    "patient_price_out": null,
+    "extractor_model": "gpt-4o-mini",
+    "extractor_provider": null,
+    "extractor_price_in": null,
+    "extractor_price_out": null,
+    "short_name": null,
+    "n": 100,
+    "seed": 7,
+    "feedback_on_all": false,
+    "max_parse_fail": 0.25,
+    "patient_version": "v2",
+    "patient_knows": "profile",
+    "max_cost": 0.85,
+    "concurrency": 8,
+    "out": "data/trajectories/healthcare_llmpatient_v2/pilot/70B_7_n100.jsonl",
+    "estimate_only": false,
+    "resume": true,
+    "mock": false,
+    "mock_malformed": 0.15,
+    "mock_seed": 0
+  },
+  "agent": {
+    "short_name": "70B",
+    "model_id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "provider": "together",
+    "price_in": 0.88,
+    "price_out": 0.88,
+    "price_status": "ledger (2026-09 runs)"
+  },
+  "patient": {
+    "short_name": "gpt-4o-mini",
+    "model_id": "openai/gpt-4o-mini",
+    "provider": "openrouter",
+    "price_in": 0.15,
+    "price_out": 0.6,
+    "price_status": "verify on provider site"
+  },
+  "extractor": {
+    "short_name": "gpt-4o-mini",
+    "model_id": "openai/gpt-4o-mini",
+    "provider": "openrouter",
+    "price_in": 0.15,
+    "price_out": 0.6,
+    "price_status": "verify on provider site"
+  },
+  "complete": true,
+  "n_written": 100,
+  "parse_status_counts": {
+    "strict": 952
+  },
+  "extractor_status_counts": {
+    "strict": 817,
+    "no_feedback_attr": 135
+  },
+  "signal_counts": {
+    "0": 517,
+    "-1": 71,
+    "1": 364
+  },
+  "hall_rate": 0.2,
+  "meter": {
+    "cost": 0.587343,
+    "max_cost": 0.85,
+    "tokens_in": 1032323,
+    "tokens_out": 36034,
+    "calls": 2588,
+    "usage_missing_calls": 0,
+    "tripped": false,
+    "stop_reason": "",
+    "by_role": {
+      "agent": {
+        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "calls": 953,
+        "tokens_in": 557946,
+        "tokens_out": 12761,
+        "cost": 0.502222
+      },
+      "patient": {
+        "model": "openai/gpt-4o-mini",
+        "calls": 818,
+        "tokens_in": 327818,
+        "tokens_out": 21444,
+        "cost": 0.062039
+      },
+      "extractor": {
+        "model": "openai/gpt-4o-mini",
+        "calls": 817,
+        "tokens_in": 146559,
+        "tokens_out": 1829,
+        "cost": 0.023081
+      }
+    }
+  },
+  "runner": {
+    "done": 100,
+    "failed": 0,
+    "budget_stopped": 0,
+    "cancelled": 0,
+    "errors": {},
+    "seconds": 406.0
+  }
+}

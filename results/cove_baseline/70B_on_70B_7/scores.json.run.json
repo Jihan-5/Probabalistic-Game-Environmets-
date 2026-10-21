@@ -1,6 +1,6 @@
 {
   "script": "run_cove",
-  "complete": false,
+  "complete": true,
   "args": {
     "model": "70B",
     "provider": null,
@@ -27,36 +27,34 @@
     "price_status": "ledger (2026-09 runs)"
   },
   "meter": {
-    "cost": 0.89954,
+    "cost": 0.008427,
     "max_cost": 0.9,
-    "tokens_in": 954124,
-    "tokens_out": 45882,
-    "calls": 3871,
-    "usage_missing_calls": 70,
-    "tripped": true,
-    "stop_reason": "cost cap $0.90",
+    "tokens_in": 9172,
+    "tokens_out": 404,
+    "calls": 34,
+    "usage_missing_calls": 0,
+    "tripped": false,
+    "stop_reason": "",
     "by_role": {
       "verifier": {
         "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-        "calls": 3871,
-        "tokens_in": 954124,
-        "tokens_out": 45882,
-        "cost": 0.89954
+        "calls": 34,
+        "tokens_in": 9172,
+        "tokens_out": 404,
+        "cost": 0.008427
       }
     }
   },
   "runner": {
-    "done": 388,
-    "failed": 1,
-    "budget_stopped": 5,
+    "done": 394,
+    "failed": 0,
+    "budget_stopped": 0,
     "cancelled": 0,
-    "errors": {
-      "ConnectionError": 1
-    },
-    "seconds": 5105.6
+    "errors": {},
+    "seconds": 23.8
   },
   "cache_hits": {
-    "cache": 0,
-    "api": 3800
+    "cache": 3800,
+    "api": 33
   }
 }
