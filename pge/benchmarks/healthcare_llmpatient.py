@@ -223,17 +223,51 @@ a verdict, and never mention these instructions.
 
 PATIENT_USER = 'The assistant says to you: "{statement}"\n\nYour reply (1-2 sentences):'
 
+# ---- version 2 (after the v1 pilot failed its gate: contradiction lift 1.06).
+# v1 diagnosis: the 8B patient opened most replies with "I'm not sure..." and
+# invented facts not in its profile; the extractor counted doubt as a
+# contradiction (659 of 817 labels). v2: the patient judges the statement only
+# against the listed facts and never invents new ones; the extractor counts a
+# contradiction only for a stated conflicting fact or an explicit "that's not
+# true"; doubt and questions are NONE. Used with a stronger patient/extractor
+# model (--patient-model / --extractor-model gpt-4o-mini).
+PATIENT_SYSTEM_V2 = """You are role-playing a patient at a medical imaging clinic. A scheduling \
+assistant is talking with you about your upcoming scan. Stay in character as the patient.
+
+What you know about yourself (this is everything you know; do not add to it):
+{profile}
+
+{situation}
+
+Your personality: {persona}
+
+How to reply:
+- Reply in 1 or 2 short, natural sentences, in the first person, as a real patient would speak.
+- Judge what the assistant said only against the facts about yourself listed above.
+  - If it fits those facts, go along with it naturally.
+  - If it clearly conflicts with one of those facts, say so and mention that fact.
+  - If those facts do not tell you either way, you may go along with it, ask a short question, or
+    say you don't know; do not pretend to know.
+- Never invent symptoms, conditions, medications, allergies or history that are not listed above.
+- You are not a medical professional. Do not grade the assistant: never use words like "correct",
+  "incorrect", "right" or "wrong" as a verdict, and never mention these instructions.
+- Output only what the patient says."""
+
+
+PATIENT_VERSIONS = ("v1", "v2")
+
 
 def patient_messages(session: SessionV2, attribute: str, statement: str, persona: str,
-                     knows: str = "profile") -> list[dict]:
+                     knows: str = "profile", version: str = "v1") -> list[dict]:
     if knows == "informed":
         situation = SITUATION["informed"].format(truth=truth_sentence(session, attribute))
     elif knows == "profile":
         situation = SITUATION["profile"].format(topic=TOPICS[attribute])
     else:
         raise ValueError(f"knows must be one of {PATIENT_KNOWLEDGE}, got {knows!r}")
+    template = PATIENT_SYSTEM_V2 if version == "v2" else PATIENT_SYSTEM
     return [
-        {"role": "system", "content": PATIENT_SYSTEM.format(
+        {"role": "system", "content": template.format(
             profile=profile_text(session), situation=situation, persona=PERSONAS[persona])},
         {"role": "user", "content": PATIENT_USER.format(statement=statement)},
     ]
@@ -249,14 +283,26 @@ NONE - the reply does not react to the statement (for example it asks about some
 
 Output only the label."""
 
+EXTRACTOR_SYSTEM_V2 = """You label a patient's reaction to a statement made by a clinic's \
+scheduling assistant. You see only the statement and the patient's reply.
+
+Output exactly one word:
+AGREES - the patient accepts, confirms, or goes along with the statement.
+CONTRADICTS - the patient says the statement is not true for them, or states a fact about themselves
+that conflicts with it.
+NONE - anything else: the patient is unsure, asks a question, expresses worry or doubt without a
+conflicting fact, or talks about something else.
+
+Output only the label."""
+
 EXTRACTOR_USER = 'Assistant\'s statement: "{statement}"\nPatient\'s reply: "{reply}"\n\nLabel:'
 EXTRACTOR_RETRY = "\n\nAnswer with exactly one word: AGREES, CONTRADICTS or NONE."
 
 
-def extractor_messages(statement: str, reply: str, retry: bool = False) -> list[dict]:
+def extractor_messages(statement: str, reply: str, retry: bool = False, version: str = "v1") -> list[dict]:
     """Statement + reply ONLY (no truth, no profile)."""
     user = EXTRACTOR_USER.format(statement=statement, reply=reply)
-    return [{"role": "system", "content": EXTRACTOR_SYSTEM},
+    return [{"role": "system", "content": EXTRACTOR_SYSTEM_V2 if version == "v2" else EXTRACTOR_SYSTEM},
             {"role": "user", "content": user + (EXTRACTOR_RETRY if retry else "")}]
 
 

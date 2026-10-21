@@ -41,6 +41,7 @@ from pge.dag import ChainOfThoughtDAG
 from pge.trajectory import Trajectory, Turn
 
 OUT_DIR = REPO / "data" / "trajectories" / "healthcare_llmpatient"
+OUT_DIR_V2 = REPO / "data" / "trajectories" / "healthcare_llmpatient_v2"
 SYSTEM_PROMPT_LP = (REPO / "pge" / "prompts" / "healthcare_llmpatient_system.txt").read_text()
 
 PATIENT_TEMP, PATIENT_MAX_TOKENS = 0.7, 80
@@ -79,12 +80,12 @@ class PatientDialogueAgent(RoutedAgent):
         )
 
 
-def extract(extractor: ChatClient, statement: str, reply: str) -> tuple[int, str, list[str]]:
+def extract(extractor: ChatClient, statement: str, reply: str, version: str = "v1") -> tuple[int, str, list[str]]:
     """(signal, status, raw outputs). One retry on an unparseable label; if
     that fails too: signal 0 (unobserved), status 'failed'."""
     raws = []
     for retry in (False, True):
-        raw = extractor.chat(LP.extractor_messages(statement, reply, retry=retry),
+        raw = extractor.chat(LP.extractor_messages(statement, reply, retry=retry, version=version),
                              EXTRACTOR_TEMP, EXTRACTOR_MAX_TOKENS)
         raws.append(raw)
         sig, status = LP.parse_extractor(raw)
@@ -95,7 +96,7 @@ def extract(extractor: ChatClient, statement: str, reply: str) -> tuple[int, str
 
 def run_patient_session(session: SessionV2, agent: PatientDialogueAgent, patient: ChatClient,
                         extractor: ChatClient, model_id: str, seed: int, persona: str,
-                        feedback_on_all: bool, knows: str = "profile") -> Trajectory:
+                        feedback_on_all: bool, knows: str = "profile", version: str = "v1") -> Trajectory:
     G = ChainOfThoughtDAG()
     node_idx: dict[str, int] = {}
     turns: list[Turn] = []
@@ -114,9 +115,9 @@ def run_patient_session(session: SessionV2, agent: PatientDialogueAgent, patient
             signal, reply = 0, None
             entry.update(patient_reply=None, extractor_raw=[], extractor_status="no_feedback_attr")
         else:
-            reply = patient.chat(LP.patient_messages(session, attribute, statement, persona, knows),
+            reply = patient.chat(LP.patient_messages(session, attribute, statement, persona, knows, version),
                                  PATIENT_TEMP, PATIENT_MAX_TOKENS).strip()
-            signal, ex_status, ex_raw = extract(extractor, statement, reply)
+            signal, ex_status, ex_raw = extract(extractor, statement, reply, version)
             entry.update(patient_reply=reply, extractor_raw=ex_raw, extractor_status=ex_status,
                          patient_verdict_word=bool(LP.VERDICT_RE.search(reply)))
         agent.replies[t] = reply
@@ -141,6 +142,7 @@ def run_patient_session(session: SessionV2, agent: PatientDialogueAgent, patient
             "n_turns": len(session.schedule),
             "persona": persona,
             "patient_knowledge": knows,
+            "patient_version": version,
             "feedback_on_all": feedback_on_all,
             "parse_status": [a["agent_parse_status"] for a in audit],
             "parse_failed_turns": [a["turn"] for a in audit if is_failed(a["agent_parse_status"])],
@@ -161,6 +163,8 @@ def main(argv=None) -> None:
     ap.add_argument("--feedback-on-all", action="store_true",
                     help="patient also reacts to NO_FEEDBACK_ATTRS (default: mirror v2)")
     ap.add_argument("--max-parse-fail", type=float, default=0.25)
+    ap.add_argument("--patient-version", choices=LP.PATIENT_VERSIONS, default="v1",
+                    help="v2: revised patient and extractor prompts (after the v1 pilot failed its gate)")
     ap.add_argument("--patient-knows", choices=LP.PATIENT_KNOWLEDGE, default="profile",
                     help="profile: patient knows only its own history (default); "
                          "informed: also told the true decision (comparison arm)")
@@ -172,7 +176,8 @@ def main(argv=None) -> None:
     p_spec = spec_from_args(args, prefix="patient_")
     e_spec = spec_from_args(args, prefix="extractor_")
     suffix = "" if args.patient_knows == "profile" else f"_{args.patient_knows}"
-    out = Path(args.out) if args.out else OUT_DIR / f"{a_spec.short_name}_{args.seed}{suffix}.jsonl"
+    out_dir = OUT_DIR_V2 if args.patient_version == "v2" else OUT_DIR
+    out = Path(args.out) if args.out else out_dir / f"{a_spec.short_name}_{args.seed}{suffix}.jsonl"
 
     rng = np.random.default_rng(args.seed)
     sessions = [sample_session_v2(rng, i) for i in range(args.n)]
@@ -209,7 +214,8 @@ def main(argv=None) -> None:
             system_prompt=SYSTEM_PROMPT_LP, request_timeout=45.0,
         )
         return run_patient_session(sessions[i], agent, patient_c, extractor_c, a_spec.model_id,
-                                   args.seed, personas[i], args.feedback_on_all, args.patient_knows)
+                                   args.seed, personas[i], args.feedback_on_all, args.patient_knows,
+                                   args.patient_version)
 
     def on_result(i, traj):
         done[traj.task_id] = traj
@@ -257,7 +263,7 @@ def main(argv=None) -> None:
                          "hall_rate": float(labels.mean()), "meter": summ, "runner": stats})
     print("[ledger] " + ledger_line(
         f"healthcare LLM-patient corpus ({a_spec.short_name}, seed {args.seed}, "
-        f"patient knows {args.patient_knows}, n={n_written})",
+        f"patient {args.patient_version}, knows {args.patient_knows}, n={n_written})",
         f"behavioral feedback: patient {p_spec.model_id}, extractor {e_spec.model_id}; "
         f"signal +1/-1/0 = {sig[1]}/{sig[-1]}/{sig[0]}; agent parse-failed {statuses['failed']}/{total}, "
         f"extractor failed {ex['failed']}",
