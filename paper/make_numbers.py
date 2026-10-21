@@ -146,6 +146,68 @@ def main(repo):
             if pc:
                 for k in ("auroc_q", "ece_q"):
                     put(f"V/{short}/PCQ/range/{k}", f"{min(d[k] for d in pc.values()):.3f}--{max(d[k] for d in pc.values()):.3f}")
+    pf = Path(repo) / "results" / "e19_percommit" / "numbers.json"
+    if pf.exists():
+        PC = json.loads(pf.read_text())
+        for which, d in PC.items():
+            for tag, m in d.items():
+                t = TAG.get(tag, tag)
+                for k, v in m.items():
+                    if k.startswith("ece"):
+                        put(f"PC/{which}/{t}/{k}", a3(v[0]))  # point only: bootstrap ECE is biased upward
+                    elif " - " in k:
+                        put(f"PC/{which}/{t}/{k}", ci(v))
+                    else:
+                        put(f"PC/{which}/{t}/{k}", f"{a3(v[0])}\\,[{a3(v[1])}, {a3(v[2])}]")
+                        put(f"pt:PC/{which}/{t}/{k}", a3(v[0]))
+            ags = [t for t in d if t != "pooled"]
+            for k in d[ags[0]] if ags else []:
+                vals = [d[t][k][0] for t in ags]
+                put(f"PC/{which}/range/{k}", f"{min(vals):.3f}--{max(vals):.3f}")
+    jf = Path(repo) / "results" / "e18_joint_bootstrap" / "numbers.json"
+    if jf.exists():
+        J = json.loads(jf.read_text())
+        for lab, d in J.items():
+            for q, v in d.items():
+                jc = v["joint"]
+                put(f"J/{lab}/{q}", ci(jc) if " - " in q else f"{a3(jc[0])}\\,[{a3(jc[1])}, {a3(jc[2])}]")
+                hp = v.get("p_holm")
+                if hp is not None and hp == hp:
+                    put(f"J/{lab}/holm/{q}", "$<$.001" if hp < 0.001 else f"{hp:.3f}".replace("0.", ".", 1))
+    sf = Path(repo) / "results" / "e17_strong_baselines" / "numbers.json"
+    if sf.exists():
+        S7 = json.loads(sf.read_text())
+        for q, c in S7.get("pooled", {}).items():
+            put(f"S/pooled/{q}", ci(c))
+        ags = [t for t in S7 if t not in ("pooled", "budget")]
+        for t in ags:
+            for det, v in S7[t]["auroc"].items():
+                put(f"S/{TAG.get(t, t)}/{det}", a3(v))
+                put(f"t:S/{TAG.get(t, t)}/{det}", a3(v, lead=False))
+            for q, c in S7[t]["diffs"].items():
+                put(f"S/{TAG.get(t, t)}/{q}", ci(c))
+        if ags:
+            for q in S7[ags[0]]["diffs"]:
+                cis = [S7[t]["diffs"][q] for t in ags]
+                put(f"S/npos/{q}", f"{sum(c[1] > 0 for c in cis)} of {len(cis)}")
+                put(f"S/nneg/{q}", f"{sum(c[2] < 0 for c in cis)} of {len(cis)}")
+            for det in S7[ags[0]]["auroc"]:
+                put(f"S/mean/{det}", f"{np.mean([S7[t]['auroc'][det] for t in ags]):.3f}")
+        pv = [S7.get("pooled", {}).get(f"V7 - {d}", [None])[0] for d in ("intake_lr+fb", "intake_lr+fb (cv)", "intake_gbm+fb")]
+        pv = [v for v in pv if v is not None]
+        if pv:
+            put("S/range/vs_raw", f"{min(pv):.2f}--{max(pv):.2f}")
+        bud = S7.get("budget", {})
+        vf2 = Path(repo) / "results" / "e16_v7_confirm" / "numbers.json"
+        vb = json.loads(vf2.read_text())["healthcare"].get("budget", {}) if vf2.exists() else {}
+        if bud:
+            for size in (25, 50, 100, 200):
+                k = f"dep_lr+fb (cv)@{size}"
+                vals = [d[k] for d in bud.values() if k in d]
+                if vals:
+                    put(f"S/budget/mean/{k}", f"{np.mean(vals):.3f}")
+                ks = [t for t in bud if t in vb and k in bud[t]]
+                put(f"S/budget/v7_lead/{size}", f"{sum(vb[t][f'V7@{size}'] > bud[t][k] for t in ks)} of {len(ks)}")
     ef = Path(repo) / "results" / "e15_regimes_confirm" / "numbers.json"
     if ef.exists():
         E = json.loads(ef.read_text())
@@ -206,6 +268,13 @@ def main(repo):
         for k in ("auroc_disagreement", "auroc_feedback_bit", "e1", "e0", "cor1_bound"):
             put(f"{pre}/PC/range/{k}", rng([d.get(k) for d in pc.values()]))
         put(f"{pre}/PC/range/all_agree", rng([d.get("all_agree") for d in pc.values()], lambda x: f"{100 * x:.0f}"))
+        if pc:
+            put(f"{pre}/PC/maxdiff_e", f"{max(abs(d['e1'] - d['e0']) for d in pc.values()):.2f}")
+        ags_s = [t for t in N.get("L_U", {}) if t != "pooled"]
+        sv = [N["L_U"][t]["auroc"].get(d) for t in ags_s for d in ("gcn", "dag_logreg", "best graphon")]
+        sv = [v for v in sv if v is not None]
+        if sv:
+            put(f"{pre}/L_U/range/structure", f"{min(sv):.2f}--{max(sv):.2f}")
         ra, lu = N.get("rules_aware", {}), N.get("L_U", {})
         agents = [t for t in ra if t != "pooled" and t in lu]
         put(f"{pre}/derived/V6session_gap/range",
@@ -256,6 +325,14 @@ def main(repo):
             t = TAG.get(tag, tag)
             for k, v in d.items():
                 put(f"{pre}/CH/{t}/{k}", f"{v:.2f}" if isinstance(v, float) else v)
+    # point-estimate twins ("pt:" + key) for the abstract and the contributions
+    import re as _re
+    pts = []
+    for line in out:
+        m = _re.match(r"\\setval\{([^}]*)\}\{(.*)\}$", line)
+        if m and "\\,[" in m.group(2) and not m.group(1).startswith(("t:", "pt:")):
+            pts.append(f"\\setval{{pt:{m.group(1)}}}{{{m.group(2).split(chr(92) + ',[')[0]}}}")
+    out += pts
     Path(__file__).with_name("numbers.tex").write_text("% generated by make_numbers.py; do not edit\n" + "\n".join(out) + "\n")
     print(f"wrote {len(out)} values")
 

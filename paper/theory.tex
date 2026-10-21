@@ -35,21 +35,21 @@ Theorem~\ref{thm:bound} is the standard data-processing consequence of NP
 
 \begin{theorem}[Self-consistency bound]
 \label{thm:bound}
-Let $\eta_\varnothing=P(L=1\mid X,C)$ and $S$ be a context-and-sample
+Let $\eta_X=P(L=1\mid X,C)$ and $S$ be a context-and-sample
 detector. Given $(X,C)$, $S$ is independent of $u$ and $L$, so within a
 context it ranks hallucinating above clean sessions with probability exactly
 $\tfrac12$. Across contexts, its ROC curve lies
-pointwise below that of the Bayes predictor $\eta_\varnothing$.
+pointwise below that of the Bayes predictor $\eta_X$.
 \end{theorem}
 \begin{proof}
 Given $(u,X,C)$, $S$ depends only on $(Z,\xi)$, whose law does not involve
 $u$, and $L$ is a function of $(C,u)$. So the law of $S$ given $(X,C)$ does
-not depend on $L$, $P(L=1\mid X,C,S)=\eta_\varnothing$, and NP applies to
+not depend on $L$, $P(L=1\mid X,C,S)=\eta_X$, and NP applies to
 $O=(X,C,S)$.
 \end{proof}
 
 \noindent Since $X$ contains the reactions the agent was shown,
-$\eta_\varnothing$ is not feedback-free, and detectors built from $(X,C)$,
+$\eta_X$ is not feedback-free, and detectors built from $(X,C)$,
 such as context-only classifiers, can reflect them and exploit base rates
 across contexts. Resampling cannot add to $(X,C)$ or separate users who share
 a context; a feedback detector reads the reactions directly, including the
@@ -94,8 +94,8 @@ probability $\varepsilon$. Let $\eta_\varepsilon=P(L=1\mid X,C,F^\varepsilon)$
 Fix the joint law of $(u,X,C)$; in particular, it does not depend on
 $\varepsilon$. For $0\le\varepsilon\le\varepsilon'\le\tfrac12$ the ROC curve
 of $\eta_\varepsilon$ lies pointwise above that of $\eta_{\varepsilon'}$,
-which lies above that of $\eta_\varnothing$, and
-$\eta_{1/2}=\eta_\varnothing$ almost surely.
+which lies above that of $\eta_X$, and
+$\eta_{1/2}=\eta_X$ almost surely.
 \end{theorem}
 \begin{proof}
 If $\varepsilon'=\varepsilon$ there is nothing to show. Otherwise
@@ -112,11 +112,8 @@ occurs depends only on $(X,C)$, and every observed sign is a fair coin.
 
 \noindent The premise is essential: if the agent conditions on the same
 reactions, the law of $(X,C)$ changes with $\varepsilon$ and monotonicity can
-fail. In a two-turn example where the agent copies the reaction to an
-unconfident answer into a confident one on a correlated attribute without
-feedback, $\mathrm{AUROC}(\eta_\varepsilon)$ is $0.50$ at $\varepsilon=0$ and $0.71$ at
-$\varepsilon=0.25$. In PGE, Theorem~\ref{thm:feedback} thus covers
-regenerating feedback for the detector with the agent's trajectories fixed.
+fail (a two-turn counterexample is in the repository). The theorem covers
+reactions regenerated for the detector with the agent's trajectories fixed.
 
 \paragraph{The label-event posterior.}
 Let $\kappa_t=(a_t,v_t,b(p_t))$ be the detector-visible \emph{cell}, where
@@ -159,31 +156,20 @@ user's reactions enter only through $\ell_1(F_t)/\ell_0(F_t)$; setting these to 
 base rates $\pi_\kappa$ (the prior-only ablation). Cascades violate (A1), but
 a simple cascade model does not help (\S\ref{sec:exp-robust}).
 
-\begin{proposition}[Priors are identified where feedback exists]
+\begin{proposition}[Priors are identified up to one scale]
 \label{prop:identify}
-Assume (A2) and let $\pi_\kappa=P(w_t=1\mid\kappa_t=\kappa)$. Let $n_\kappa$
-count the commitments in cell $\kappa$ that received a reaction ($F_t\neq0$)
-and $\hat r_\kappa$ the fraction contradicted, and assume their errors are
-independent given $n_\kappa$ (implied by (A1), or by i.i.d.\ sessions in
-which each attribute is committed at most once). Then the contradiction rate
-is $r_\kappa=\varepsilon+(1-2\varepsilon)\pi_\kappa$, and for known
-$\varepsilon<\tfrac12$, $\hat\pi_\kappa=(\hat r_\kappa-\varepsilon)/(1-2\varepsilon)$
-needs no labels and, given $n_\kappa$, with probability at least $1-\delta$
-\citep{hoeffding1963probability},
-\[
-|\hat\pi_\kappa-\pi_\kappa|\ \le\ \frac{1}{1-2\varepsilon}\sqrt{\frac{\log(2/\delta)}{2n_\kappa}};
-\]
-projecting onto $[0,1]$ does not increase the error. Cells on attributes that
-never receive feedback are not identified. If $\varepsilon$ is unknown, the
-reactions depend on $(\pi,\varepsilon)$ only through $(r_\kappa)_\kappa$, so
-every $\varepsilon'\in[0,\tfrac12)$ with
-$\varepsilon'\le\min_\kappa\min(r_\kappa,1-r_\kappa)$, with
-$\pi'_\kappa=(r_\kappa-\varepsilon')/(1-2\varepsilon')$, fits equally well.
+Assume (A2), let $\pi_\kappa=P(w_t=1\mid\kappa_t=\kappa)$, and let
+$\hat r_\kappa$ be the fraction of the $n_\kappa$ reacted-to commitments in
+cell $\kappa$ that were contradicted, with independent errors given
+$n_\kappa$. Then $r_\kappa=\varepsilon+(1-2\varepsilon)\pi_\kappa$; for
+known $\varepsilon<\tfrac12$, $\hat\pi_\kappa=(\hat r_\kappa-\varepsilon)/(1-2\varepsilon)$
+needs no labels and, with probability at least $1-\delta$,
+$|\hat\pi_\kappa-\pi_\kappa|\le(1-2\varepsilon)^{-1}\sqrt{\log(2/\delta)/(2n_\kappa)}$
+\citep{hoeffding1963probability}. Cells that never receive reactions are not
+identified, and if $\varepsilon$ is unknown every
+$\varepsilon'\le\min_\kappa\min(r_\kappa,1-r_\kappa)$ fits equally well.
 \end{proposition}
 
-\noindent One scalar anchor ($\varepsilon$, or one cell's
-$\pi_\kappa\neq\tfrac12$) resolves this; we choose $\varepsilon$ by
-training-split label likelihood. Unidentified cells get the bucket prior
-pooled over the other attributes. The bound covers the raw estimate, not the
-implementation's clipping to $[0.01,0.99]$ and shrinkage toward coarser cells
-(value $\to$ attribute $\to$ bucket).
+\noindent We fix the scale by training-split label likelihood; unidentified
+cells get the pooled bucket prior, and estimates are clipped to
+$[0.01,0.99]$ and shrunk toward coarser cells.

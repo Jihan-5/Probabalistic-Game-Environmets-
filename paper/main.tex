@@ -19,6 +19,7 @@
 \newcommand{\setval}[2]{\expandafter\def\csname val@#1\endcsname{#2}}
 \newcommand{\val}[1]{\ifcsname val@#1\endcsname\csname val@#1\endcsname\else\textcolor{red}{\textbf{??}}\fi}
 \newcommand{\tv}[1]{\val{t:#1}}
+\newcommand{\pt}[1]{\ifcsname val@pt:#1\endcsname\val{pt:#1}\else\val{#1}\fi}
 \InputIfFileExists{numbers}{}{}
 % Sentences whose direction depends on a confirmatory outcome: blue until
 % checked against the pre-registered wording rules (results/PREREG_confirmatory.md).
@@ -36,29 +37,26 @@
 
 \begin{abstract}
 An agent serving an individual must act on facts about that person it was
-never told: whether a scan is safe today, whether a sedative is needed. When
-it asserts such facts confidently and wrongly, nothing external can check
-it, because the truth lives with the user. We show that sampling-consistency detectors cannot tell users apart within a conversation: conditional on it, the model's resamples carry no information about which user it is wrong about, and for an agent that repeats its answers whether they are right or wrong, their AUROC is close to $1/2$ overall. We propose
-Probabilistic Game Environments (PGE), a protocol in which the agent states
-each assumption as an explicit commitment with a confidence and the user's
-implicit reactions are recorded, and an intake-aware label-event posterior
-that turns them into per-commitment and per-session risk. In a
-pre-registered evaluation on fresh sessions with five LLM agents from four
-families, SelfCheckGPT and semantic entropy are near chance on user-specific
-hallucination (\val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} and
-\val{C/L_U/pooled/H1: AUROC(semantic_entropy)} AUROC pooled), while our
-posterior reaches \val{V/hc/L_U/pooled/--: AUROC(V7)} and beats the best
-supervised detector given the same information by
-\val{V/hc/L_U/pooled/H8: V7 - intake_lr+fb}. It also identifies \emph{which}
-commitment is wrong (\val{V/hc/PCQ/range/auroc_q} AUROC, calibration error
-\val{V/hc/PCQ/range/ece_q}) and leads at small label budgets. Exact Bayes
-predictors in a simulator with known truth show that the user's reactions
-carry information beyond the population risk of the commitments
-(\val{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}
-AUROC), and that it is already in the conversation the agent sees: resampling
-fails because agreement between samples does not read it.
-\chk{\pending{clarification headline}} We report every registered
-hypothesis, including those against our first posterior.
+never told, such as whether a scan is safe today. When it asserts such facts
+confidently and wrongly, nothing external can check it. We show that
+sampling-consistency detectors cannot tell users apart within a
+conversation, and are near chance whenever resamples disagree as often on
+right as on wrong answers. We propose Probabilistic Game Environments (PGE):
+the agent states each assumption as a commitment with a confidence, the
+user's implicit reactions are recorded, and a posterior turns both into
+per-commitment and per-session risk. In a pre-registered evaluation with
+five LLM agents, SelfCheckGPT and semantic entropy score
+\pt{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} and
+\pt{C/L_U/pooled/H1: AUROC(semantic_entropy)} AUROC on user-specific
+hallucination. An intake-aware posterior, added by amendment and run once,
+reaches \pt{V/hc/L_U/pooled/--: AUROC(V7)}, beats supervised detectors on the
+same inputs by \val{S/range/vs_raw} (they match it only when given its
+structure), and identifies which commitment is wrong at
+\pt{PC/schema/pooled/auroc_V7} AUROC, where resample disagreement reaches
+\pt{PC/schema/pooled/auroc_disagreement}. Exact Bayes predictors show that the
+reactions carry information beyond population risk, which agreement between
+samples ignores. \chk{\pending{clarification headline}} All registered
+outcomes are reported, including those against our first posterior.
 \end{abstract}
 
 \noindent\textbf{Keywords:} LLM agents; hallucination detection; uncertainty; clarification; implicit feedback.
@@ -91,44 +89,48 @@ $(\text{attribute},\text{value},p)$, and the user's reaction (accepting it,
 contradicting it, or ignoring it) is recorded. Reactions are noisy and partial, but they depend on the truth for \emph{this} user, which no resample does: under a simple model the posterior of the hallucination event uses them exactly (Proposition~\ref{prop:posterior}), and less noisy reactions cannot hurt (Theorem~\ref{thm:feedback}). Our contributions:
 
 \begin{enumerate}
-\item \textbf{The failure, proved and measured.} No detector computed from the
-model and its context (resampling, self-verification, hidden-state probes)
-can tell which user it is wrong about within a conversation
-(Theorem~\ref{thm:bound}), and for a self-consistent agent sampling scores
-are near chance overall (Corollary~\ref{cor:degenerate}). On fresh sessions
-from \val{C/derived/L_U/nagents} agents, all three resamples agree on
-\val{C/PC/range/all_agree}\% of the commitments whose truth depends on
+\item \textbf{Why resampling fails, and by how much.} No detector computed
+from the model and its context (resampling, self-verification, hidden-state
+probes) can tell which of two users sharing a conversation it is wrong about
+(Theorem~\ref{thm:bound}), and sampling scores are near chance whenever
+resamples disagree about as often on right as on wrong answers
+(Corollary~\ref{cor:degenerate}). On fresh sessions
+from \pt{C/derived/L_U/nagents} agents, all three resamples agree on
+\pt{C/PC/range/all_agree}\% of the commitments whose truth depends on
 undisclosed facts, resample disagreement predicts their errors at
-\val{C/PC/range/auroc_disagreement} AUROC, and SelfCheckGPT and semantic
-entropy score \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} and
-\val{C/L_U/pooled/H1: AUROC(semantic_entropy)} on user-specific
+\pt{C/PC/range/auroc_disagreement} AUROC, and SelfCheckGPT and semantic
+entropy score \pt{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} and
+\pt{C/L_U/pooled/H1: AUROC(semantic_entropy)} on user-specific
 hallucination.
 \item \textbf{A protocol that makes these errors detectable.} In PGE the
 agent states each assumption as a commitment with a confidence and the
 user's implicit reaction is recorded. Detectors on these observables beat
-both sampling detectors by \val{C/L_U/pooled/H4: V6 - SelfCheckGPT} to
-\val{C/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy} AUROC pooled, and the
-user's reactions add signal (\val{C/L_U/pooled/H2: V6 - V6-prior};
-significant for \val{C/derived/L_U/npos/V6 - V6-prior} agents).
-\item \textbf{A posterior that wins, and says which claim is wrong.} Our
-label-event posterior is exact under a conditional-independence model and
-identifies its priors from reactions alone
+both sampling detectors by \pt{C/L_U/pooled/H4: V6 - SelfCheckGPT} to
+\pt{C/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy} AUROC pooled, and the
+user's reactions add detectable signal beyond population base rates (\pt{C/L_U/pooled/H2: V6 - V6-prior};
+significant for \pt{C/derived/L_U/npos/V6 - V6-prior} agents).
+\item \textbf{A posterior that says which claim is wrong.} Our label-event
+posterior is exact under a conditional-independence model and identifies its
+priors from reactions up to one scale parameter
 (Proposition~\ref{prop:identify}). Its intake-aware form, V7, learns which
-commitments the intake leaves to the user. Registered before use, it
-reaches \val{V/hc/L_U/pooled/--: AUROC(V7)} AUROC on user-specific
-hallucination, beats the strongest supervised detector given the same
-information by \val{V/hc/L_U/pooled/H8: V7 - intake_lr+fb} and SelfCheckGPT by
-\val{V/hc/L_U/pooled/--: V7 - SelfCheckGPT}, leads with 25 labelled sessions,
-and per commitment reaches \val{V/hc/PCQ/range/auroc_q} AUROC with calibration
-error \val{V/hc/PCQ/range/ece_q}. Its risk chooses what to ask the user,
-which we measure with the agent re-reasoning after each answer.
+commitments the intake leaves to the user. Designed on development data
+after the registered results and registered before its first run, it
+reaches \pt{V/hc/L_U/pooled/--: AUROC(V7)} AUROC, beats supervised detectors
+on the same raw inputs by \val{S/range/vs_raw} (registered H8:
+\pt{V/hc/L_U/pooled/H8: V7 - intake_lr+fb}), and is matched only by a
+classifier handed its structure. The user's reactions add
+\pt{S/pooled/V7 - V7-prior} to it. Per commitment it identifies the wrong ones at
+\pt{PC/schema/pooled/auroc_V7} AUROC with calibration error
+\pt{PC/schema/pooled/ece_V7}, against \pt{PC/schema/pooled/auroc_disagreement}
+for resample disagreement; this risk chooses what to ask the user.
 \item \textbf{Where the information is.} Exact Bayes predictors in a
 simulator with known truth show that the reactions carry information beyond
 the population risk of the commitments
-(\val{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}
-AUROC), and that it is already in the conversation the agent sees: sampling
+(\pt{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}
+AUROC), and that nearly all of it reaches the agent's transcript: sampling
 fails not for lack of information, but because agreement between resamples
-does not read it.
+ignores the reactions, and each resample precedes its own commitment's
+reaction.
 \item \textbf{A pre-registered evaluation, fully reported.} After a blind
 internal audit of our development results we fixed a protocol bug,
 registered every comparison and its wording, and generated fresh sessions
@@ -164,8 +166,12 @@ observations; CAR-bench \citep{kirmayr2026carbench} tests whether agents
 admit missing information with a simulated user; AgentHallu
 \citep{liu2026agenthallu} localizes the step that introduced an error.
 In multiagent systems a commitment is a public, checkable obligation of one
-agent to another \citep{singh1999ontology}; ours are probabilistic claims
-about the counterpart, checked by its reactions. We study detection when the
+agent to another \citep{singh1999ontology}, and a probabilistic commitment
+binds an agent to achieve an outcome with a stated probability
+\citep{zhang2016commitment}; ours are probabilistic assertions about the
+counterpart's private state, checked against its reactions. Dialogue models
+hallucinate about their partner as well as about the world
+\citep{dziri2022origin}. We study detection when the
 missing information is the user's own.
 
 \paragraph{Clarification.} When to ask has been framed through expected
@@ -180,9 +186,11 @@ commitment risk to choose which assertions to confirm, and measure the
 effect with the agent re-reasoning.
 
 \paragraph{Implicit and noisy feedback.} Implicit signals such as clicks are
-informative but biased \citep{joachims2005clickthrough}. Spoken dialogue
+informative but biased \citep{joachims2005clickthrough}. Conversation partners ground what they assert through
+the other's acceptance \citep{clark1991grounding}; spoken dialogue
 systems confirm hypotheses implicitly and update beliefs from the user's
-reaction \citep{bohus2005constructing,williams2007pomdp}; our reactions play
+reaction \citep{bohus2005constructing,williams2007pomdp}, and chatbots can
+learn from their partner's satisfaction signals \citep{hancock2019learning}; our reactions play
 the same role for asserted user facts. The general channel of our posterior,
 with error-dependent contradiction and confirmation rates, has the form of
 the guess and slip parameters of knowledge tracing
@@ -215,7 +223,7 @@ accepts) is recorded and shown to the agent for its next six turns.
 (iv)~\emph{Detection and intervention}: a detector scores the session and
 its commitments; high-risk commitments trigger a confirmation question.
 
-\paragraph{Labels.} With confident set $H=\{t:p_t\ge\tau\}$, $\tau=0.6$, the \emph{composite} label $L$ (Eq.~\eqref{eq:label}) marks a session in which at least half of the confident commitments are wrong, and is $0$ if there are none. It mixes two kinds of
+\paragraph{Labels.} With confident set $H=\{t:p_t\ge\tau\}$, $\tau=0.6$, the \emph{composite} label $L$ (Eq.~\eqref{eq:label}) marks a session in which at least half of the confident commitments are wrong ($\rho=\tfrac12$), and is $0$ if there are none. It mixes two kinds of
 error. Some attributes are determined by the intake through rules the agent
 was never shown (e.g.\ contrast is needed iff urgency is medium or high);
 errors there are guesses about the clinic, not about the user. The
@@ -223,7 +231,9 @@ errors there are guesses about the clinic, not about the user. The
 commitments that are user-dependent in that session, and is $0$ when there
 are none. Whether a commitment is user-dependent is decided per session by
 enumerating the hidden profile's support: \texttt{scan\_safe\_now}, for
-example, depends on days since treatment only when a treatment was recent.
+example, depends on days since treatment only when a treatment was recent;
+\texttt{needs\_contrast} is fixed by urgency, so a wrong ``no'' counts in
+$L$ but never in $\LU$.
 $\LU$ is our primary label; $L$ is reported as secondary.
 
 % ======================================================================
@@ -236,37 +246,40 @@ $\LU$ is our primary label; $L$ is reported as secondary.
 PGE yields two observables per turn, a commitment and a reaction. We read
 them with two kinds of \emph{PGE detectors}: a label-event posterior, which
 also gives per-commitment risk, and supervised classifiers. The baselines
-read only the model.
+read only the model. Table~\ref{tab:access} lists what each one sees.
 
-\paragraph{PGE posterior.} The score is a plug-in estimate of the posterior of Proposition~\ref{prop:posterior}. Each confident commitment is assigned to a cell
-$\kappa=(\text{attribute},\text{value},\text{confidence bucket})$ with
-buckets $[0.6,0.65)$, $[0.65,0.75)$, $[0.75,1]$. Cell priors are estimated
-from training reactions by the method of moments (Proposition~\ref{prop:identify}),
-shrunk toward attribute-level and bucket-level estimates (strength $k=5$); cells on the two attributes that never receive reactions are not identified and get the pooled bucket-level prior.
-Our pre-registered primary detector, V6, uses a general channel: the
-contradiction rates $r_w=P(F=-1\mid w)$ are chosen on training labels over a
-grid ($r_1>r_0+0.1$), priors are $\pi=(\text{rate}-r_0)/(r_1-r_0)$, and the
-confirmation rates $g_w=P(F=+1\mid w)$ are fit by least squares; the
-symmetric flip channel (V3, with flip rate $\varepsilon$ chosen on training
-labels) is the special case $r_0=g_1=\varepsilon$, $r_1=g_0=1-\varepsilon$. Proposition~\ref{prop:posterior} covers this channel, since its proof uses only $P(F_t\mid w_t)$; the channel scale is chosen on training labels because reactions alone do not identify it (Proposition~\ref{prop:identify}).
-For $\LU$ the label event is restricted to commitments on attributes that depend on a hidden field anywhere in the schema, a set the detector can know without the clinic's rules. V6 is therefore the posterior of a proxy event ($L_A$ of Section~\ref{sec:theory} with $A$ the schema-level set), not of $\LU$: on the development corpora the two events differ in most sessions and the labels disagree on a fifth to a quarter of them. Our simulator also violates (A1): whether a commitment is wrong depends on
-the intake answers, which the cell omits, so the plug-in is misspecified even
-with exact priors. \emph{Prior-only} (V6$-$prior) keeps the fitted
-priors and ignores the test user's reactions; V6 minus V6$-$prior is the
-feedback increment.
+\paragraph{PGE posterior.} The score is a plug-in estimate of the posterior
+of Proposition~\ref{prop:posterior}. Each confident commitment falls in a
+cell $\kappa=(\text{attribute},\text{value},\text{confidence bucket})$
+(buckets $[0.6,0.65)$, $[0.65,0.75)$, $[0.75,1]$); cell priors come from
+training reactions by the method of moments
+(Proposition~\ref{prop:identify}), shrunk toward attribute- and bucket-level
+estimates ($k=5$). The registered primary detector, V6, uses a general
+channel: contradiction rates $r_w=P(F=-1\mid w)$ chosen on training labels
+($r_1>r_0+0.1$), priors $\pi=(\text{rate}-r_0)/(r_1-r_0)$, and confirmation
+rates fit by least squares; V3 is the symmetric special case. For $\LU$ the
+event is restricted to attributes that depend on a hidden field anywhere in
+the schema, which the detector can know without the clinic's rules; V6 is
+therefore the posterior of a proxy event ($L_A$ in Section~\ref{sec:theory}).
+Whether a commitment is wrong also depends on the intake, which the cell
+omits, so (A1) fails and the plug-in is misspecified. V6$-$prior keeps the
+fitted priors and ignores the test user's reactions.
 
 \paragraph{Intake-aware posterior (V7).} V7 repairs both mismatches and
 nothing else. Its cells add the intake answers each attribute depends on in
-the schema, shrunk toward V6's cell, which restores (A1) in our simulator.
+the schema, shrunk toward V6's cell (errors still share hidden facts across attributes, so (A1) remains an approximation).
 Its label event is learned: a commitment whose truth the intake fixes is
 wrong for every user with that intake or for none, a rule error rather than a
 user-specific one. Starting from the schema-level set, V7 removes an
 (attribute, intake) cell from the event, or returns it, when that lowers the
 training log-loss, alternating with the channel fit; for $L$, whose event is
-every confident commitment, only the cells change. The inputs are the
-agent's own intake answers and the schema's dependency lists, as for V6. V7
-was designed and tuned on the development corpora only, and frozen and
-registered (Amendment~6) before any use on confirmatory data.
+every confident commitment, only the cells change. V6 uses only the
+schema-level set; V7 adds the agent's own intake answers and the schema's
+dependency lists. On development data the intake cells alone add nothing;
+the gain comes from the learned event. V7 was designed after the registered
+results were known, tuned on the development corpora only (twelve variants,
+all logged), and frozen and registered (Amendment~6) before its first run on
+confirmatory data.
 
 \paragraph{Supervised PGE classifiers.} \emph{ctx-LR} is an $L_2$ logistic
 regression ($C=0.1$, fixed) on counts of confident commitments per
@@ -277,6 +290,35 @@ the registered wording of H3 means no reactions and no samples. Both need
 the structured commitments that PGE elicits. Two feedback statistics
 (fraction of contradicted confident commitments, fraction of contradicted
 turns) are the simplest PGE detectors.
+
+
+\begin{table}[t]
+\centering
+\caption{What each detector sees. Int.: intake answers; Com.: commitments
+and stated confidences; Rea.: reactions; Res.: resamples or verification
+queries; Sch.: the schema's dependency structure; Rul.: the simulator's
+rules and hidden-fact prior; Lab.: training labels. Oracle rows are not
+deployable.}
+\label{tab:access}
+\setlength{\tabcolsep}{2.2pt}
+\footnotesize
+\begin{tabular}{lccccccc}
+\toprule
+Detector & Int. & Com. & Rea. & Res. & Sch. & Rul. & Lab. \\
+\midrule
+SelfCheckGPT, semantic entropy & $\cdot$ & \checkmark & $\cdot$ & \checkmark & \checkmark & $\cdot$ & $\cdot$ \\
+CoVe & \checkmark & \checkmark & \checkmark & \checkmark & $\cdot$ & $\cdot$ & $\cdot$ \\
+Stated confidence & $\cdot$ & \checkmark & $\cdot$ & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+ctx-LR / ctx-LR+F & $\cdot$ & \checkmark & +F & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+Intake-LR+F & \checkmark & \checkmark & \checkmark & $\cdot$ & $\cdot$ & $\cdot$ & \checkmark \\
+V6 & $\cdot$ & \checkmark & \checkmark & $\cdot$ & \checkmark & $\cdot$ & \checkmark \\
+V7 & \checkmark & \checkmark & \checkmark & $\cdot$ & \checkmark & $\cdot$ & \checkmark \\
+$\bar\eta$ (oracle) & \checkmark & \checkmark & $\cdot$ & $\cdot$ & \checkmark & \checkmark & $\cdot$ \\
+$\eta_X$, $\eta_F$ (oracle) & \checkmark & \checkmark & \checkmark & $\cdot$ & \checkmark & \checkmark & $\cdot$ \\
+V6-session, LR-session+F (oracle) & $\cdot$ & \checkmark & \checkmark & $\cdot$ & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \paragraph{Baselines.} SelfCheckGPT and semantic entropy on $k=3$ resamples
 per turn at temperature $0.9$ (exact-match clustering, adequate for
@@ -290,7 +332,8 @@ summary features (confidence, reaction and degree statistics) of a graph
 with one node per commitment and edges for attribute dependencies; a
 two-layer GCN \citep{kipf2017gcn}; and five block-model graphon likelihoods
 \citep{lovasz2012large}, of which we report the best on test, favouring the
-baseline.
+baseline. On $\LU$ they score \val{C/L_U/range/structure}, between sampling
+and the PGE detectors, so we omit them from the tables.
 
 % ======================================================================
 \section{Experimental Design}
@@ -324,31 +367,25 @@ A registered gate guards this corpus: a 100-session pilot runs first, and
 the full 600 sessions run only if contradictions are at least $1.5$ times as
 frequent after wrong commitments as after correct ones.
 
-\paragraph{Development and confirmation.} All method development used two
-development corpora (Llama-3.3-70B, 600 sessions; Llama-3.1-8B, 200).
-A blind internal audit of these results found, among other issues, that the
-agent had been shown a corrupted feedback display (no reaction appeared as
-acceptance, and below $p=0.5$ acceptance and contradiction appeared
-swapped), that resamples covered only five attributes, and that a
-feedback-free classifier nearly matched the posterior on $L$. Before
-generating new data, we committed an analysis plan to the code repository
+\paragraph{Development and confirmation.} Method development used two
+development corpora (Llama-3.3-70B, 600 sessions; Llama-3.1-8B, 200). A
+blind internal audit of these results found that the agent had been shown a
+corrupted feedback display, that resamples covered only five attributes,
+and that a feedback-free classifier nearly matched the posterior on $L$.
+Before generating new data we committed an analysis plan
 \citep{nosek2018preregistration}: labels, detectors (V6 primary), every
-comparison, the statistics, and the wording each outcome licenses. Six amendments followed. The first three were committed before any
-confirmatory data was seen by the analysts; they added the supervised
-feedback increment and the label-budget curves (descriptive), the analyses
-of Section~\ref{sec:exp-decomp}, and narrowed the wording of H5. The fourth
-added the second domain before any of its data existed; the fifth replaced
-the simulated patient after its first version failed its gate, before any
-data of the replacement existed. The sixth registered V7 and its hypotheses
-(H7: V7 beats V6; H8: V7 beats the supervised detector given the same
-information) after the registered results for four agents were known, before
-V7 touched any confirmatory corpus and before the Llama-70B and travel
-corpora were seen. The confirmatory corpora use a fresh random seed (no session
-seen in development), show the agent the raw reaction, draw three
-resamples on every turn from that turn's own context, and cover five agents:
-Llama-3.3-70B, Llama-3.1-8B, Qwen2.5-72B, GPT-4o-mini and
-Mistral-Small-3.1-24B, 600 sessions each. Every result below is
-confirmatory unless marked as development.
+comparison, the statistics, and the wording each outcome licenses. Six
+amendments followed: three before any confirmatory data was seen (the
+supervised feedback increment, label-budget curves, the analyses of
+Section~\ref{sec:exp-decomp}, H5's wording); the second domain, before any
+of its data existed; a replacement simulated patient, after the first
+failed its gate; and V7 with H7 and H8, after the registered results for
+four agents were known and before V7's first confirmatory run, when no
+detector had been run on the Llama-70B or travel corpora. The confirmatory
+corpora use a fresh seed, show the agent the raw reaction, draw three
+resamples on every turn, and cover five agents (Llama-3.3-70B,
+Llama-3.1-8B, Qwen2.5-72B, GPT-4o-mini, Mistral-Small-3.1-24B), 600
+sessions each.
 
 \paragraph{Statistics.} Splits are 70/30 by session for three split seeds;
 detectors are fit on the training split and score the test split once;
@@ -356,16 +393,19 @@ AUROC is averaged over seeds. Differences use a paired bootstrap (2,000
 resamples) clustered by session, since test sets of different seeds
 overlap. Pooled estimates average per-agent differences, with sessions
 resampled within agent. A difference is called significant when its 95\%
-interval excludes zero; we do not correct for multiplicity. The primary
+interval excludes zero; we do not correct for multiplicity, and intervals
+are conditional on the fitted detectors. Because the agents share sessions,
+we also resample sessions jointly across agents and report Holm-adjusted
+$p$-values (Table~\ref{tab:hyp}). The primary
 hypotheses are in Table~\ref{tab:hyp}, the per-agent comparisons on both
 labels in Appendix~\ref{app:peragent}, and every other registered comparison
 in the repository's analysis output.
 
-\paragraph{Oracle-information analyses.} Because the simulator's rules and hidden-field prior are known, we can compute three exact quantities. The \emph{population risk} $\bar\eta=\sum_h P(h)\,\LU(C,h)$ is the probability that the session's commitments would be wrong for a random user with the same intake. $\eta_\varnothing=P(\LU=1\mid X,C)$ adds the reactions the agent was shown (all but the last); by Theorem~\ref{thm:bound} it bounds every detector computed from the agent's context and its resamples. $\eta_F$ adds the last reaction and bounds every detector of commitments and reactions. The agent's policy does not involve the hidden facts, so its factors cancel and no agent model is needed. These are not
+\paragraph{Oracle-information analyses.} Because the simulator's rules and hidden-field prior are known, we can compute three exact quantities. The \emph{population risk} $\bar\eta=\sum_h P(h)\,\LU(C,h)$ is the probability that the session's commitments would be wrong for a random user with the same intake. $\eta_X=P(\LU=1\mid X,C)$ adds the reactions the agent was shown (all but the last); by Theorem~\ref{thm:bound} it bounds every detector computed from the agent's context and its resamples. $\eta_F$ adds the last reaction and bounds every detector of commitments and reactions. The agent's policy does not involve the hidden facts, so its factors cancel and no agent model is needed. These are not
 deployable detectors; they locate the information. We also give V6 and
 ctx-LR(+F) the same oracle knowledge of which commitments are
 user-dependent in each session (V6-session, LR-session). (The registered
-plan calls $\bar\eta$, $\eta_\varnothing$ and $\eta_F$ eta0, etaX and etaF.)
+plan calls $\bar\eta$, $\eta_X$ and $\eta_F$ eta0, etaX and etaF.)
 
 % ======================================================================
 \section{Results}
@@ -398,8 +438,12 @@ Mistral-24B & \val{C/PC/mistral/wrong}\% & \val{C/PC/mistral/all_agree}\% & \val
 \end{table}
 
 Table~\ref{tab:percommit} shows the mechanism. \chk{On commitments whose
-truth depends on undisclosed facts, agents that are self-consistent repeat the same answer whether it is right or wrong ($e_0$ and $e_1$ small and close, so by Corollary~\ref{cor:degenerate} the AUROC of disagreement lies within $\tfrac12e_0e_1$ of $\tfrac12+\tfrac12(e_1-e_0)$), so
-disagreement carries little information. One reaction from our simulated
+truth depends on undisclosed facts, resamples disagree about as often when the agent is right as when it is
+wrong: $e_1$ and $e_0$ differ by at most \val{C/PC/maxdiff_e} on every
+agent, so by Corollary~\ref{cor:degenerate} the AUROC of disagreement is
+centred within half that of $\tfrac12$. Qwen-72B and GPT-4o-mini mostly
+repeat themselves; Llama-8B and Mistral-24B disagree with themselves often,
+but equally often when right and when wrong. One reaction from our simulated
 user gives $0.75$, as designed; the comparison shows how little a user's
 reaction needs to carry to beat resampling, not how much a real user's
 does.} At the session level
@@ -407,16 +451,15 @@ does.} At the session level
 \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} and
 \val{C/L_U/pooled/H1: AUROC(semantic_entropy)} pooled over agents, both
 intervals inside the registered band of $[0.40, 0.60]$ (H1): sampling
-detectors are near chance on user-specific hallucination. H1 is a pooled
+detectors are near chance on user-specific hallucination. Resampling sessions jointly across agents, which share them, widens
+SelfCheckGPT's interval to \val{J/L_U/H1: AUROC(SelfCheckGPT)}, its upper end
+just outside the band: the registered criterion holds under the registered
+bootstrap, not under this stricter one. H1 is a pooled
 claim: per agent SelfCheckGPT ranges over \val{C/L_U/range/SelfCheckGPT};
 \chk{the top value (\val{C/derived/L_U/argmax/SelfCheckGPT}) lies just
 outside the band.} They are not near chance everywhere. On the composite label,
 where many errors are guesses about clinic rules that do vary across
-resamples, SelfCheckGPT reaches \val{C/L/pooled/H1: AUROC(SelfCheckGPT)}, and
-on AgentBench database questions \citep{liu2024agentbench}, where errors are
-computational, it reaches 0.712 with the 70B agent (a development corpus
-from before the audit, described in the repository). The
-failure is specific to facts the user never disclosed.
+resamples, SelfCheckGPT reaches \val{C/L/pooled/H1: AUROC(SelfCheckGPT)}. The failure is specific to facts the user never disclosed.
 
 \subsection{Detecting user-specific hallucination}
 \label{sec:exp-detection}
@@ -424,9 +467,8 @@ failure is specific to facts the user never disclosed.
 \begin{table*}[t]
 \centering
 \caption{Session AUROC on the user-specific label $\LU$ (mean of three
-splits; confirmatory corpora, 600 sessions per agent). $^\dagger$Exploratory,
-not registered: ctx-LR+F plus the intake answers and commitment$\times$intake
-cells. $^\ddagger$Registered in Amendment~6 after the other results were known;
+splits; confirmatory corpora, 600 sessions per agent). $^\dagger$Added after the registered plan: ctx-LR+F plus the intake answers and
+commitment$\times$intake cells; the comparator of H8 (Amendment~6). $^\ddagger$Registered in Amendment~6 after the other results were known;
 designed on development data only. CoVe was run for the 70B agent only. The
 composite label $L$ is in the repository.}
 \label{tab:main}
@@ -443,11 +485,8 @@ composite label $L$ is in the repository.}
 & ctx-LR & \tv{C/L_U/70B/ctx_lr} & \tv{C/L_U/8B/ctx_lr} & \tv{C/L_U/qwen/ctx_lr} & \tv{C/L_U/gpt/ctx_lr} & \tv{C/L_U/mistral/ctx_lr} \\
 & V6$-$prior & \tv{C/L_U/70B/V6-prior} & \tv{C/L_U/8B/V6-prior} & \tv{C/L_U/qwen/V6-prior} & \tv{C/L_U/gpt/V6-prior} & \tv{C/L_U/mistral/V6-prior} \\
 \midrule
-\multirow{9}{*}{\shortstack[l]{PGE:\\commit-\\ments\\+ reac-\\tions}} & Contradicted confident & \tv{C/L_U/70B/highconf_contradicted} & \tv{C/L_U/8B/highconf_contradicted} & \tv{C/L_U/qwen/highconf_contradicted} & \tv{C/L_U/gpt/highconf_contradicted} & \tv{C/L_U/mistral/highconf_contradicted} \\
+\multirow{6}{*}{\shortstack[l]{PGE:\\commit-\\ments\\+ reac-\\tions}} & Contradicted confident & \tv{C/L_U/70B/highconf_contradicted} & \tv{C/L_U/8B/highconf_contradicted} & \tv{C/L_U/qwen/highconf_contradicted} & \tv{C/L_U/gpt/highconf_contradicted} & \tv{C/L_U/mistral/highconf_contradicted} \\
 & Contradicted turns & \tv{C/L_U/70B/neg_signal_fraction} & \tv{C/L_U/8B/neg_signal_fraction} & \tv{C/L_U/qwen/neg_signal_fraction} & \tv{C/L_U/gpt/neg_signal_fraction} & \tv{C/L_U/mistral/neg_signal_fraction} \\
-& Graph-feature LR & \tv{C/L_U/70B/dag_logreg} & \tv{C/L_U/8B/dag_logreg} & \tv{C/L_U/qwen/dag_logreg} & \tv{C/L_U/gpt/dag_logreg} & \tv{C/L_U/mistral/dag_logreg} \\
-& GCN & \tv{C/L_U/70B/gcn} & \tv{C/L_U/8B/gcn} & \tv{C/L_U/qwen/gcn} & \tv{C/L_U/gpt/gcn} & \tv{C/L_U/mistral/gcn} \\
-& Best graphon & \tv{C/L_U/70B/best graphon} & \tv{C/L_U/8B/best graphon} & \tv{C/L_U/qwen/best graphon} & \tv{C/L_U/gpt/best graphon} & \tv{C/L_U/mistral/best graphon} \\
 & ctx-LR+F & \tv{C/L_U/70B/ctx_lr+fb} & \tv{C/L_U/8B/ctx_lr+fb} & \tv{C/L_U/qwen/ctx_lr+fb} & \tv{C/L_U/gpt/ctx_lr+fb} & \tv{C/L_U/mistral/ctx_lr+fb} \\
 & Intake-LR+F$^\dagger$ & \tv{X/L_U/70B/intake_lr+fb} & \tv{X/L_U/8B/intake_lr+fb} & \tv{X/L_U/qwen/intake_lr+fb} & \tv{X/L_U/gpt/intake_lr+fb} & \tv{X/L_U/mistral/intake_lr+fb} \\
 & PGE posterior (V6) & \tv{C/L_U/70B/V6} & \tv{C/L_U/8B/V6} & \tv{C/L_U/qwen/V6} & \tv{C/L_U/gpt/V6} & \tv{C/L_U/mistral/V6} \\
@@ -484,21 +523,32 @@ channel, is indistinguishable from V6 (\val{C/L_U/pooled/sec.: V6 - V3}).
 the oracle analysis of Section~\ref{sec:exp-decomp}, located V6's
 weaknesses: its cells omit the intake, and its event is a proxy for the
 commitments the intake leaves to the user. V7 repairs both
-(Section~\ref{sec:detectors}). It reaches
+(Section~\ref{sec:detectors}) and reaches
 \val{V/hc/L_U/pooled/--: AUROC(V7)} AUROC pooled (Table~\ref{tab:main}).
 \chk{Conditioning on the intake improves the posterior (H7:
-\val{V/hc/L_U/pooled/H7: V7 - V6}), and given the same information (intake,
-commitments, reactions) the posterior beats the supervised detector (H8:
+\val{V/hc/L_U/pooled/H7: V7 - V6}), and given the same information the
+posterior beats the supervised detector (H8:
 \val{V/hc/L_U/pooled/H8: V7 - intake_lr+fb}; significant for
-\val{V/hc/L_U/npos/V7 - intake_lr+fb} agents, the remaining one a tie). It
-also beats the registered supervised detector
-(\val{V/hc/L_U/pooled/H8': V7 - ctx_lr+fb}) and both sampling detectors by
+\val{V/hc/L_U/npos/V7 - intake_lr+fb} agents; ``same information'' means the
+same raw inputs, while V7 also encodes the schema's structure). V7 $-$
+ctx-LR+F is \val{V/hc/L_U/pooled/H8': V7 - ctx_lr+fb} (H8$'$); registered
+without claims, V7 $-$ SelfCheckGPT and V7 $-$ semantic entropy are
 \val{V/hc/L_U/pooled/--: V7 - SelfCheckGPT} and
-\val{V/hc/L_U/pooled/--: V7 - semantic_entropy} (significant for
-\val{V/hc/L_U/npos/V7 - SelfCheckGPT} and
-\val{V/hc/L_U/npos/V7 - semantic_entropy} agents).} On the composite label it reaches
-\val{V/hc/L/pooled/--: AUROC(V7)} and again beats the supervised detector
-with the same information (\val{V/hc/L/pooled/H8: V7 - intake_lr+fb}).
+\val{V/hc/L_U/pooled/--: V7 - semantic_entropy}, and on $L$ V7 reaches
+\val{V/hc/L/pooled/--: AUROC(V7)} with V7 $-$ intake-LR+F
+\val{V/hc/L/pooled/H8: V7 - intake_lr+fb}.}
+
+\chk{Stronger supervised detectors on the same raw inputs (exploratory) still
+trail V7: with $C$ chosen by cross-validation by
+\val{S/pooled/V7 - intake_lr+fb (cv)}, gradient-boosted trees by
+\val{S/pooled/V7 - intake_gbm+fb}. A logistic regression handed V7's own
+structure (cells conditioned on the intake answers each attribute depends
+on, schema-level attributes only, $C$ by cross-validation) matches it
+(\val{S/pooled/V7 - dep_lr+fb (cv)}): what wins is the structure, which
+commitments the intake leaves to the user, more than the estimator. The
+user's reactions carry part of it: scored without them, V7 loses
+\val{S/pooled/V7 - V7-prior} (significant for
+\val{S/npos/V7 - V7-prior} agents).}
 
 \paragraph{Label budgets.} Labels for user-specific hallucination require
 knowing the user's private facts, so small budgets are the realistic case
@@ -507,8 +557,12 @@ both supervised detectors on \val{V/hc/budget/lead_vs_intake_lr+fb/25}
 agents (mean \val{V/hc/budget/mean/V7@25}, against
 \val{V/hc/budget/mean/intake_lr+fb@25} for intake-LR+F and
 \val{V/hc/budget/mean/ctx_lr+fb@25} for ctx-LR+F); the two tie on average at
-50, and V7 is ahead again at 100 and 200 (\val{V/hc/budget/mean/V7@200}
-against \val{V/hc/budget/mean/intake_lr+fb@200}).}
+50, and V7 is ahead on average at 100 and 200 (\val{V/hc/budget/mean/V7@200}
+against \val{V/hc/budget/mean/intake_lr+fb@200}), though behind on
+Qwen-72B. The classifier handed V7's structure is as good at every budget
+(mean \val{S/budget/mean/dep_lr+fb (cv)@25} at 25 labels and
+\val{S/budget/mean/dep_lr+fb (cv)@200} at 200): with the structure given,
+the posterior's advantage is per-commitment risk, not session accuracy.}
 
 \begin{figure}[t]
 \centering
@@ -522,32 +576,33 @@ training subsets for every detector).}
 \begin{table}[t]
 \centering
 \caption{Registered hypotheses on $\LU$, pooled over
-\val{C/derived/L_U/nagents} agents (stratified session bootstrap;
-$^{*}$: 95\% CI excludes 0). H5 and H6 use oracle information
-(Section~\ref{sec:exp-decomp}); H7 and H8 are Amendment~6.}
+\val{C/derived/L_U/nagents} agents (stratified session bootstrap; $^{*}$:
+95\% CI excludes 0). Holm: Holm-adjusted $p$ over the difference tests, with
+sessions resampled jointly across agents, which share them. H7 and H8 are
+Amendment~6.}
 \label{tab:hyp}
 \setlength{\tabcolsep}{3pt}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{llc}
+\begin{tabular}{llcc}
 \toprule
-& Comparison & Estimate [95\% CI] \\
+& Comparison & Estimate [95\% CI] & Holm \\
 \midrule
-H1 & AUROC(SelfCheckGPT) & \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} \\
-H1 & AUROC(semantic entropy) & \val{C/L_U/pooled/H1: AUROC(semantic_entropy)} \\
-H2 & V6 $-$ V6$-$prior (feedback increment) & \val{C/L_U/pooled/H2: V6 - V6-prior} \\
-H2b & ctx-LR+F $-$ ctx-LR (feedback increment) & \val{C/L_U/pooled/H2b: ctx_lr+fb - ctx_lr} \\
-H3 & V6 $-$ ctx-LR & \val{C/L_U/pooled/H3: V6 - ctx_lr} \\
-H4 & V6 $-$ SelfCheckGPT & \val{C/L_U/pooled/H4: V6 - SelfCheckGPT} \\
-H4 & V6 $-$ semantic entropy & \val{C/L_U/pooled/H4: V6 - semantic_entropy} \\
-H4b & ctx-LR+F $-$ SelfCheckGPT & \val{C/L_U/pooled/H4b: ctx_lr+fb - SelfCheckGPT} \\
-H4b & ctx-LR+F $-$ semantic entropy & \val{C/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy} \\
--- & V6 $-$ ctx-LR+F & \val{C/L_U/pooled/sec.: V6 - ctx_lr+fb} \\
-H5 & $\eta_F-\bar\eta$ & \val{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)} \\
-H6 & V6-session $-$ LR-session+F & \val{C/RA/pooled/H6: V6-session - LR-session+fb} \\
+H1 & AUROC(SelfCheckGPT) & \val{C/L_U/pooled/H1: AUROC(SelfCheckGPT)} & -- \\
+H1 & AUROC(semantic entropy) & \val{C/L_U/pooled/H1: AUROC(semantic_entropy)} & -- \\
+H2 & V6 $-$ V6$-$prior & \val{C/L_U/pooled/H2: V6 - V6-prior} & \val{J/L_U/holm/H2: V6 - V6-prior} \\
+H2b & ctx-LR+F $-$ ctx-LR & \val{C/L_U/pooled/H2b: ctx_lr+fb - ctx_lr} & \val{J/L_U/holm/H2b: ctx_lr+fb - ctx_lr} \\
+H3 & V6 $-$ ctx-LR & \val{C/L_U/pooled/H3: V6 - ctx_lr} & \val{J/L_U/holm/H3: V6 - ctx_lr} \\
+H4 & V6 $-$ SelfCheckGPT & \val{C/L_U/pooled/H4: V6 - SelfCheckGPT} & \val{J/L_U/holm/H4: V6 - SelfCheckGPT} \\
+H4 & V6 $-$ semantic entropy & \val{C/L_U/pooled/H4: V6 - semantic_entropy} & \val{J/L_U/holm/H4: V6 - semantic_entropy} \\
+H4b & ctx-LR+F $-$ SelfCheckGPT & \val{C/L_U/pooled/H4b: ctx_lr+fb - SelfCheckGPT} & \val{J/L_U/holm/H4b: ctx_lr+fb - SelfCheckGPT} \\
+H4b & ctx-LR+F $-$ semantic entropy & \val{C/L_U/pooled/H4b: ctx_lr+fb - semantic_entropy} & \val{J/L_U/holm/H4b: ctx_lr+fb - semantic_entropy} \\
+-- & V6 $-$ ctx-LR+F & \val{C/L_U/pooled/sec.: V6 - ctx_lr+fb} & \val{J/L_U/holm/sec.: V6 - ctx_lr+fb} \\
+H5 & $\eta_F-\bar\eta$ (oracle) & \val{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)} & \val{J/L_U/holm/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)} \\
+H6 & V6-session $-$ LR-session+F (oracle) & \val{C/RA/pooled/H6: V6-session - LR-session+fb} & \val{J/L_U/holm/H6: V6-session - LR-session+fb} \\
 \midrule
-H7 & V7 $-$ V6 & \val{V/hc/L_U/pooled/H7: V7 - V6} \\
-H8 & V7 $-$ intake-LR+F (same information) & \val{V/hc/L_U/pooled/H8: V7 - intake_lr+fb} \\
-H8$'$ & V7 $-$ ctx-LR+F & \val{V/hc/L_U/pooled/H8': V7 - ctx_lr+fb} \\
+H7 & V7 $-$ V6 & \val{V/hc/L_U/pooled/H7: V7 - V6} & \val{J/L_U/holm/H7: V7 - V6} \\
+H8 & V7 $-$ intake-LR+F & \val{V/hc/L_U/pooled/H8: V7 - intake_lr+fb} & \val{J/L_U/holm/H8: V7 - intake_lr+fb} \\
+H8$'$ & V7 $-$ ctx-LR+F & \val{V/hc/L_U/pooled/H8': V7 - ctx_lr+fb} & \val{J/L_U/holm/H8': V7 - ctx_lr+fb} \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -558,7 +613,7 @@ H8$'$ & V7 $-$ ctx-LR+F & \val{V/hc/L_U/pooled/H8': V7 - ctx_lr+fb} \\
 \begin{table}[t]
 \centering
 \caption{Oracle-information analysis on $\LU$ (AUROC). $\bar\eta$: population
-risk of the commitments; $\eta_\varnothing$: Bayes given the conversation the
+risk of the commitments; $\eta_X$: Bayes given the conversation the
 agent saw (Theorem~\ref{thm:bound}'s bound for context-and-sample detectors);
 $\eta_F$: Bayes given all reactions. V6-session and LR-session+F are told
 which commitments are user-dependent in each session. Pooled differences
@@ -568,7 +623,7 @@ are in Table~\ref{tab:hyp}.}
 \small
 \begin{tabular}{lccccc}
 \toprule
-Agent & $\bar\eta$ & $\eta_\varnothing$ & $\eta_F$ & V6-sess. & LR-sess.+F \\
+Agent & $\bar\eta$ & $\eta_X$ & $\eta_F$ & V6-sess. & LR-sess.+F \\
 \midrule
 Llama-70B & \tv{C/RA/70B/eta0 (Bayes, no feedback)} & \tv{C/RA/70B/etaX (Bayes, shown reactions)} & \tv{C/RA/70B/etaF (Bayes, feedback)} & \tv{C/RA/70B/V6-session} & \tv{C/RA/70B/LR-session+fb} \\
 Llama-8B & \tv{C/RA/8B/eta0 (Bayes, no feedback)} & \tv{C/RA/8B/etaX (Bayes, shown reactions)} & \tv{C/RA/8B/etaF (Bayes, feedback)} & \tv{C/RA/8B/V6-session} & \tv{C/RA/8B/LR-session+fb} \\
@@ -583,13 +638,17 @@ Table~\ref{tab:decomp} and Figure~\ref{fig:ladder} locate the signal. \chk{The p
 $\bar\eta$ alone is far above every sampling detector: much of $\LU$ is
 visible in \emph{which} values an agent commits to, given the intake. The
 user's reactions add $\eta_F-\bar\eta$ beyond it (H5). Almost all of that
-information is already in the conversation the agent sees ($\eta_F-\eta_\varnothing$
-is \val{C/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}), so the failure of sampling detectors is not that the
-information is absent from their input; it is that agreement between
-resamples does not read it.} \chk{Given the same information (which commitments concern undisclosed
+information reaches the agent's transcript ($\eta_F-\eta_X$ is
+\val{C/RA/pooled/sec.: etaF (Bayes, feedback) - etaX (Bayes, shown reactions)}):
+reactions to earlier commitments are displayed later in the session, so a
+detector reading the transcript could use them. Per-turn resampling cannot:
+agreement between samples ignores the reactions, and each resample is drawn
+before its own commitment's reaction.} \chk{Given the same information (which commitments concern undisclosed
 facts), the PGE posterior beats the supervised detector (H6), though by a
 small margin whose interval nearly reaches zero
-(\val{C/RA/pooled/H6: V6-session - LR-session+fb}). Registered without a claim: V6-session $-$ $\bar\eta$
+(\val{C/RA/pooled/H6: V6-session - LR-session+fb}); it does not survive
+resampling sessions jointly across agents (Holm
+$p=\val{J/L_U/holm/H6: V6-session - LR-session+fb}$), so we do not rely on it. Registered without a claim: V6-session $-$ $\bar\eta$
 is \val{C/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}, and the
 reactions add \val{C/RA/range/LR-session+fb - LR-session} to LR-session across
 agents.} Without that knowledge, V6 targets a schema-level set of
@@ -620,16 +679,17 @@ $\eta_F$).}
 
 \begin{table}[t]
 \centering
-\caption{Second domain (travel booking), AUROC on $\LU$, 600 sessions per agent.}
+\caption{Second domain (travel booking), AUROC on $\LU$, 600 sessions per
+agent. No detector had been run on these corpora when V7 was registered.}
 \label{tab:travel}
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{2.5pt}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccccc}
+\begin{tabular}{lccccccc}
 \toprule
-Agent & SelfCheck & ctx-LR & ctx-LR+F & V6 & $\bar\eta$ & $\eta_F$ \\
+Agent & SelfCheck & ctx-LR+F & intake-LR+F & V6 & V7 & $\bar\eta$ & $\eta_F$ \\
 \midrule
-GPT-4o-mini & \tv{T/L_U/gpt/SelfCheckGPT} & \tv{T/L_U/gpt/ctx_lr} & \tv{T/L_U/gpt/ctx_lr+fb} & \tv{T/L_U/gpt/V6} & \tv{T/RA/gpt/eta0 (Bayes, no feedback)} & \tv{T/RA/gpt/etaF (Bayes, feedback)} \\
-Llama-8B & \tv{T/L_U/8B/SelfCheckGPT} & \tv{T/L_U/8B/ctx_lr} & \tv{T/L_U/8B/ctx_lr+fb} & \tv{T/L_U/8B/V6} & \tv{T/RA/8B/eta0 (Bayes, no feedback)} & \tv{T/RA/8B/etaF (Bayes, feedback)} \\
+GPT-4o-mini & \tv{T/L_U/gpt/SelfCheckGPT} & \tv{T/L_U/gpt/ctx_lr+fb} & \tv{V/tr/L_U/gpt/intake_lr+fb} & \tv{T/L_U/gpt/V6} & \textbf{\tv{V/tr/L_U/gpt/V7}} & \tv{T/RA/gpt/eta0 (Bayes, no feedback)} & \tv{T/RA/gpt/etaF (Bayes, feedback)} \\
+Llama-8B & \tv{T/L_U/8B/SelfCheckGPT} & \tv{T/L_U/8B/ctx_lr+fb} & \tv{V/tr/L_U/8B/intake_lr+fb} & \tv{T/L_U/8B/V6} & \textbf{\tv{V/tr/L_U/8B/V7}} & \tv{T/RA/8B/eta0 (Bayes, no feedback)} & \tv{T/RA/8B/etaF (Bayes, feedback)} \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -659,14 +719,17 @@ reactions; the gate is what keeps such a corpus out of the results.
 \label{sec:exp-loop}
 
 The posterior's per-commitment risk $q_t$ is what chooses the question,
-and no session-level classifier provides it. On confident user-dependent
-commitments in the test splits, V7's $q_t$ predicts that commitment's error
-with AUROC \val{V/hc/PCQ/range/auroc_q} and expected calibration error
-\val{V/hc/PCQ/range/ece_q} across agents. On the same commitments the
-reaction alone gives \val{X/PCQ/range/auroc_reaction} ($1-\varepsilon$ by
-design), resample disagreement \val{X/PCQ/range/auroc_disagree} and stated
-confidence \val{X/PCQ/range/auroc_conf} (descriptive; $q_t$ includes the
-commitment's own reaction and adds the population risk of its cell). The measured loop (70B agent)
+and no session-level classifier provides it. Over the confident commitments
+on the schema-level attributes, a set a deployed system can know, V7's
+$q_t$ identifies the wrong ones with AUROC \val{PC/schema/pooled/auroc_V7}
+(per agent \val{PC/schema/range/auroc_V7}) and calibration error
+\val{PC/schema/pooled/ece_V7}, against \val{PC/schema/pooled/auroc_reaction}
+for the commitment's own reaction, \val{PC/schema/pooled/auroc_disagreement}
+for resample disagreement and \val{PC/schema/pooled/auroc_stated_conf} for
+stated confidence (per split seed, session-clustered intervals;
+descriptive). On the subset whose truth is user-dependent in that session
+it reaches \val{PC/user_dependent/pooled/auroc_V7}, against
+\val{PC/user_dependent/pooled/auroc_reaction} for the reaction alone. The measured loop (70B agent)
 uses the first 120 test sessions of split seed 42 instead of the registered
 180, a deviation forced by the API budget.
 \chk{\pending{measured clarification: posterior@1 vs no-question, random,
@@ -692,24 +755,18 @@ at a quarter it trails (\val{E/mean/eps=0.25,rho=0.25/V7} vs.\
 \val{E/mean/eps=0.25,rho=0.25/intake_lr+fb}), failing on one agent.
 SelfCheckGPT stays at \val{E/mean/eps=0.25,rho=1.0/SelfCheckGPT} throughout.}
 
-On the development corpora (protocol v2; label $L$) we also replaced the reactions seen by the detectors, not the agent, with
-channels the posterior does not assume: symmetric and asymmetric flips,
-attribute-dependent noise, extra missingness, and a ``lazy'' user who
-contradicts 60\% of wrong commitments and never confirms correct ones. The
-symmetric posterior V3 collapses under the lazy user ($0.425$ for 70B,
-$0.576$ for 8B), reading the absence of confirmations as evidence of
-correctness; the general channel of V6 recovers it from data ($0.857$ and
-$0.855$). Across all ten channels V6 has the best point estimate on both
-agents among the then-implemented detectors (significant in six channels
-for 70B and two for 8B). Structure does not
-help: graphon likelihoods score $0.43$--$0.58$ on every development corpus
-and label, and exact inference in a cascade model over the dependency graph
-is no better than independence ($0.732$ vs.\ $0.734$).
+On the development corpora (protocol v2, label $L$), a ``lazy'' user who
+contradicts 60\% of wrong commitments and never confirms correct ones breaks a
+posterior with a symmetric channel ($0.425$ for 70B); V6's general channel
+repairs it ($0.857$). Graph-based detectors and a cascade model over the
+dependency graph did not help (repository).
 
 % ======================================================================
 \section{Limitations}
 
-\emph{Simulation.} The agents are real, but the patient is simulated: by a
+\emph{Simulation.} Our main users know whether each commitment is correct,
+with probability $0.75$; real users know their facts, not the clinic's
+rules, which is what the LLM-simulated patient tests. The agents are real, but the patient is simulated: by a
 noisy correctness bit in the main corpora and by an LLM in one corpus. The
 oracle analyses rely on the simulator's known rules and prior, which a
 deployment does not have. \emph{Two synthetic domains.} Both private-attribute domains are
@@ -717,8 +774,9 @@ simulators we designed, with deterministic rules and independent hidden
 facts; real user populations have correlated, partially self-reported
 facts.
 \emph{Post-hoc method.} V7 was designed after the registered results
-were known, on development data only, and registered before use; Llama-70B
-and the travel domain are its fully unseen tests. \emph{Labels.} Labels are programmatic and noise-free by construction; there
+were known, tuned on development data only, and registered before its first
+confirmatory run; Llama-70B and the travel domain are the corpora on which no
+detector had been run when it was registered. \emph{Labels.} Labels are programmatic and noise-free by construction; there
 is no human evaluation. \emph{Supervision.} The posterior and the supervised
 baselines are fit on labelled training sessions; the posterior can run
 without labels when the channel is known, which we only test in
@@ -736,11 +794,12 @@ When an agent invents a fact about its user, its own samples cannot tell which o
 its assumptions as probabilistic commitments and recording the user's
 reactions makes both available, and a Bayes analysis in a simulator with
 known truth shows how much each is worth. An intake-aware posterior turns
-them into the best detector we tested, one that also says which commitment
-to question. \chk{\pending{one sentence on measured clarification}}
+them into session and per-commitment risk; the structure it encodes, which
+commitments the intake leaves to the user, is what separates the detectors
+we tested. \chk{\pending{one sentence on measured clarification}}
 
 \paragraph{Reproducibility.} Code, all trajectories, the pre-registered
-plan with its five amendments and a log of their commit times, every
+plan with its six amendments and a log of their commit times, every
 analysis script, and a ledger of all runs including discarded variants are
 at
 \pending{anonymous repository link}.
