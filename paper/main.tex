@@ -674,11 +674,25 @@ lowest-confidence; posterior@2 vs detailed questions and the full-rerun
 control; questions per session; primary outcome wrong confident
 user-dependent commitments}}
 
-\subsection{Development-phase robustness}
+\subsection{Robustness to the user's behaviour}
 \label{sec:exp-robust}
 
-On the development corpora (protocol v2, before the display fix; label
-$L$) we replaced the reactions seen by the detectors, not the agent, with
+Our users react with a designed noise level. To see how much that matters,
+we regenerated the reactions seen by the detectors on the confirmatory
+trajectories, with the agents' trajectories fixed (Theorem~\ref{thm:feedback}'s
+setting; exploratory). \chk{As the flip rate rises from $0.05$ to $0.45$, V7's
+mean AUROC on $\LU$ falls from \val{E/mean/eps=0.05,rho=1.0/V7} to
+\val{E/mean/eps=0.45,rho=1.0/V7}, tracking the Bayes bound
+(\val{E/mean/eps=0.05,rho=1.0/etaF (oracle)} to
+\val{E/mean/eps=0.45,rho=1.0/etaF (oracle)}); it leads intake-LR+F at every
+flip rate up to $0.35$ and ties it at $0.45$. When only half of the
+commitments receive a reaction it still leads
+(\val{E/mean/eps=0.25,rho=0.5/V7} vs.\ \val{E/mean/eps=0.25,rho=0.5/intake_lr+fb});
+at a quarter it trails (\val{E/mean/eps=0.25,rho=0.25/V7} vs.\
+\val{E/mean/eps=0.25,rho=0.25/intake_lr+fb}), failing on one agent.
+SelfCheckGPT stays at \val{E/mean/eps=0.25,rho=1.0/SelfCheckGPT} throughout.}
+
+On the development corpora (protocol v2; label $L$) we also replaced the reactions seen by the detectors, not the agent, with
 channels the posterior does not assume: symmetric and asymmetric flips,
 attribute-dependent noise, extra missingness, and a ``lazy'' user who
 contradicts 60\% of wrong commitments and never confirms correct ones. The
@@ -687,10 +701,7 @@ $0.576$ for 8B), reading the absence of confirmations as evidence of
 correctness; the general channel of V6 recovers it from data ($0.857$ and
 $0.855$). Across all ten channels V6 has the best point estimate on both
 agents among the then-implemented detectors (significant in six channels
-for 70B and two for 8B). With reactions regenerated and the agent's
-trajectories fixed, the setting of Theorem~\ref{thm:feedback}, the
-posterior's AUROC falls monotonically with the flip rate ($0.890$, $0.793$,
-$0.690$ at $\varepsilon=0.10$, $0.25$, $0.40$ for 70B). Structure does not
+for 70B and two for 8B). Structure does not
 help: graphon likelihoods score $0.43$--$0.58$ on every development corpus
 and label, and exact inference in a cascade model over the dependency graph
 is no better than independence ($0.732$ vs.\ $0.734$).

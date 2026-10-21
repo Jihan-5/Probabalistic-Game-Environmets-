@@ -146,6 +146,14 @@ def main(repo):
             if pc:
                 for k in ("auroc_q", "ece_q"):
                     put(f"V/{short}/PCQ/range/{k}", f"{min(d[k] for d in pc.values()):.3f}--{max(d[k] for d in pc.values()):.3f}")
+    ef = Path(repo) / "results" / "e15_regimes_confirm" / "numbers.json"
+    if ef.exists():
+        E = json.loads(ef.read_text())
+        regimes = next(iter(E.values())).keys()
+        for rg in regimes:
+            for det in next(iter(E.values()))[rg]:
+                v = [E[t][rg][det] for t in E if rg in E[t]]
+                put(f"E/mean/{rg}/{det}", f"{sum(v) / len(v):.3f}")
     for pre, N in blocks:
         for tag, d in N.get("corpora", {}).items():
             t = TAG.get(tag, tag)
