@@ -89,14 +89,29 @@ def ece(q, w, bins=10):
 
 
 def per_commitment(trajs, LU, sessions, dom):
+    """Per confident user-dependent commitment (test splits): the posterior's
+    q_t against the other per-commitment scores a deployment has, on the SAME
+    commitments: V6's prior alone, the reaction alone, resample disagreement,
+    and stated confidence (sign chosen on the training commitments)."""
+    from pge.baselines.posterior import agreement_count, turn_signal
     ids = [t.task_id for t in trajs]
-    qs, ws = [], []
+    rows = {k: [] for k in ("q", "prior", "reaction", "disagree", "conf")}
+    ws = []
     for seed in SEEDS:
         tr_ids, te_ids = split_task_ids(ids, TRAIN_FRAC, seed)
         tr = [t for t in trajs if t.task_id in tr_ids]
         ytr = [LU[i] for i, t in enumerate(trajs) if t.task_id in tr_ids]
         det = ChannelPosterior(event_attrs=dom.USER_DEPENDENT_SCHEMA)
         det.fit(tr, [build_dag(t) for t in tr], ytr)
+        cp, cw = [], []  # stated-confidence orientation from training commitments
+        for t in tr:
+            s = sessions[t.task_id]
+            U = dom.user_dependent_attrs(s.setup_answers)
+            for turn in t.turns:
+                if turn.probability >= det.high and turn.attribute in U:
+                    cp.append(turn.probability)
+                    cw.append(int(turn.guess_value != s.user_state[turn.attribute]))
+        sign = -1.0 if auroc(-np.array(cp), np.array(cw)) >= 0.5 else 1.0
         for t in trajs:
             if t.task_id not in te_ids:
                 continue
@@ -105,11 +120,19 @@ def per_commitment(trajs, LU, sessions, dom):
             q = det.turn_q(t)
             for turn, qt in zip(t.turns, q):
                 if turn.probability >= det.high and turn.attribute in U:
-                    qs.append(float(qt))
+                    c = agreement_count(turn)
+                    rows["q"].append(float(qt))
+                    rows["prior"].append(float(det._prior(turn)))
+                    rows["reaction"].append(-float(turn_signal(turn)))
+                    rows["disagree"].append(1.0 - c / len(turn.samples) if c is not None else 0.0)
+                    rows["conf"].append(sign * turn.probability)
                     ws.append(int(turn.guess_value != s.user_state[turn.attribute]))
-    qs, ws = np.array(qs), np.array(ws)
-    return {"n": int(len(ws)) // len(SEEDS), "wrong": float(ws.mean()), "mean_q": float(qs.mean()),
-            "auroc_q": float(auroc(qs, ws)), "ece_q": ece(qs, ws)}
+    ws = np.array(ws)
+    out = {"n": int(len(ws)) // len(SEEDS), "wrong": float(ws.mean()), "mean_q": float(np.mean(rows["q"])),
+           "auroc_q": float(auroc(np.array(rows["q"]), ws)), "ece_q": ece(rows["q"], ws)}
+    for k in ("prior", "reaction", "disagree", "conf"):
+        out[f"auroc_{k}"] = float(auroc(np.array(rows[k]), ws))
+    return out
 
 
 def lc_intake(trajs, y, sizes=(25, 50, 100, 200), draws=5):
@@ -188,10 +211,12 @@ def block(corpora, title):
                                                                (25, 50, 100, 200, "all")) + " |")
         lines.append("")
     if numbers.get("percommit_q"):
-        lines += ["### Per-commitment q_t (V6, L_U fit; confident user-dependent commitments, test splits)", "",
-                  "| corpus | n per split | wrong | mean q | AUROC(q) | ECE(q) |", "|---|---|---|---|---|---|"]
+        lines += ["### Per-commitment risk (V6 fit on L_U; confident user-dependent commitments, test splits)", "",
+                  "| corpus | n per split | wrong | mean q | AUROC q_t | ECE q_t | AUROC prior | AUROC reaction | "
+                  "AUROC disagreement | AUROC stated conf. |", "|---|---|---|---|---|---|---|---|---|---|"]
         for tag, d in numbers["percommit_q"].items():
-            lines.append(f"| {tag} | {d['n']} | {d['wrong']:.3f} | {d['mean_q']:.3f} | {d['auroc_q']:.3f} | {d['ece_q']:.3f} |")
+            lines.append(f"| {tag} | {d['n']} | {d['wrong']:.3f} | {d['mean_q']:.3f} | {d['auroc_q']:.3f} | {d['ece_q']:.3f} | "
+                         f"{d['auroc_prior']:.3f} | {d['auroc_reaction']:.3f} | {d['auroc_disagree']:.3f} | {d['auroc_conf']:.3f} |")
     return lines, numbers
 
 
