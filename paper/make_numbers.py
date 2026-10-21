@@ -10,6 +10,8 @@ Usage: python3 make_numbers.py /path/to/repo
 
 import json
 import math
+
+import numpy as np
 import sys
 from pathlib import Path
 
@@ -87,9 +89,63 @@ def main(repo):
         for tag, d in pcq.items():
             for k in ("auroc_q", "ece_q", "mean_q", "wrong"):
                 put(f"X/PCQ/{TAG.get(tag, tag)}/{k}", a3(d[k]))
+        for k in ("auroc_prior", "auroc_reaction", "auroc_disagree", "auroc_conf"):
+            v = [d[k] for d in pcq.values() if k in d]
+            if v:
+                put(f"X/PCQ/range/{k}", f"{min(v):.3f}--{max(v):.3f}")
         for k in ("auroc_q", "ece_q"):
             if pcq:
                 put(f"X/PCQ/range/{k}", f"{min(d[k] for d in pcq.values()):.3f}--{max(d[k] for d in pcq.values()):.3f}")
+    vf = Path(repo) / "results" / "e16_v7_confirm" / "numbers.json"
+    if vf.exists():
+        V = json.loads(vf.read_text())
+        for dname, short in (("healthcare", "hc"), ("travel", "tr")):
+            D = V.get(dname, {})
+            for lab in ("L_U", "L"):
+                for tag, d in D.get(lab, {}).items():
+                    if tag == "pooled":
+                        for q, c in d.items():
+                            put(f"V/{short}/{lab}/pooled/{q}", ci(c) if " - " in q else f"{a3(c[0])}\\,[{a3(c[1])}, {a3(c[2])}]")
+                        continue
+                    t = TAG.get(tag, tag)
+                    for det, v in d["auroc"].items():
+                        put(f"V/{short}/{lab}/{t}/{det}", a3(v))
+                        put(f"t:V/{short}/{lab}/{t}/{det}", a3(v, lead=False))
+                    for q, c in d["diffs"].items():
+                        put(f"V/{short}/{lab}/{t}/{q}", ci(c))
+                ags = [t for t in D.get(lab, {}) if t != "pooled"]
+                if ags:
+                    for q in D[lab][ags[0]]["diffs"]:
+                        cis = [D[lab][t]["diffs"][q] for t in ags]
+                        put(f"V/{short}/{lab}/npos/{q}", f"{sum(c[1] > 0 for c in cis)} of {len(cis)}")
+                        put(f"V/{short}/{lab}/nneg/{q}", f"{sum(c[2] < 0 for c in cis)} of {len(cis)}")
+                    vals = [D[lab][t]["auroc"]["V7"] for t in ags]
+                    put(f"V/{short}/{lab}/range/V7", f"{min(vals):.3f}--{max(vals):.3f}")
+            bud = D.get("budget", {})
+            if bud:
+                keys = next(iter(bud.values())).keys()
+                for k in keys:
+                    put(f"V/{short}/budget/mean/{k}", f"{sum(v[k] for v in bud.values()) / len(bud):.3f}")
+                for size in (25, 50, 100, 200):
+                    for other in ("intake_lr+fb", "ctx_lr+fb"):
+                        ks = [t for t, v in bud.items() if f"V7@{size}" in v]
+                        put(f"V/{short}/budget/lead_vs_{other}/{size}",
+                            f"{sum(bud[t][f'V7@{size}'] > bud[t][f'{other}@{size}'] for t in ks)} of {len(ks)}")
+            # share of V6's gap to the oracle V6-session that V7 closes (means over agents)
+            cf = Path(repo) / "results" / "e11_confirmatory" / "numbers.json"
+            if cf.exists() and short == "hc":
+                C = json.loads(cf.read_text())
+                ags = [t for t in D.get("L_U", {}) if t != "pooled" and t in C.get("rules_aware", {})]
+                if ags:
+                    v6 = np.mean([D["L_U"][t]["auroc"]["V6"] for t in ags])
+                    v7m = np.mean([D["L_U"][t]["auroc"]["V7"] for t in ags])
+                    vs = np.mean([C["rules_aware"][t]["V6-session"] for t in ags])
+                    put("V/hc/derived/gap_closed", f"{100 * (v7m - v6) / (vs - v6):.0f}")
+                    put("V/hc/derived/mean_V6session", f"{vs:.3f}")
+            pc = D.get("percommit_v7", {})
+            if pc:
+                for k in ("auroc_q", "ece_q"):
+                    put(f"V/{short}/PCQ/range/{k}", f"{min(d[k] for d in pc.values()):.3f}--{max(d[k] for d in pc.values()):.3f}")
     for pre, N in blocks:
         for tag, d in N.get("corpora", {}).items():
             t = TAG.get(tag, tag)

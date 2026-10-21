@@ -79,14 +79,7 @@ differs from $s^\star$ contributes $1$ ($0$); only pairs where both differ,
 with probability $e_0e_1$, are free.
 \end{proof}
 
-\noindent On the development corpora (\S\ref{sec:exp-dissociation}), the 70B
-agent's user-dependent commitments (label $w_t$) have
-$e_1=\val{D/PC/70B/e1}$ and $e_0=\val{D/PC/70B/e0}$: the corollary caps
-disagreement's AUROC at \val{D/PC/70B/cor1_bound}, and its sharp form pins it
-within $\tfrac12e_0e_1$ of $\tfrac12+\tfrac12(e_1-e_0)\approx\tfrac12$; we
-measure \val{D/PC/70B/auroc_disagreement}, against
-\val{D/PC/70B/auroc_feedback_bit} for one noisy reaction. For the less
-self-consistent 8B agent the cap (\val{D/PC/8B/cor1_bound}) is loose.
+\noindent Table~\ref{tab:percommit} checks the corollary on every agent.
 
 Theorem~\ref{thm:feedback} is Blackwell's garbling theorem
 \citep{blackwell1953equivalent} for a symmetric channel. Let $F^\varepsilon$

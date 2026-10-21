@@ -124,8 +124,224 @@
 \setval{X/PCQ/mistral/ece_q}{0.093}
 \setval{X/PCQ/mistral/mean_q}{0.448}
 \setval{X/PCQ/mistral/wrong}{0.406}
+\setval{X/PCQ/range/auroc_prior}{0.554--0.591}
+\setval{X/PCQ/range/auroc_reaction}{0.740--0.761}
+\setval{X/PCQ/range/auroc_disagree}{0.520--0.577}
+\setval{X/PCQ/range/auroc_conf}{0.484--0.552}
 \setval{X/PCQ/range/auroc_q}{0.748--0.797}
 \setval{X/PCQ/range/ece_q}{0.084--0.160}
+\setval{V/hc/L_U/8B/V6}{0.672}
+\setval{t:V/hc/L_U/8B/V6}{.672}
+\setval{V/hc/L_U/8B/V7}{0.889}
+\setval{t:V/hc/L_U/8B/V7}{.889}
+\setval{V/hc/L_U/8B/ctx_lr}{0.686}
+\setval{t:V/hc/L_U/8B/ctx_lr}{.686}
+\setval{V/hc/L_U/8B/ctx_lr+fb}{0.725}
+\setval{t:V/hc/L_U/8B/ctx_lr+fb}{.725}
+\setval{V/hc/L_U/8B/intake_lr+fb}{0.782}
+\setval{t:V/hc/L_U/8B/intake_lr+fb}{.782}
+\setval{V/hc/L_U/8B/SelfCheckGPT}{0.610}
+\setval{t:V/hc/L_U/8B/SelfCheckGPT}{.610}
+\setval{V/hc/L_U/8B/semantic_entropy}{0.533}
+\setval{t:V/hc/L_U/8B/semantic_entropy}{.533}
+\setval{V/hc/L_U/8B/V7 - V6}{+.217\,[+.160, +.280]$^{*}$}
+\setval{V/hc/L_U/8B/V7 - intake_lr+fb}{+.108\,[+.061, +.158]$^{*}$}
+\setval{V/hc/L_U/8B/V7 - ctx_lr+fb}{+.161\,[+.103, +.220]$^{*}$}
+\setval{V/hc/L_U/8B/V7 - SelfCheckGPT}{+.277\,[+.199, +.351]$^{*}$}
+\setval{V/hc/L_U/8B/V7 - semantic_entropy}{+.356\,[+.294, +.415]$^{*}$}
+\setval{V/hc/L_U/qwen/V6}{0.650}
+\setval{t:V/hc/L_U/qwen/V6}{.650}
+\setval{V/hc/L_U/qwen/V7}{0.810}
+\setval{t:V/hc/L_U/qwen/V7}{.810}
+\setval{V/hc/L_U/qwen/ctx_lr}{0.715}
+\setval{t:V/hc/L_U/qwen/ctx_lr}{.715}
+\setval{V/hc/L_U/qwen/ctx_lr+fb}{0.748}
+\setval{t:V/hc/L_U/qwen/ctx_lr+fb}{.748}
+\setval{V/hc/L_U/qwen/intake_lr+fb}{0.749}
+\setval{t:V/hc/L_U/qwen/intake_lr+fb}{.749}
+\setval{V/hc/L_U/qwen/SelfCheckGPT}{0.559}
+\setval{t:V/hc/L_U/qwen/SelfCheckGPT}{.559}
+\setval{V/hc/L_U/qwen/semantic_entropy}{0.485}
+\setval{t:V/hc/L_U/qwen/semantic_entropy}{.485}
+\setval{V/hc/L_U/qwen/V7 - V6}{+.163\,[+.108, +.216]$^{*}$}
+\setval{V/hc/L_U/qwen/V7 - intake_lr+fb}{+.060\,[+.010, +.111]$^{*}$}
+\setval{V/hc/L_U/qwen/V7 - ctx_lr+fb}{+.060\,[+.009, +.110]$^{*}$}
+\setval{V/hc/L_U/qwen/V7 - SelfCheckGPT}{+.249\,[+.172, +.322]$^{*}$}
+\setval{V/hc/L_U/qwen/V7 - semantic_entropy}{+.322\,[+.270, +.375]$^{*}$}
+\setval{V/hc/L_U/gpt/V6}{0.636}
+\setval{t:V/hc/L_U/gpt/V6}{.636}
+\setval{V/hc/L_U/gpt/V7}{0.836}
+\setval{t:V/hc/L_U/gpt/V7}{.836}
+\setval{V/hc/L_U/gpt/ctx_lr}{0.635}
+\setval{t:V/hc/L_U/gpt/ctx_lr}{.635}
+\setval{V/hc/L_U/gpt/ctx_lr+fb}{0.668}
+\setval{t:V/hc/L_U/gpt/ctx_lr+fb}{.668}
+\setval{V/hc/L_U/gpt/intake_lr+fb}{0.717}
+\setval{t:V/hc/L_U/gpt/intake_lr+fb}{.717}
+\setval{V/hc/L_U/gpt/SelfCheckGPT}{0.576}
+\setval{t:V/hc/L_U/gpt/SelfCheckGPT}{.576}
+\setval{V/hc/L_U/gpt/semantic_entropy}{0.486}
+\setval{t:V/hc/L_U/gpt/semantic_entropy}{.486}
+\setval{V/hc/L_U/gpt/V7 - V6}{+.198\,[+.142, +.254]$^{*}$}
+\setval{V/hc/L_U/gpt/V7 - intake_lr+fb}{+.120\,[+.068, +.176]$^{*}$}
+\setval{V/hc/L_U/gpt/V7 - ctx_lr+fb}{+.169\,[+.118, +.224]$^{*}$}
+\setval{V/hc/L_U/gpt/V7 - SelfCheckGPT}{+.257\,[+.199, +.315]$^{*}$}
+\setval{V/hc/L_U/gpt/V7 - semantic_entropy}{+.350\,[+.303, +.394]$^{*}$}
+\setval{V/hc/L_U/mistral/V6}{0.666}
+\setval{t:V/hc/L_U/mistral/V6}{.666}
+\setval{V/hc/L_U/mistral/V7}{0.690}
+\setval{t:V/hc/L_U/mistral/V7}{.690}
+\setval{V/hc/L_U/mistral/ctx_lr}{0.556}
+\setval{t:V/hc/L_U/mistral/ctx_lr}{.556}
+\setval{V/hc/L_U/mistral/ctx_lr+fb}{0.682}
+\setval{t:V/hc/L_U/mistral/ctx_lr+fb}{.682}
+\setval{V/hc/L_U/mistral/intake_lr+fb}{0.690}
+\setval{t:V/hc/L_U/mistral/intake_lr+fb}{.690}
+\setval{V/hc/L_U/mistral/SelfCheckGPT}{0.520}
+\setval{t:V/hc/L_U/mistral/SelfCheckGPT}{.520}
+\setval{V/hc/L_U/mistral/semantic_entropy}{0.474}
+\setval{t:V/hc/L_U/mistral/semantic_entropy}{.474}
+\setval{V/hc/L_U/mistral/V7 - V6}{+.027\,[$-$.030, +.084]}
+\setval{V/hc/L_U/mistral/V7 - intake_lr+fb}{+.007\,[$-$.057, +.067]}
+\setval{V/hc/L_U/mistral/V7 - ctx_lr+fb}{+.016\,[$-$.042, +.074]}
+\setval{V/hc/L_U/mistral/V7 - SelfCheckGPT}{+.177\,[+.105, +.249]$^{*}$}
+\setval{V/hc/L_U/mistral/V7 - semantic_entropy}{+.223\,[+.166, +.281]$^{*}$}
+\setval{V/hc/L_U/pooled/H7: V7 - V6}{+.150\,[+.123, +.180]$^{*}$}
+\setval{V/hc/L_U/pooled/H8: V7 - intake_lr+fb}{+.071\,[+.047, +.101]$^{*}$}
+\setval{V/hc/L_U/pooled/H8': V7 - ctx_lr+fb}{+.100\,[+.074, +.129]$^{*}$}
+\setval{V/hc/L_U/pooled/--: V7 - SelfCheckGPT}{+.240\,[+.206, +.276]$^{*}$}
+\setval{V/hc/L_U/pooled/--: V7 - semantic_entropy}{+.312\,[+.284, +.339]$^{*}$}
+\setval{V/hc/L_U/pooled/--: AUROC(V7)}{0.806\,[0.784, 0.828]}
+\setval{V/hc/L_U/pooled/--: AUROC(intake_lr+fb)}{0.735\,[0.704, 0.759]}
+\setval{V/hc/L_U/npos/V7 - V6}{3 of 4}
+\setval{V/hc/L_U/nneg/V7 - V6}{0 of 4}
+\setval{V/hc/L_U/npos/V7 - intake_lr+fb}{3 of 4}
+\setval{V/hc/L_U/nneg/V7 - intake_lr+fb}{0 of 4}
+\setval{V/hc/L_U/npos/V7 - ctx_lr+fb}{3 of 4}
+\setval{V/hc/L_U/nneg/V7 - ctx_lr+fb}{0 of 4}
+\setval{V/hc/L_U/npos/V7 - SelfCheckGPT}{4 of 4}
+\setval{V/hc/L_U/nneg/V7 - SelfCheckGPT}{0 of 4}
+\setval{V/hc/L_U/npos/V7 - semantic_entropy}{4 of 4}
+\setval{V/hc/L_U/nneg/V7 - semantic_entropy}{0 of 4}
+\setval{V/hc/L_U/range/V7}{0.690--0.889}
+\setval{V/hc/L/8B/V6}{0.829}
+\setval{t:V/hc/L/8B/V6}{.829}
+\setval{V/hc/L/8B/V7}{0.918}
+\setval{t:V/hc/L/8B/V7}{.918}
+\setval{V/hc/L/8B/ctx_lr}{0.744}
+\setval{t:V/hc/L/8B/ctx_lr}{.744}
+\setval{V/hc/L/8B/ctx_lr+fb}{0.810}
+\setval{t:V/hc/L/8B/ctx_lr+fb}{.810}
+\setval{V/hc/L/8B/intake_lr+fb}{0.888}
+\setval{t:V/hc/L/8B/intake_lr+fb}{.888}
+\setval{V/hc/L/8B/SelfCheckGPT}{0.641}
+\setval{t:V/hc/L/8B/SelfCheckGPT}{.641}
+\setval{V/hc/L/8B/semantic_entropy}{0.572}
+\setval{t:V/hc/L/8B/semantic_entropy}{.572}
+\setval{V/hc/L/8B/V7 - V6}{+.089\,[+.056, +.124]$^{*}$}
+\setval{V/hc/L/8B/V7 - intake_lr+fb}{+.028\,[$-$.009, +.064]}
+\setval{V/hc/L/8B/V7 - ctx_lr+fb}{+.107\,[+.068, +.151]$^{*}$}
+\setval{V/hc/L/8B/V7 - SelfCheckGPT}{+.275\,[+.217, +.339]$^{*}$}
+\setval{V/hc/L/8B/V7 - semantic_entropy}{+.345\,[+.285, +.407]$^{*}$}
+\setval{V/hc/L/qwen/V6}{0.881}
+\setval{t:V/hc/L/qwen/V6}{.881}
+\setval{V/hc/L/qwen/V7}{0.944}
+\setval{t:V/hc/L/qwen/V7}{.944}
+\setval{V/hc/L/qwen/ctx_lr}{0.853}
+\setval{t:V/hc/L/qwen/ctx_lr}{.853}
+\setval{V/hc/L/qwen/ctx_lr+fb}{0.879}
+\setval{t:V/hc/L/qwen/ctx_lr+fb}{.879}
+\setval{V/hc/L/qwen/intake_lr+fb}{0.910}
+\setval{t:V/hc/L/qwen/intake_lr+fb}{.910}
+\setval{V/hc/L/qwen/SelfCheckGPT}{0.634}
+\setval{t:V/hc/L/qwen/SelfCheckGPT}{.634}
+\setval{V/hc/L/qwen/semantic_entropy}{0.530}
+\setval{t:V/hc/L/qwen/semantic_entropy}{.530}
+\setval{V/hc/L/qwen/V7 - V6}{+.063\,[+.038, +.090]$^{*}$}
+\setval{V/hc/L/qwen/V7 - intake_lr+fb}{+.034\,[+.006, +.064]$^{*}$}
+\setval{V/hc/L/qwen/V7 - ctx_lr+fb}{+.066\,[+.035, +.099]$^{*}$}
+\setval{V/hc/L/qwen/V7 - SelfCheckGPT}{+.313\,[+.246, +.379]$^{*}$}
+\setval{V/hc/L/qwen/V7 - semantic_entropy}{+.414\,[+.372, +.454]$^{*}$}
+\setval{V/hc/L/gpt/V6}{0.849}
+\setval{t:V/hc/L/gpt/V6}{.849}
+\setval{V/hc/L/gpt/V7}{0.917}
+\setval{t:V/hc/L/gpt/V7}{.917}
+\setval{V/hc/L/gpt/ctx_lr}{0.806}
+\setval{t:V/hc/L/gpt/ctx_lr}{.806}
+\setval{V/hc/L/gpt/ctx_lr+fb}{0.809}
+\setval{t:V/hc/L/gpt/ctx_lr+fb}{.809}
+\setval{V/hc/L/gpt/intake_lr+fb}{0.907}
+\setval{t:V/hc/L/gpt/intake_lr+fb}{.907}
+\setval{V/hc/L/gpt/SelfCheckGPT}{0.730}
+\setval{t:V/hc/L/gpt/SelfCheckGPT}{.730}
+\setval{V/hc/L/gpt/semantic_entropy}{0.571}
+\setval{t:V/hc/L/gpt/semantic_entropy}{.571}
+\setval{V/hc/L/gpt/V7 - V6}{+.069\,[+.042, +.099]$^{*}$}
+\setval{V/hc/L/gpt/V7 - intake_lr+fb}{+.007\,[$-$.029, +.046]}
+\setval{V/hc/L/gpt/V7 - ctx_lr+fb}{+.106\,[+.054, +.159]$^{*}$}
+\setval{V/hc/L/gpt/V7 - SelfCheckGPT}{+.181\,[+.118, +.247]$^{*}$}
+\setval{V/hc/L/gpt/V7 - semantic_entropy}{+.339\,[+.281, +.392]$^{*}$}
+\setval{V/hc/L/mistral/V6}{0.845}
+\setval{t:V/hc/L/mistral/V6}{.845}
+\setval{V/hc/L/mistral/V7}{0.924}
+\setval{t:V/hc/L/mistral/V7}{.924}
+\setval{V/hc/L/mistral/ctx_lr}{0.840}
+\setval{t:V/hc/L/mistral/ctx_lr}{.840}
+\setval{V/hc/L/mistral/ctx_lr+fb}{0.872}
+\setval{t:V/hc/L/mistral/ctx_lr+fb}{.872}
+\setval{V/hc/L/mistral/intake_lr+fb}{0.906}
+\setval{t:V/hc/L/mistral/intake_lr+fb}{.906}
+\setval{V/hc/L/mistral/SelfCheckGPT}{0.698}
+\setval{t:V/hc/L/mistral/SelfCheckGPT}{.698}
+\setval{V/hc/L/mistral/semantic_entropy}{0.524}
+\setval{t:V/hc/L/mistral/semantic_entropy}{.524}
+\setval{V/hc/L/mistral/V7 - V6}{+.086\,[+.057, +.119]$^{*}$}
+\setval{V/hc/L/mistral/V7 - intake_lr+fb}{+.018\,[$-$.019, +.057]}
+\setval{V/hc/L/mistral/V7 - ctx_lr+fb}{+.056\,[+.018, +.096]$^{*}$}
+\setval{V/hc/L/mistral/V7 - SelfCheckGPT}{+.221\,[+.155, +.285]$^{*}$}
+\setval{V/hc/L/mistral/V7 - semantic_entropy}{+.401\,[+.348, +.451]$^{*}$}
+\setval{V/hc/L/pooled/H7: V7 - V6}{+.075\,[+.062, +.091]$^{*}$}
+\setval{V/hc/L/pooled/H8: V7 - intake_lr+fb}{+.023\,[+.004, +.039]$^{*}$}
+\setval{V/hc/L/pooled/H8': V7 - ctx_lr+fb}{+.084\,[+.062, +.105]$^{*}$}
+\setval{V/hc/L/pooled/--: V7 - SelfCheckGPT}{+.250\,[+.215, +.280]$^{*}$}
+\setval{V/hc/L/pooled/--: V7 - semantic_entropy}{+.377\,[+.350, +.401]$^{*}$}
+\setval{V/hc/L/pooled/--: AUROC(V7)}{0.926\,[0.910, 0.938]}
+\setval{V/hc/L/pooled/--: AUROC(intake_lr+fb)}{0.903\,[0.885, 0.919]}
+\setval{V/hc/L/npos/V7 - V6}{4 of 4}
+\setval{V/hc/L/nneg/V7 - V6}{0 of 4}
+\setval{V/hc/L/npos/V7 - intake_lr+fb}{1 of 4}
+\setval{V/hc/L/nneg/V7 - intake_lr+fb}{0 of 4}
+\setval{V/hc/L/npos/V7 - ctx_lr+fb}{4 of 4}
+\setval{V/hc/L/nneg/V7 - ctx_lr+fb}{0 of 4}
+\setval{V/hc/L/npos/V7 - SelfCheckGPT}{4 of 4}
+\setval{V/hc/L/nneg/V7 - SelfCheckGPT}{0 of 4}
+\setval{V/hc/L/npos/V7 - semantic_entropy}{4 of 4}
+\setval{V/hc/L/nneg/V7 - semantic_entropy}{0 of 4}
+\setval{V/hc/L/range/V7}{0.917--0.944}
+\setval{V/hc/budget/mean/V7@25}{0.632}
+\setval{V/hc/budget/mean/intake_lr+fb@25}{0.603}
+\setval{V/hc/budget/mean/ctx_lr+fb@25}{0.583}
+\setval{V/hc/budget/mean/V7@50}{0.644}
+\setval{V/hc/budget/mean/intake_lr+fb@50}{0.644}
+\setval{V/hc/budget/mean/ctx_lr+fb@50}{0.617}
+\setval{V/hc/budget/mean/V7@100}{0.709}
+\setval{V/hc/budget/mean/intake_lr+fb@100}{0.672}
+\setval{V/hc/budget/mean/ctx_lr+fb@100}{0.639}
+\setval{V/hc/budget/mean/V7@200}{0.757}
+\setval{V/hc/budget/mean/intake_lr+fb@200}{0.715}
+\setval{V/hc/budget/mean/ctx_lr+fb@200}{0.675}
+\setval{V/hc/budget/lead_vs_intake_lr+fb/25}{4 of 4}
+\setval{V/hc/budget/lead_vs_ctx_lr+fb/25}{4 of 4}
+\setval{V/hc/budget/lead_vs_intake_lr+fb/50}{2 of 4}
+\setval{V/hc/budget/lead_vs_ctx_lr+fb/50}{2 of 4}
+\setval{V/hc/budget/lead_vs_intake_lr+fb/100}{3 of 4}
+\setval{V/hc/budget/lead_vs_ctx_lr+fb/100}{4 of 4}
+\setval{V/hc/budget/lead_vs_intake_lr+fb/200}{3 of 4}
+\setval{V/hc/budget/lead_vs_ctx_lr+fb/200}{3 of 4}
+\setval{V/hc/derived/gap_closed}{71}
+\setval{V/hc/derived/mean_V6session}{0.867}
+\setval{V/hc/PCQ/range/auroc_q}{0.765--0.803}
+\setval{V/hc/PCQ/range/ece_q}{0.049--0.077}
 \setval{C/N/8B/n}{600}
 \setval{C/N/8B/L}{37.3}
 \setval{C/N/8B/LU}{29.7}
