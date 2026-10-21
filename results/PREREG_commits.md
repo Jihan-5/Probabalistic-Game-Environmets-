@@ -13,6 +13,9 @@ Generated from the repository history (git log, times in UTC); author fields omi
 | 2026-10-20 05:16:24 | Pre-registration Amendment 4: second domain (travel_v1); launcher step 6 |
 | 2026-10-20 05:21:38 | e11: H5 claim text per Amendment 3; regenerate dev outputs with etaX |
 | 2026-10-20 23:10:10 | Patient v2 (Amendment 5) after the v1 pilot failed its gate; run_patient_v2.sh |
+| 2026-10-21 02:44:05 | Pre-registration Amendment 6: V7 (intake-conditioned posterior, learned label event) frozen, chosen on development corpora only, before any confirmatory use |
+| 2026-10-21 02:44:59 | e16: Amendment 6 analysis script (V7 on confirmatory corpora), committed before its first run |
+| 2026-10-21 02:56:42 | e16 results: Amendment 6 on 4 healthcare confirmatory corpora (first and only run of V7 on them) |
 
 First confirmatory data entered the repository at:
 

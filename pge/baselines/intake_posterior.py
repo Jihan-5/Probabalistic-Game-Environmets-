@@ -1,27 +1,23 @@
-"""V7: the label-event posterior with intake-conditioned cells (post-registration).
+"""V7: the label-event posterior with intake-conditioned cells (Amendment 6).
 
-Motivation (development corpora only; see results/e13_v7_dev): Proposition 1's
+The frozen detector is `v7(dom, label)` at the end of this module. For L_U it
+uses event="learned": cells (attribute, value, bucket, intake answers the
+attribute depends on in the schema) shrunk toward V6's cell, and a label event
+learned per (attribute, intake) cell from training labels (min_cell=2, two
+rounds of channel/membership fitting). For L it uses the intake cells only.
+The prior-threshold event ("delta") is a development variant that was not kept
+(results/e13_v7_dev/). This docstring was corrected after the freeze; the code
+is unchanged since the Amendment 6 commit.
+
+Motivation (development corpora; results/e13_v7_dev): Proposition 1's
 assumption (A1) asks that a commitment's error depend on the history only
-through its cell (attribute, value, confidence bucket). In the simulator it
-also depends on the intake answers, and the user-specific label counts a
-commitment only when its truth is NOT fixed by the intake. V6 gets neither:
-its cells omit the intake and its label event is a schema-level proxy.
+through its cell. In the simulator it also depends on the intake answers, and
+the user-specific label counts a commitment only when its truth is NOT fixed
+by the intake. V6 models neither.
 
-V7 changes two things and nothing else:
-  1. Cells gain the intake answers the attribute depends on in the schema
-     (transitive closure over attribute dependencies), shrunk toward V6's
-     (attribute, value, bucket) cell with the same strength k.
-  2. The label event keeps a confident commitment only when its intake-
-     conditioned prior is not near 0 or 1, i.e. when the intake does not
-     appear to determine whether it is right: delta <= pi <= 1 - delta. A
-     commitment whose error is fixed by the intake is wrong for every user
-     with that intake or for none, which is a rule error, not a user-specific
-     one. delta is chosen on training labels with the channel (delta = 0 is
-     V6's event).
-
-Detector-visible inputs only: the intake answers are the agent's own input
-(set per corpus in INTAKE, keyed by task id), the schema's dependency lists
-are the same knowledge V6 uses for its schema-level event. No rules, no hidden
+Detector-visible inputs only: the intake answers (the agent's own input; set
+per corpus in INTAKE, keyed by task id), the schema's dependency lists and the
+schema-level user-dependent set, and training labels. No rules, no hidden
 facts, no truth.
 """
 
