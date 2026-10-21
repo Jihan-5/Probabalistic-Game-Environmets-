@@ -27,4 +27,4 @@ Pooled over 5 corpora:
 - budget gpt-4o-mini: dep_lr+fb (cv)@100 0.723, dep_lr+fb (cv)@200 0.764, dep_lr+fb (cv)@25 0.612, dep_lr+fb (cv)@50 0.680
 - budget mistral-small-24b: dep_lr+fb (cv)@100 0.692, dep_lr+fb (cv)@200 0.730, dep_lr+fb (cv)@25 0.624, dep_lr+fb (cv)@50 0.641
 
-runtime 470s
+runtime 528s
