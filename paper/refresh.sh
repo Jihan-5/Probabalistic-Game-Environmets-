@@ -21,5 +21,5 @@ python3 make_numbers.py "$R"
 python3 fig_lc.py "$R" && python3 fig_ladder.py "$R"
 pdflatex -interaction=nonstopmode main.tex > /dev/null 2>&1; bibtex main > /dev/null 2>&1
 pdflatex -interaction=nonstopmode main.tex > /dev/null 2>&1; pdflatex -interaction=nonstopmode main.tex 2>&1 | grep -E "^!|undefined" | head
-pdfinfo main.pdf | grep Pages; pdftotext main.pdf - | tr -d '[:space:]' | wc -c
+pdfinfo main.pdf | grep Pages; pdftotext main.pdf - | python3 -c "import sys,re;print('chars',len(re.sub(r'\\s','',sys.stdin.read())))"
 echo "[refresh] done $(date +%H:%M)"

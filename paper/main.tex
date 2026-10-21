@@ -37,8 +37,8 @@
 
 \begin{abstract}
 An agent serving an individual must act on facts about that person it was
-never told, such as whether a scan is safe today. When it asserts such facts
-confidently and wrongly, nothing external can check it. We show that
+never told, such as whether a scan is safe today, and nothing external can
+check its confident guesses. We show that
 sampling-consistency detectors cannot tell users apart within a
 conversation, and are near chance whenever resamples disagree as often on
 right as on wrong answers. We propose Probabilistic Game Environments (PGE):
@@ -54,8 +54,7 @@ same inputs by \val{S/range/vs_raw} (they match it only when given its
 structure), and identifies which commitment is wrong at
 \pt{PC/schema/pooled/auroc_V7} AUROC, where resample disagreement reaches
 \pt{PC/schema/pooled/auroc_disagreement}. Exact Bayes predictors show that the
-reactions carry information beyond population risk, which agreement between
-samples ignores. \chk{\pending{clarification headline}} All registered
+reactions carry information beyond population risk that resampling ignores. \chk{\pending{clarification headline}} All registered
 outcomes are reported, including those against our first posterior.
 \end{abstract}
 
@@ -128,9 +127,8 @@ simulator with known truth show that the reactions carry information beyond
 the population risk of the commitments
 (\pt{C/RA/pooled/H5: etaF (Bayes, feedback) - eta0 (Bayes, no feedback)}
 AUROC), and that nearly all of it reaches the agent's transcript: sampling
-fails not for lack of information, but because agreement between resamples
-ignores the reactions, and each resample precedes its own commitment's
-reaction.
+fails because agreement between resamples ignores the reactions, not for
+lack of information.
 \item \textbf{A pre-registered evaluation, fully reported.} After a blind
 internal audit of our development results we fixed a protocol bug,
 registered every comparison and its wording, and generated fresh sessions
@@ -273,9 +271,7 @@ wrong for every user with that intake or for none, a rule error rather than a
 user-specific one. Starting from the schema-level set, V7 removes an
 (attribute, intake) cell from the event, or returns it, when that lowers the
 training log-loss, alternating with the channel fit; for $L$, whose event is
-every confident commitment, only the cells change. V6 uses only the
-schema-level set; V7 adds the agent's own intake answers and the schema's
-dependency lists. On development data the intake cells alone add nothing;
+every confident commitment, only the cells change. On development data the intake cells alone add nothing;
 the gain comes from the learned event. V7 was designed after the registered
 results were known, tuned on the development corpora only (twelve variants,
 all logged), and frozen and registered (Amendment~6) before its first run on
@@ -327,14 +323,11 @@ categorical answers; for $\LU$ computed on turns whose attribute is in the
 schema-level set above);
 Chain-of-Verification with the agent as its own verifier
 \citep{dhuliawala2024cove}; mean stated (verbalized) confidence, sign
-chosen on the training split. Structure-based detectors from earlier work on
-reasoning graphs also read the reactions: a logistic regression on 14
-summary features (confidence, reaction and degree statistics) of a graph
-with one node per commitment and edges for attribute dependencies; a
-two-layer GCN \citep{kipf2017gcn}; and five block-model graphon likelihoods
-\citep{lovasz2012large}, of which we report the best on test, favouring the
-baseline. On $\LU$ they score \val{C/L_U/range/structure}, between sampling
-and the PGE detectors, so we omit them from the tables.
+chosen on the training split. Detectors on a graph of the commitments and
+their reactions (a logistic regression on 14 graph statistics, a two-layer
+GCN \citep{kipf2017gcn}, and the best on test of five block-model graphon
+likelihoods \citep{lovasz2012large}) score \val{C/L_U/range/structure} on
+$\LU$, between sampling and the PGE detectors; we omit them from the tables.
 
 % ======================================================================
 \section{Experimental Design}
@@ -375,14 +368,15 @@ corrupted feedback display, that resamples covered only five attributes,
 and that a feedback-free classifier nearly matched the posterior on $L$.
 Before generating new data we committed an analysis plan
 \citep{nosek2018preregistration}: labels, detectors (V6 primary), every
-comparison, the statistics, and the wording each outcome licenses. Six
+comparison, the statistics, and the wording each outcome licenses. Seven
 amendments followed: three before any confirmatory data was seen (the
 supervised feedback increment, label-budget curves, the analyses of
 Section~\ref{sec:exp-decomp}, H5's wording); the second domain, before any
 of its data existed; a replacement simulated patient, after the first
-failed its gate; and V7 with H7 and H8, after the registered results for
+failed its gate; V7 with H7 and H8, after the registered results for
 four agents were known and before V7's first confirmatory run, when no
-detector had been run on the Llama-70B or travel corpora. The confirmatory
+detector had been run on the Llama-70B or travel corpora; and V7 as the
+question picker (H9), before its first run. The confirmatory
 corpora use a fresh seed, show the agent the raw reaction, draw three
 resamples on every turn, and cover five agents (Llama-3.3-70B,
 Llama-3.1-8B, Qwen2.5-72B, GPT-4o-mini, Mistral-Small-3.1-24B), 600
@@ -659,10 +653,7 @@ before its own commitment's reaction.} \chk{Given the same information (which co
 facts), the PGE posterior beats the supervised detector (H6), by a small
 margin (\val{C/RA/pooled/H6: V6-session - LR-session+fb}) that does not survive
 resampling sessions jointly across agents (Holm
-$p=\val{J/L_U/holm/H6: V6-session - LR-session+fb}$), so we do not rely on it. Registered without a claim: V6-session $-$ $\bar\eta$
-is \val{C/RA/pooled/sec.: V6-session - eta0 (Bayes, no feedback)}, and the
-reactions add \val{C/RA/range/LR-session+fb - LR-session} to LR-session across
-agents.} Without that knowledge, V6 targets a schema-level set of
+$p=\val{J/L_U/holm/H6: V6-session - LR-session+fb}$), so we do not rely on it.} Without that knowledge, V6 targets a schema-level set of
 attributes that is only a proxy for the label's support, which costs it
 \val{C/derived/V6session_gap/range} AUROC against V6-session, an order of
 magnitude more than the H6 margin: knowing \emph{which} commitments concern
@@ -766,8 +757,7 @@ rule errors. On that label two posterior-chosen questions match asking about
 every user-dependent attribute in hallucination rate
 (\val{CL/d/L: posterior@2 - detailed_questions}, with
 \val{CL/posterior@2/questions} instead of \val{CL/detailed_questions/questions}
-questions per session) and leave fewer wrong confident commitments
-(\val{CL/d/wrong_conf: posterior@2 - detailed_questions}); on $\LU$, asking
+questions per session); on $\LU$, asking
 about everything remains far better
 (\val{CL/d/L_U: posterior@2 - detailed_questions}).}
 \pending{Amendment 7: the same loop with V7, fit to $\LU$, choosing the
@@ -794,20 +784,17 @@ reactions, stays at \val{E/mean/eps=0.25,rho=1.0/SelfCheckGPT}.} This
 measures the detectors' robustness only: the agents conditioned on the
 recorded reactions.
 
-On the development corpora (protocol v2, label $L$), a ``lazy'' user who
-contradicts 60\% of wrong commitments and never confirms correct ones breaks a
-posterior with a symmetric channel ($0.425$ for 70B); V6's general channel
-repairs it ($0.857$). Graph-based detectors and a cascade model over the
-dependency graph did not help (repository).
+On development data (label $L$), a ``lazy'' user who contradicts 60\% of
+wrong commitments and never confirms correct ones breaks a symmetric channel
+($0.425$ for 70B) but not V6's general one ($0.857$).
 
 % ======================================================================
 \section{Limitations}
 
-\emph{Simulation.} Our main users know whether each commitment is correct,
-with probability $0.75$; real users know their facts, not the clinic's
-rules, which is what the LLM-simulated patient tests. The agents are real, but the patient is simulated: by a
-noisy correctness bit in the main corpora and by an LLM in one corpus. The
-oracle analyses rely on the simulator's known rules and prior, which a
+\emph{Simulation.} The agents are real but the user is simulated. In the
+main corpora it knows whether each commitment is correct with probability
+$0.75$; real users know their facts, not the clinic's rules, which the LLM
+patient tests. The oracle analyses rely on the simulator's known rules and prior, which a
 deployment does not have. \emph{Two synthetic domains.} Both private-attribute domains are
 simulators we designed, with deterministic rules and independent hidden
 facts; real user populations have correlated, partially self-reported
@@ -819,9 +806,9 @@ detector had been run when it was registered. \emph{Labels.} Labels are programm
 is no human evaluation. \emph{Supervision.} The posterior and the supervised
 baselines are fit on labelled training sessions; the posterior can run
 without labels when the channel is known, which we only test in
-development. \emph{Untested detectors.} A second model that reads the transcript with its
-reactions is a feedback detector, not bounded by Theorem~\ref{thm:bound}; we
-did not test one. Sampling detectors used three resamples (ten were
+development. \emph{Untested detectors.} Our LLM judge is zero-shot; a judge trained on
+labelled transcripts also reads the reactions and is not bounded by
+Theorem~\ref{thm:bound}. Sampling detectors used three resamples (ten were
 registered as optional and not run), and with exact matching semantic
 entropy takes few values. We did not run hidden-state probes;
 Theorem~\ref{thm:bound} predicts they share the within-context limit, but
@@ -838,7 +825,7 @@ commitments the intake leaves to the user, is what separates the detectors
 we tested. \chk{\pending{one sentence on measured clarification}}
 
 \paragraph{Reproducibility.} Code, all trajectories, the pre-registered
-plan with its six amendments and a log of their commit times, every
+plan with its seven amendments and a log of their commit times, every
 analysis script, and a ledger of all runs including discarded variants are
 at
 \pending{anonymous repository link}.
