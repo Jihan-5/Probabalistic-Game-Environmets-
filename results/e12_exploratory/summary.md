@@ -54,13 +54,13 @@ Pooled over 4 corpora (stratified cluster bootstrap):
 | mistral-small-24b | intake_lr | 0.543 | 0.570 | 0.567 | 0.582 | 0.585 |
 | mistral-small-24b | intake_lr+fb | 0.559 | 0.600 | 0.621 | 0.659 | 0.690 |
 
-### Per-commitment q_t (V6, L_U fit; confident user-dependent commitments, test splits)
+### Per-commitment risk (V6 fit on L_U; confident user-dependent commitments, test splits)
 
-| corpus | n per split | wrong | mean q | AUROC(q) | ECE(q) |
-|---|---|---|---|---|---|
-| 8B | 159 | 0.427 | 0.305 | 0.748 | 0.160 |
-| qwen72b | 262 | 0.416 | 0.424 | 0.776 | 0.084 |
-| gpt-4o-mini | 246 | 0.394 | 0.440 | 0.753 | 0.108 |
-| mistral-small-24b | 319 | 0.406 | 0.448 | 0.797 | 0.093 |
+| corpus | n per split | wrong | mean q | AUROC q_t | ECE q_t | AUROC prior | AUROC reaction | AUROC disagreement | AUROC stated conf. |
+|---|---|---|---|---|---|---|---|---|---|
+| 8B | 159 | 0.427 | 0.305 | 0.748 | 0.160 | 0.563 | 0.755 | 0.577 | 0.545 |
+| qwen72b | 262 | 0.416 | 0.424 | 0.776 | 0.084 | 0.591 | 0.756 | 0.520 | 0.552 |
+| gpt-4o-mini | 246 | 0.394 | 0.440 | 0.753 | 0.108 | 0.554 | 0.740 | 0.538 | 0.507 |
+| mistral-small-24b | 319 | 0.406 | 0.448 | 0.797 | 0.093 | 0.588 | 0.761 | 0.564 | 0.484 |
 
-runtime 150s
+runtime 241s
