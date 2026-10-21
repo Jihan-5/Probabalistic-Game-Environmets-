@@ -20,5 +20,9 @@ Pooled over 4 corpora:
 - V7 - intake_lr+fb (cv): +0.055 [+0.033, +0.085]
 - V7 - dep_lr+fb (cv): -0.000 [-0.019, +0.022]
 - V7 - intake_gbm+fb: +0.050 [+0.027, +0.076]
+- budget 8B: dep_lr+fb (cv)@100 0.784, dep_lr+fb (cv)@200 0.821, dep_lr+fb (cv)@25 0.668, dep_lr+fb (cv)@50 0.729
+- budget qwen72b: dep_lr+fb (cv)@100 0.724, dep_lr+fb (cv)@200 0.765, dep_lr+fb (cv)@25 0.646, dep_lr+fb (cv)@50 0.686
+- budget gpt-4o-mini: dep_lr+fb (cv)@100 0.723, dep_lr+fb (cv)@200 0.764, dep_lr+fb (cv)@25 0.612, dep_lr+fb (cv)@50 0.680
+- budget mistral-small-24b: dep_lr+fb (cv)@100 0.692, dep_lr+fb (cv)@200 0.730, dep_lr+fb (cv)@25 0.624, dep_lr+fb (cv)@50 0.641
 
-runtime 238s
+runtime 668s
