@@ -40,7 +40,9 @@ def sd(x):
 def ci(t):
     m, lo, hi = t
     star = "^{*}" if (lo > 0 or hi < 0) else ""
-    return f"{sd(m)}\\,[{sd(lo)}, {sd(hi)}]" + (f"$^{{*}}$" if star else "")
+    # the point estimate always has three decimals; only bounds keep a fourth
+    pm = f"{m:+.3f}".replace("+0.", "+.").replace("-0.", "$-$.").replace("$-$.000", "+.000")
+    return f"{pm}\\,[{sd(lo)}, {sd(hi)}]" + (f"$^{{*}}$" if star else "")
 
 
 def main(repo):
