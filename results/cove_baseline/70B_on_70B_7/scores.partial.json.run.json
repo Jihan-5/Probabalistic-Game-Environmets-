@@ -1,0 +1,62 @@
+{
+  "script": "run_cove",
+  "complete": false,
+  "args": {
+    "model": "70B",
+    "provider": null,
+    "price_in": null,
+    "price_out": null,
+    "corpus": "data/trajectories/healthcare_confirm/70B_7.jsonl",
+    "gen_seed": 7,
+    "n": 600,
+    "max_cost": 0.9,
+    "concurrency": 8,
+    "out": null,
+    "estimate_only": false,
+    "resume": false,
+    "mock": false,
+    "mock_malformed": 0.15,
+    "mock_seed": 0
+  },
+  "model": {
+    "short_name": "70B",
+    "model_id": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "provider": "together",
+    "price_in": 0.88,
+    "price_out": 0.88,
+    "price_status": "ledger (2026-09 runs)"
+  },
+  "meter": {
+    "cost": 0.89954,
+    "max_cost": 0.9,
+    "tokens_in": 954124,
+    "tokens_out": 45882,
+    "calls": 3871,
+    "usage_missing_calls": 70,
+    "tripped": true,
+    "stop_reason": "cost cap $0.90",
+    "by_role": {
+      "verifier": {
+        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "calls": 3871,
+        "tokens_in": 954124,
+        "tokens_out": 45882,
+        "cost": 0.89954
+      }
+    }
+  },
+  "runner": {
+    "done": 388,
+    "failed": 1,
+    "budget_stopped": 5,
+    "cancelled": 0,
+    "errors": {
+      "ConnectionError": 1
+    },
+    "seconds": 5105.6
+  },
+  "cache_hits": {
+    "cache": 0,
+    "api": 3800
+  }
+}

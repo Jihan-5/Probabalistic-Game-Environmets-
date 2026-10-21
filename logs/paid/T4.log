@@ -2,3 +2,19 @@
   verification queries         meta-llama/Llama-3.3-70B-Instruct-Turbo via together: 3833 calls x (~243 in + ~15 out) @ $0.88/$0.88 per M [ledger (2026-09 runs)] = $0.87
   TOTAL ~$0.87   hard cap --max-cost $0.90
 [preflight] ok: meta-llama/Llama-3.3-70B-Instruct-Turbo via together
+  progress 50/394 done=50 failed=0 cost=$0.119 (63s)
+  progress 100/394 done=100 failed=0 cost=$0.228 (123s)
+  [task 'hcv2_183'] ERROR ConnectionError: HTTPSConnectionPool(host='api.together.xyz', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x10776f810>: Failed to resolve 'api.together.xyz' ([Errno 8] nodename nor servname provided, or not known)"))
+  progress 150/394 done=149 failed=1 cost=$0.343 (2158s)
+  progress 200/394 done=199 failed=1 cost=$0.462 (2725s)
+  progress 250/394 done=249 failed=1 cost=$0.581 (3008s)
+  progress 300/394 done=299 failed=1 cost=$0.696 (3128s)
+  progress 350/394 done=349 failed=1 cost=$0.809 (3341s)
+[abort] stopped (cost cap $0.90): 388 task completed, 1 errored, 5 not run (spent $0.8995 of $0.90)
+  seed 42: cove AUROC 0.578  AUPRC 0.402  (n=175/180)
+  seed 123: cove AUROC 0.573  AUPRC 0.311  (n=176/180)
+  seed 456: cove AUROC 0.666  AUPRC 0.393  (n=177/180)
+  mean AUROC 0.606
+[parse] replies without a [final_answer] line (scored as disagreement by cove.py): 0/3774
+[cost] $0.900 in=954124 out=45882 api calls=3800 cache hits=0 (estimate $0.87); runner {'done': 388, 'failed': 1, 'budget_stopped': 5, 'cancelled': 0, 'errors': {'ConnectionError': 1}, 'seconds': 5105.6}
+[ledger] | 2026-10-20 | CoVe baseline (70B verifier) on 70B_7 | 388/394 test-union tasks, split seeds (42, 123, 456), T=0, context rebuilt from detector-visible inputs; unparsed 0/3774 | cove mean AUROC 0.606 (0.578, 0.573, 0.666) | $0.90 | `results/cove_baseline/70B_on_70B_7` |

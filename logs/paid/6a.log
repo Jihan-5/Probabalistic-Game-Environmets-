@@ -13,3 +13,32 @@
   progress 160/600 done=160 failed=0 cost=$0.497 (1297s)
   progress 180/600 done=180 failed=0 cost=$0.559 (1471s)
   progress 200/600 done=200 failed=0 cost=$0.627 (1650s)
+  [session 223] ERROR ConnectionError: HTTPSConnectionPool(host='openrouter.ai', port=443): Max retries exceeded with url: /api/v1/chat/completions (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x107f4dc50>: Failed to resolve 'openrouter.ai' ([Errno 8] nodename nor servname provided, or not known)"))
+  progress 220/600 done=219 failed=1 cost=$0.686 (3057s)
+  progress 240/600 done=239 failed=1 cost=$0.744 (4386s)
+  progress 260/600 done=259 failed=1 cost=$0.807 (4904s)
+  progress 280/600 done=279 failed=1 cost=$0.873 (6185s)
+  progress 300/600 done=299 failed=1 cost=$0.939 (9097s)
+  progress 320/600 done=319 failed=1 cost=$0.998 (9208s)
+  progress 340/600 done=339 failed=1 cost=$1.063 (9327s)
+  progress 360/600 done=359 failed=1 cost=$1.117 (9423s)
+  progress 380/600 done=379 failed=1 cost=$1.182 (9544s)
+  progress 400/600 done=399 failed=1 cost=$1.250 (9664s)
+  progress 420/600 done=419 failed=1 cost=$1.305 (9765s)
+  progress 440/600 done=439 failed=1 cost=$1.363 (9871s)
+  progress 460/600 done=459 failed=1 cost=$1.429 (9990s)
+  progress 480/600 done=479 failed=1 cost=$1.489 (10097s)
+  progress 500/600 done=499 failed=1 cost=$1.561 (10224s)
+  progress 520/600 done=519 failed=1 cost=$1.618 (10321s)
+  progress 540/600 done=539 failed=1 cost=$1.688 (10445s)
+  progress 560/600 done=559 failed=1 cost=$1.746 (10546s)
+  progress 580/600 done=579 failed=1 cost=$1.813 (10666s)
+  progress 600/600 done=599 failed=1 cost=$1.865 (10801s)
+[partial] 599/600 sessions saved to data/trajectories/travel_confirm/gpt-4o-mini_7.jsonl.partial.jsonl; rerun with --resume (and a higher --max-cost if the cap stopped it)
+
+[done] 599 trajectories -> data/trajectories/travel_confirm/gpt-4o-mini_7.jsonl.partial.jsonl  (10801s)
+[labels] hallucinating 121/599 = 20.2%
+[parse] {'strict': 6006, 'retry1_strict': 1}  failed turns 0/6007 = 0.00%; sessions with >=1 failed turn: 0
+[cost] $1.865  in=11220114 out=283099 calls=24094  ($0.0031/session; estimate was $1.95)
+[labels] user-specific L_U 24.5%
+[ledger] | 2026-10-20 | travel_v1 corpus (gpt-4o-mini, seed 7, n=599) | eps=0.25 noisy partial feedback, openai/gpt-4o-mini via openrouter; parse-failed turns 0/6007 | 599 trajectories, 20.2% hallucinating | $1.87 | `data/trajectories/travel_confirm/gpt-4o-mini_7.jsonl.partial.jsonl` |

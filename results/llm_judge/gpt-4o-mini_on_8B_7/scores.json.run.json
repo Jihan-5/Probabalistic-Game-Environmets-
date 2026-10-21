@@ -1,0 +1,56 @@
+{
+  "script": "run_llm_judge",
+  "complete": true,
+  "args": {
+    "model": "gpt-4o-mini",
+    "provider": null,
+    "price_in": null,
+    "price_out": null,
+    "corpus": "data/trajectories/healthcare_confirm/8B_7.jsonl",
+    "gen_seed": 7,
+    "n": 600,
+    "max_cost": 0.3,
+    "concurrency": 8,
+    "out": null,
+    "estimate_only": false,
+    "resume": false,
+    "mock": false,
+    "mock_malformed": 0.15,
+    "mock_seed": 0
+  },
+  "model": {
+    "short_name": "gpt-4o-mini",
+    "model_id": "openai/gpt-4o-mini",
+    "provider": "openrouter",
+    "price_in": 0.15,
+    "price_out": 0.6,
+    "price_status": "verify on provider site"
+  },
+  "meter": {
+    "cost": 0.049409,
+    "max_cost": 0.3,
+    "tokens_in": 240167,
+    "tokens_out": 22306,
+    "calls": 395,
+    "usage_missing_calls": 0,
+    "tripped": false,
+    "stop_reason": "",
+    "by_role": {
+      "judge": {
+        "model": "openai/gpt-4o-mini",
+        "calls": 395,
+        "tokens_in": 240167,
+        "tokens_out": 22306,
+        "cost": 0.049409
+      }
+    }
+  },
+  "runner": {
+    "done": 394,
+    "failed": 0,
+    "budget_stopped": 0,
+    "cancelled": 0,
+    "errors": {},
+    "seconds": 78.5
+  }
+}

@@ -1,0 +1,64 @@
+# closed-loop clarification (paid, measured) — meta-llama/Llama-3.3-70B-Instruct-Turbo, cache data/trajectories/healthcare_confirm/70B_7.jsonl, test split seed 42 (120 sessions), protocol v2fb, picker v6, noise stream (seed, 7919, i), cost $3.741
+## outcome: composite label (eval_label_v2)
+paired sessions with every condition complete: 120
+
+condition            questions/sess hall. rate wrong conf/sess rerun turns     cost
+cached                         0.00      0.350           1.850           0    0.000
+detailed_questions             4.29      0.042           1.625        1198    0.653
+rerun_full                     0.00      0.275           1.883        1198    0.532
+posterior@1                    1.00      0.142           1.683         777    0.385
+no_question@1                  0.00      0.300           1.975         777    0.359
+posterior@2                    2.00      0.025           1.417         933    0.464
+no_question@2                  0.00      0.275           1.917         933    0.425
+random@1                       1.00      0.167           1.692         760    0.376
+lowconf@1                      1.00      0.150           1.833        1125    0.541
+
+## paired bootstrap over sessions (2000): A - B, negative = A better
+A                    B                                    d hall. rate            d wrong conf/sess
+posterior@1          no_question@1        -0.158 [-0.242, -0.083]     -0.292 [-0.467, -0.117]
+posterior@1          detailed_questions   +0.100 [+0.042, +0.158]     +0.058 [-0.158, +0.267]
+posterior@1          cached               -0.208 [-0.292, -0.125]     -0.167 [-0.358, +0.017]
+posterior@2          no_question@2        -0.250 [-0.333, -0.175]     -0.500 [-0.700, -0.300]
+posterior@2          detailed_questions   -0.017 [-0.050, +0.017]     -0.208 [-0.408, -0.017]
+posterior@2          cached               -0.325 [-0.408, -0.242]     -0.433 [-0.625, -0.233]
+detailed_questions   cached               -0.308 [-0.400, -0.225]     -0.225 [-0.433, -0.017]
+no_question@1        cached               -0.050 [-0.125, +0.025]     +0.125 [-0.042, +0.283]
+no_question@2        cached               -0.075 [-0.158, +0.000]     +0.067 [-0.100, +0.242]
+detailed_questions   rerun_full           -0.233 [-0.317, -0.158]     -0.258 [-0.483, -0.033]
+rerun_full           cached               -0.075 [-0.158, +0.008]     +0.033 [-0.167, +0.225]
+posterior@1          random@1             -0.025 [-0.083, +0.033]     -0.008 [-0.192, +0.167]
+random@1             cached               -0.183 [-0.258, -0.108]     -0.158 [-0.333, +0.017]
+posterior@1          lowconf@1            -0.008 [-0.075, +0.058]     -0.150 [-0.367, +0.050]
+lowconf@1            cached               -0.200 [-0.292, -0.108]     -0.017 [-0.217, +0.183]
+
+## outcome: user-specific label L_U (eval_label_user)
+paired sessions with every condition complete: 120
+
+condition            questions/sess hall. rate wrong conf/sess rerun turns     cost
+cached                         0.00      0.467           0.642           0    0.000
+detailed_questions             4.29      0.042           0.108        1198    0.653
+rerun_full                     0.00      0.483           0.617        1198    0.532
+posterior@1                    1.00      0.383           0.575         777    0.385
+no_question@1                  0.00      0.492           0.700         777    0.359
+posterior@2                    2.00      0.358           0.542         933    0.464
+no_question@2                  0.00      0.475           0.667         933    0.425
+random@1                       1.00      0.392           0.583         760    0.376
+lowconf@1                      1.00      0.458           0.650        1125    0.541
+
+## paired bootstrap over sessions (2000): A - B, negative = A better
+A                    B                                    d hall. rate            d wrong conf/sess
+posterior@1          no_question@1        -0.108 [-0.200, -0.016]     -0.125 [-0.242, +0.000]
+posterior@1          detailed_questions   +0.342 [+0.258, +0.425]     +0.467 [+0.358, +0.584]
+posterior@1          cached               -0.083 [-0.183, +0.025]     -0.067 [-0.200, +0.058]
+posterior@2          no_question@2        -0.117 [-0.217, -0.017]     -0.125 [-0.267, +0.025]
+posterior@2          detailed_questions   +0.317 [+0.233, +0.400]     +0.433 [+0.325, +0.550]
+posterior@2          cached               -0.108 [-0.209, +0.008]     -0.100 [-0.258, +0.058]
+detailed_questions   cached               -0.425 [-0.517, -0.333]     -0.533 [-0.675, -0.392]
+no_question@1        cached               +0.025 [-0.042, +0.092]     +0.058 [-0.033, +0.150]
+no_question@2        cached               +0.008 [-0.067, +0.075]     +0.025 [-0.075, +0.117]
+detailed_questions   rerun_full           -0.442 [-0.533, -0.350]     -0.508 [-0.650, -0.375]
+rerun_full           cached               +0.017 [-0.058, +0.092]     -0.025 [-0.142, +0.083]
+posterior@1          random@1             -0.008 [-0.100, +0.083]     -0.008 [-0.133, +0.117]
+random@1             cached               -0.075 [-0.150, +0.008]     -0.058 [-0.167, +0.050]
+posterior@1          lowconf@1            -0.075 [-0.150, +0.000]     -0.075 [-0.183, +0.025]
+lowconf@1            cached               -0.008 [-0.117, +0.092]     +0.008 [-0.125, +0.158]
