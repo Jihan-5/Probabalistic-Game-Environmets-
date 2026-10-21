@@ -58,6 +58,7 @@ def regenerate(trajs, sessions, dom, eps, rho, seed):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--confirm", action="store_true")
+    ap.add_argument("--draws", type=int, default=1, help="independent regenerations per regime")
     args = ap.parse_args(argv)
     corpora = [c for c in CONFIRM if c[1].exists()] if args.confirm else DEV
     t0 = time.time()
@@ -73,31 +74,36 @@ def main(argv=None):
             for eps in EPS:
                 if rho < 1.0 and eps != 0.25:
                     continue  # rate sweep at the main noise level only
-                tr2 = regenerate(trajs, sessions, dom, eps, rho, seed=zlib.crc32(f'{tag}|{eps}|{rho}'.encode()))
-                eF = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers, eps) for t in tr2}
-                F = [("etaF (oracle)", lambda: Fixed("etaF", eF)),
-                     ("V6", lambda: ChannelPosterior(event_attrs=S)),
-                     ("V7", lambda: v7(dom, "L_U")),
-                     ("ctx_lr+fb", lambda: ContextLR(with_feedback=True)),
-                     ("intake_lr+fb", lambda: IntakeLR(True))]
-                if sc is None:
-                    F.append(("SelfCheckGPT", lambda: SampleRestricted(SelfCheckGPT(), S)))
-                R = run_protocol(tr2, LU, F, dags=dags)
-                row = {d: mean_auc(R, d) for d in R["auroc"]}
-                if sc is None:
-                    sc = row["SelfCheckGPT"]
-                row["SelfCheckGPT"] = sc
-                res.setdefault(tag, {})[f"eps={eps},rho={rho}"] = row
-                print(tag, eps, rho, {k: round(v, 3) for k, v in row.items()}, f"{time.time() - t0:.0f}s", flush=True)
-    out = REPO / "results" / ("e15_regimes_confirm" if args.confirm else "e15_regimes_dev")
+                for draw in range(args.draws):
+                    tr2 = regenerate(trajs, sessions, dom, eps, rho,
+                                     seed=zlib.crc32(f'{tag}|{eps}|{rho}'.encode()) + draw)
+                    eF = {t.task_id: bayes_LU(t, sessions[t.task_id].setup_answers, eps) for t in tr2}
+                    F = [("etaF (oracle)", lambda: Fixed("etaF", eF)),
+                         ("V6", lambda: ChannelPosterior(event_attrs=S)),
+                         ("V7", lambda: v7(dom, "L_U")),
+                         ("ctx_lr+fb", lambda: ContextLR(with_feedback=True)),
+                         ("intake_lr+fb", lambda: IntakeLR(True))]
+                    if sc is None:
+                        F.append(("SelfCheckGPT", lambda: SampleRestricted(SelfCheckGPT(), S)))
+                    R = run_protocol(tr2, LU, F, dags=dags)
+                    row = {d: mean_auc(R, d) for d in R["auroc"]}
+                    if sc is None:
+                        sc = row["SelfCheckGPT"]
+                    row["SelfCheckGPT"] = sc
+                    res.setdefault(tag, {}).setdefault(f"eps={eps},rho={rho}", []).append(row)
+                    print(tag, eps, rho, {k: round(v, 3) for k, v in row.items()}, f"{time.time() - t0:.0f}s", flush=True)
+    out = REPO / "results" / (("e15_regimes_confirm" if args.confirm else "e15_regimes_dev")
+                              + (f"_draws{args.draws}" if args.draws > 1 else ""))
     out.mkdir(parents=True, exist_ok=True)
     (out / "numbers.json").write_text(json.dumps(res, indent=1) + "\n")
     lines = [f"# e15 user-behaviour regimes ({'confirmatory' if args.confirm else 'development'} corpora; "
              "detector-side regenerated reactions, L_U AUROC)", ""]
     for tag, d in res.items():
-        dets = list(next(iter(d.values())))
-        lines += [f"## {tag}", "", "| regime | " + " | ".join(dets) + " |", "|---|" + "---|" * len(dets)]
-        lines += [f"| {k} | " + " | ".join(f"{v[x]:.3f}" for x in dets) + " |" for k, v in d.items()] + [""]
+        dets = list(next(iter(d.values()))[0])
+        lines += [f"## {tag} (mean over {args.draws} draws; sd in parentheses)", "",
+                  "| regime | " + " | ".join(dets) + " |", "|---|" + "---|" * len(dets)]
+        lines += [f"| {k} | " + " | ".join(f"{np.mean([r[x] for r in v]):.3f} ({np.std([r[x] for r in v]):.3f})"
+                                          for x in dets) + " |" for k, v in d.items()] + [""]
     (out / "summary.md").write_text("\n".join(lines) + "\n")
 
 
