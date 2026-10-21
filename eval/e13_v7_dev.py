@@ -43,6 +43,7 @@ def main():
             F = [("V6", lambda: ChannelPosterior(event_attrs=ea)),
                  ("V7-cells", lambda: IntakePosterior(dom, event_attrs=ea, delta_grid=(0.0,))),
                  ("V7", lambda: IntakePosterior(dom, event_attrs=ea)),
+                 ("V7m", lambda: IntakePosterior(dom, event_attrs=ea, event="learned")),
                  ("ctx_lr+fb", lambda: ContextLR(with_feedback=True)),
                  ("intake_lr+fb", lambda: IntakeLR(True))]
             if lab == "L_U":
@@ -50,7 +51,8 @@ def main():
             R = run_protocol(trajs, y, F, dags=dags)
             res = {d: mean_auc(R, d) for d in R["auroc"]}
             yy, g = np.concatenate(R["y"]), np.concatenate(R["tid"])
-            for a, b in (("V7", "V6"), ("V7", "ctx_lr+fb"), ("V7", "intake_lr+fb"), ("V7-cells", "V6")):
+            for a, b in (("V7", "V6"), ("V7", "ctx_lr+fb"), ("V7", "intake_lr+fb"), ("V7-cells", "V6"),
+                         ("V7m", "V6"), ("V7m", "ctx_lr+fb"), ("V7m", "intake_lr+fb")):
                 ci = cluster_boot_diff(pooled_rows(R, a), pooled_rows(R, b), yy, g, n=2000)
                 res[f"{a} - {b}"] = ci
             numbers.setdefault(lab, {})[tag] = res

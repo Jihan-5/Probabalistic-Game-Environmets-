@@ -266,3 +266,49 @@ agent-side display as v1. Same gate (contradiction lift >= 1.5 on a 100-session
 pilot); if it passes, n=600 reusing the pilot, analysed exactly as registered
 for the LLM-patient corpus; if it fails, both pilots are reported and no
 further revision is made.
+
+## Amendment 6 (committed 2026-10-21 02:44 UTC; after the registered results for four healthcare agents were known, before V7 was run on any confirmatory corpus, and before any Llama-70B confirmatory or travel-domain data was seen by the analysts)
+
+Motivation, from the development corpora only. Proposition 1's assumption
+(A1) asks that a commitment's error depend on the history only through its
+cell; in the simulator it also depends on the intake answers, and L_U counts a
+commitment only when the intake does not fix its truth. V6 models neither. On
+the development corpora the oracle V6-session (Amendment 2) showed what
+knowing the user-dependent set is worth (0.678 -> 0.904 for 70B, 0.722 ->
+0.956 for 8B). V7 estimates that set from data. It was designed and tuned on
+the development corpora only (`eval/e13_v7_dev.py`, `results/e13_v7_dev/`).
+
+Detector, frozen at this commit: **V7** = `pge.baselines.intake_posterior.v7(dom, label)`
+- cells (attribute, value, bucket, intake answers the attribute depends on in
+  the schema, transitively), shrunk toward V6's cell with the same strength
+  k = 5; channel (r0, r1) on training labels as V6;
+- label event for L_U: V6's schema-level event, with membership learned per
+  (attribute, intake) cell from training labels: starting from all cells in,
+  a cell with >= 2 training sessions is switched out (or back in) when that
+  lowers the training log-loss; two rounds of channel and membership fitting.
+  For L the event is every confident commitment, as defined.
+- Variants tried on the development corpora and not kept (all logged in
+  `results/e13_v7_dev/`): a prior-threshold event (delta), membership
+  thresholds 3, 5, 10, 20, three rounds, and a split-half acceptance rule.
+  Threshold 2 had the highest development AUROC on both development corpora.
+Inputs: the agent's own intake answers and the schema's dependency lists. No
+rules, hidden facts or truth.
+
+Hypotheses (secondary to H1-H6, which are unchanged), on L_U, pooled over the
+healthcare confirmatory corpora, same statistics:
+
+| id | comparison | claim if CI excludes 0 | claim otherwise |
+|---|---|---|---|
+| H7 | V7 - V6 > 0 | "conditioning on the intake improves the posterior" | "no detectable improvement from conditioning on the intake" |
+| H8 | V7 - intake_lr+fb > 0 | "given the same information (intake, commitments, reactions), the posterior beats the supervised detector" | "given the same information, the posterior does not beat the supervised detector" |
+| H8' | V7 - ctx_lr+fb > 0 | "the intake-aware posterior beats the registered supervised detector" | as measured |
+
+intake_lr+fb is the exploratory detector of `eval/e12_exploratory.py`,
+frozen at this commit. Also reported, without claims: the same comparisons on
+L; V7 - SelfCheckGPT and V7 - semantic entropy; the label-budget curve of V7
+on e11's subsets; per-commitment AUROC and ECE of V7's q_t. In the travel
+domain (Amendment 4) H7 and H8 are tested within the domain on its two
+agents, exactly as above. Llama-70B healthcare and both travel corpora are
+the corpora on which no detector's confirmatory result had been seen when
+this amendment was committed; the paper reports H7 and H8 on them
+separately as well as pooled.
