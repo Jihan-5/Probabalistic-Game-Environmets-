@@ -1,0 +1,22 @@
+Theorem 2 counterexample: agent conditions on the same reactions
+P(y=1) = 9/10; policy: contradicted -> opaque attribute B (coin-flip
+truth, no reactions); accepted -> recommit on A with a reaction.
+Label L = w2. Score = Bayes posterior P(L=1 | branch, F1, F2).
+
+  eps    AUROC(eta_eps)
+  0.00   0.5909
+  0.05   0.6163
+  0.10   0.6310
+  0.15   0.6365
+  0.20   0.6341
+  0.25   0.6247
+  0.30   0.6532
+  0.35   0.6784
+  0.40   0.7007
+  0.45   0.7205
+  0.50   0.7381
+
+AUROC at eps = 0   (perfect feedback): 0.5909
+AUROC at eps = 1/2 (useless feedback): 0.7381
+Monotonicity of Theorem 2 FAILS here: the premise (trajectories fixed,
+reactions regenerated for the detector only) is essential.
